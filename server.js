@@ -3,12 +3,31 @@ const express = require('express');
 const session = require('express-session');
 const axios = require('axios');
 const path = require('path');
+const basicAuth = require('express-basic-auth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ── サーバーレベルのトークン（全ユーザーで共有） ────────
+// 管理者が一度MFクラウドで認証すれば、全閲覧者で共有される
+let sharedToken = {
+  accessToken: null,
+  refreshToken: null,
+  tokenExpiry: null
+};
+
 // ── Middleware ──────────────────────────────────────
 app.use(express.json());
+
+// ── Basic認証（ダッシュボード閲覧用パスワード保護） ──
+const dashUser = process.env.DASHBOARD_USER || 'admin';
+const dashPass = process.env.DASHBOARD_PASS || 'password';
+app.use(basicAuth({
+  users: { [dashUser]: dashPass },
+  challenge: true,
+  realm: 'CreativeGroup Dashboard'
+}));
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
   secret: process.env.SESSION_SECRET || 'cg_secret',
@@ -45,7 +64,6 @@ app.get('/auth/login', (req, res) => {
 app.get('/callback', async (req, res) => {
   const { code, error, error_description } = req.query;
 
-  // MFクラウドが認可ステップでエラーを返した場合
   if (error) {
     console.error('Authorization error:', error, error_description);
     return res.status(400).send(`認可エラー: ${error} — ${error_description}`);
@@ -66,10 +84,12 @@ app.get('/callback', async (req, res) => {
       },
     });
 
-    req.session.accessToken = response.data.access_token;
-    req.session.refreshToken = response.data.refresh_token;
-    req.session.tokenExpiry = Date.now() + (response.data.expires_in * 1000);
+    // サーバーレベルのsharedTokenに保存（全ユーザーで共有）
+    sharedToken.accessToken = response.data.access_token;
+    sharedToken.refreshToken = response.data.refresh_token;
+    sharedToken.tokenExpiry = Date.now() + (response.data.expires_in * 1000);
 
+    console.log('✅ MFクラウド認証成功 — トークンを共有ストレージに保存しました');
     res.redirect('/dashboard.html');
   } catch (err) {
     const errData = err.response && err.response.data;
@@ -86,16 +106,16 @@ app.get('/callback', async (req, res) => {
 
 // ── トークン自動更新ミドルウェア ─────────────────────
 async function refreshIfNeeded(req, res, next) {
-  if (!req.session.accessToken) {
+  if (!sharedToken.accessToken) {
     return res.status(401).json({ error: 'not_authenticated', redirect: '/auth/login' });
   }
 
   // 期限5分前に自動更新
-  if (Date.now() > req.session.tokenExpiry - 5 * 60 * 1000) {
+  if (Date.now() > sharedToken.tokenExpiry - 5 * 60 * 1000) {
     try {
       const response = await axios.post(MF_TOKEN_URL, new URLSearchParams({
         grant_type: 'refresh_token',
-        refresh_token: req.session.refreshToken,
+        refresh_token: sharedToken.refreshToken,
       }), {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         auth: {
@@ -103,11 +123,12 @@ async function refreshIfNeeded(req, res, next) {
           password: process.env.MF_CLIENT_SECRET,
         },
       });
-      req.session.accessToken = response.data.access_token;
-      req.session.refreshToken = response.data.refresh_token;
-      req.session.tokenExpiry = Date.now() + (response.data.expires_in * 1000);
+      sharedToken.accessToken = response.data.access_token;
+      sharedToken.refreshToken = response.data.refresh_token;
+      sharedToken.tokenExpiry = Date.now() + (response.data.expires_in * 1000);
+      console.log('🔄 トークンを自動更新しました');
     } catch (err) {
-      req.session.destroy();
+      sharedToken = { accessToken: null, refreshToken: null, tokenExpiry: null };
       return res.status(401).json({ error: 'token_refresh_failed', redirect: '/auth/login' });
     }
   }
@@ -115,17 +136,17 @@ async function refreshIfNeeded(req, res, next) {
 }
 
 // ── APIプロキシ ──────────────────────────────────────
-function mfRequest(token) {
+function mfRequest() {
   return axios.create({
     baseURL: MF_API_BASE,
-    headers: { Authorization: `Bearer ${token}` }
+    headers: { Authorization: `Bearer ${sharedToken.accessToken}` }
   });
 }
 
 // 月次売上サマリー
 app.get('/api/summary', refreshIfNeeded, async (req, res) => {
   try {
-    const api = mfRequest(req.session.accessToken);
+    const api = mfRequest();
     const now = new Date();
     const results = [];
 
@@ -168,15 +189,14 @@ app.get('/api/summary', refreshIfNeeded, async (req, res) => {
 // 請求書一覧（未入金フィルタ対応）
 app.get('/api/billings', refreshIfNeeded, async (req, res) => {
   try {
-    const api = mfRequest(req.session.accessToken);
-    const { status } = req.query; // 'unpaid' | 'paid' | all
+    const api = mfRequest();
+    const { status } = req.query;
 
     const params = { per_page: 100 };
 
     const r = await api.get('/billings', { params });
     let billings = r.data.data || [];
 
-    // payment_statusはクライアント側でフィルタ（API仕様: 未入金/入金済み/未払い/振込済み/未設定）
     if (status === 'unpaid') {
       billings = billings.filter(b => b.payment_status === '未入金');
     }
@@ -201,13 +221,11 @@ app.get('/api/billings', refreshIfNeeded, async (req, res) => {
 // クライアント別収益
 app.get('/api/partners', refreshIfNeeded, async (req, res) => {
   try {
-    const api = mfRequest(req.session.accessToken);
+    const api = mfRequest();
 
-    // 取引先一覧取得
     const partnersRes = await api.get('/partners', { params: { per_page: 100 } });
     const partners = partnersRes.data.data || [];
 
-    // 各取引先の今月請求額を集計
     const now = new Date();
     const from = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;
     const billingsRes = await api.get('/billings', { params: {
@@ -235,18 +253,18 @@ app.get('/api/partners', refreshIfNeeded, async (req, res) => {
 
 // 認証状態確認
 app.get('/api/auth-status', (req, res) => {
-  res.json({ authenticated: !!req.session.accessToken });
+  res.json({ authenticated: !!sharedToken.accessToken });
 });
 
-// ログアウト
+// ログアウト（MFクラウドトークンをリセット）
 app.get('/auth/logout', (req, res) => {
-  req.session.destroy();
+  sharedToken = { accessToken: null, refreshToken: null, tokenExpiry: null };
   res.redirect('/');
 });
 
 // トップページ → 未認証なら認証へ
 app.get('/', (req, res) => {
-  if (req.session.accessToken) {
+  if (sharedToken.accessToken) {
     res.redirect('/dashboard.html');
   } else {
     res.redirect('/auth/login');
@@ -261,6 +279,7 @@ app.listen(PORT, () => {
   │  http://localhost:${PORT}                   │
   │                                         │
   │  MF_CLIENT_ID: ${process.env.MF_CLIENT_ID ? '設定済み ✅' : '未設定 ❌'}             │
+  │  Basic Auth:   ${process.env.DASHBOARD_USER ? '設定済み ✅' : 'デフォルト(admin) ⚠️'}        │
   └─────────────────────────────────────────┘
   `);
 });
