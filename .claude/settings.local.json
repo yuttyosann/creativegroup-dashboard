@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --version)",
+      "Bash(npm --version)",
+      "Bash(brew --version)",
+      "Bash(npm install)",
+      "Bash(npm start)",
+      "Bash(xargs -I{} sh -c '{} --version 2>/dev/null && echo {}')",
+      "Bash(echo $PATH)",
+      "Bash(~/.nvm/versions/node/v24.14.0/bin/node /Users/yuttyo/claude/creativegroup-dashboard/server.js)",
+      "Bash(~/.nvm/versions/node/v24.14.0/bin/node -e \":*)",
+      "Bash(curl -s http://localhost:3000/api/auth-status)",
+      "Bash(lsof -ti:3000)",
+      "Bash(xargs kill -9)",
+      "WebFetch(domain:invoice.moneyforward.com)",
+      "WebFetch(domain:support.biz.moneyforward.com)",
+      "WebFetch(domain:biz.moneyforward.com)",
+      "mcp__Claude_Preview__preview_start"
+    ]
+  }
+}

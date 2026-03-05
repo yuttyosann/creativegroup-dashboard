@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CreativeGroup 経営ダッシュボード</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ローディングバー -->
+  <div id="loading-bar" class="loading-bar" style="display:none"></div>
+
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-mark">CG</span>
+        <span class="logo-text">CreativeGroup</span>
+        <span class="logo-sub">経営ダッシュボード</span>
+      </div>
+      <div class="header-right">
+        <span id="today-date" class="today-date"></span>
+        <a href="/auth/logout" class="logout-btn">ログアウト</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- エラーメッセージ -->
+  <div id="error-msg" class="error-banner" style="display:none"></div>
+
+  <!-- タブナビ -->
+  <nav class="tab-nav">
+    <div class="tab-nav-inner">
+      <button class="tab active" onclick="switchTab(this,'overview')">概要</button>
+      <button class="tab" onclick="switchTab(this,'unpaid')">未入金</button>
+      <button class="tab" onclick="switchTab(this,'clients')">クライアント</button>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- ── 概要タブ ── -->
+    <section id="tab-overview">
+
+      <!-- KPIカード -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">当月売上</div>
+          <div class="kpi-value">¥<span id="kpi-revenue">—</span>M</div>
+          <div id="kpi-revenue-change" class="kpi-change">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">未入金合計</div>
+          <div class="kpi-value kpi-danger">¥<span id="kpi-unpaid">—</span>M</div>
+          <div class="kpi-change">現在の未入金残高</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">年間累計売上</div>
+          <div class="kpi-value">¥<span id="kpi-annual">—</span>M</div>
+          <div class="kpi-change">直近12ヶ月</div>
+        </div>
+      </div>
+
+      <!-- 売上推移グラフ -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">売上推移（直近12ヶ月）</h2>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="revenueChart"></canvas>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── 未入金タブ ── -->
+    <section id="tab-unpaid" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">未入金リスト</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>クライアント</th>
+                <th>件名</th>
+                <th>金額</th>
+                <th>支払期日</th>
+                <th>ステータス</th>
+              </tr>
+            </thead>
+            <tbody id="unpaid-tbody">
+              <tr><td colspan="5" class="loading-cell">読み込み中…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── クライアントタブ ── -->
+    <section id="tab-clients" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">クライアント別収益（今月）</h2>
+        </div>
+        <div id="client-grid" class="client-grid">
+          <p class="muted-text">読み込み中…</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- データ更新ボタン -->
+  <button class="fab" onclick="loadAllData()" title="データを更新">↻</button>
+
+  <script src="/dashboard.js"></script>
+</body>
+</html>
