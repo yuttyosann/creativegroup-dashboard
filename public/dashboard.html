@@ -24,6 +24,7 @@
       </div>
       <div class="header-right">
         <span id="today-date" class="today-date"></span>
+        <a href="/classify.html" class="classify-btn">チーム分類設定</a>
         <a href="/auth/logout" class="logout-btn">ログアウト</a>
       </div>
     </div>
@@ -36,6 +37,7 @@
   <nav class="tab-nav">
     <div class="tab-nav-inner">
       <button class="tab active" onclick="switchTab(this,'overview')">概要</button>
+      <button class="tab" onclick="switchTab(this,'teams')">チーム別売上</button>
       <button class="tab" onclick="switchTab(this,'unpaid')">未入金</button>
       <button class="tab" onclick="switchTab(this,'clients')">クライアント</button>
     </div>
@@ -73,6 +75,42 @@
         <div class="chart-wrap">
           <canvas id="revenueChart"></canvas>
         </div>
+      </div>
+
+    </section>
+
+    <!-- ── チーム別売上タブ ── -->
+    <section id="tab-teams" style="display:none">
+
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header">
+          <h2 class="card-title">チーム別売上</h2>
+          <div class="period-selector">
+            <select id="team-period" onchange="loadTeamSummary()" style="padding:5px 10px;border-radius:6px;border:1px solid #d5d3cc;font-size:13px;font-family:inherit">
+              <option value="1">今月</option>
+              <option value="3">直近3ヶ月</option>
+              <option value="6">直近6ヶ月</option>
+              <option value="12">直近12ヶ月</option>
+            </select>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="teamChart"></canvas>
+        </div>
+      </div>
+
+      <div id="team-cards" class="team-cards-grid">
+        <p class="muted-text">読み込み中…</p>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="card-header" style="justify-content:space-between">
+          <h2 class="card-title">未分類の取引先がある場合</h2>
+        </div>
+        <p style="font-size:13px;color:#888;padding:0 0 16px 0;line-height:1.7">
+          未分類の取引先がある場合は、<a href="/classify.html" style="color:#2c6e9e">チーム分類設定</a>から担当チームを割り当ててください。<br>
+          設定後にこのページを更新すると反映されます。
+        </p>
       </div>
 
     </section>

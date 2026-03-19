@@ -335,6 +335,74 @@ body {
 }
 .fab:active { transform: scale(0.96); }
 
+/* ── チーム別売上カード ──────────────────────────────── */
+.team-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.team-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.team-card-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.team-card-revenue {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.team-card-sub {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* 分類設定ボタン（ヘッダー） */
+.classify-btn {
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-right: 8px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.classify-btn:hover {
+  color: var(--text);
+  border-color: #aaa;
+}
+
+/* 期間セレクター */
+.period-selector select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 26px;
+  cursor: pointer;
+}
+
 /* ── ユーティリティ ──────────────────────────────────── */
 .muted-text { color: var(--muted); font-size: 13px; }
 

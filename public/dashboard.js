@@ -196,8 +196,102 @@ function showError(msg) {
 function switchTab(el, name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
-  ['overview','team','unpaid','clients','import'].forEach(t => {
+  ['overview','teams','unpaid','clients'].forEach(t => {
     const tab = document.getElementById('tab-'+t);
     if (tab) tab.style.display = t === name ? '' : 'none';
   });
+  if (name === 'teams') loadTeamSummary();
+}
+
+// ── チーム別売上 ───────────────────────────────────────
+const TEAM_COLORS = {
+  'Marketing':     { bg: 'rgba(74,124,89,0.8)',   border: '#4a7c59' },
+  'PR':            { bg: 'rgba(44,110,158,0.8)',   border: '#2c6e9e' },
+  'Advertisement': { bg: 'rgba(139,92,246,0.8)',   border: '#8b5cf6' },
+  'Casting':       { bg: 'rgba(217,119,6,0.8)',    border: '#d97706' },
+  'Media':         { bg: 'rgba(220,38,38,0.8)',    border: '#dc2626' },
+  '未分類':         { bg: 'rgba(156,163,175,0.8)', border: '#9ca3af' },
+};
+
+async function loadTeamSummary() {
+  const months = document.getElementById('team-period').value;
+  try {
+    const data = await fetch(`/api/team-summary?months=${months}`).then(r => r.json());
+    renderTeamChart(data.teams || []);
+    renderTeamCards(data.teams || []);
+  } catch (e) {
+    console.error('Team summary error:', e);
+  }
+}
+
+function renderTeamChart(teams) {
+  const labels = teams.map(t => t.name);
+  const revenues = teams.map(t => t.revenue / 1000000);
+  const bgColors = teams.map(t => (TEAM_COLORS[t.name] || TEAM_COLORS['未分類']).bg);
+  const borderColors = teams.map(t => (TEAM_COLORS[t.name] || TEAM_COLORS['未分類']).border);
+
+  if (teamChart) teamChart.destroy();
+  const ctx = document.getElementById('teamChart').getContext('2d');
+  teamChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: '売上（百万円）',
+        data: revenues,
+        backgroundColor: bgColors,
+        borderColor: borderColors,
+        borderWidth: 1.5,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => `¥${(ctx.parsed.y * 1000000).toLocaleString()}`
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 12, family: 'Noto Sans JP' }, color: '#555' } },
+        y: {
+          grid: { color: 'rgba(26,20,16,0.05)' },
+          ticks: { font: { size: 10 }, color: '#8a857d', callback: v => '¥'+v+'M' }
+        }
+      }
+    }
+  });
+}
+
+function renderTeamCards(teams) {
+  const container = document.getElementById('team-cards');
+  if (!container) return;
+
+  const total = teams.reduce((s, t) => s + t.revenue, 0);
+  if (total === 0) {
+    container.innerHTML = '<p class="muted-text" style="padding:20px 0">データがありません。チーム分類を設定してください。</p>';
+    return;
+  }
+
+  container.innerHTML = teams.map(t => {
+    const color = (TEAM_COLORS[t.name] || TEAM_COLORS['未分類']).border;
+    const pct = total > 0 ? (t.revenue / total * 100).toFixed(1) : 0;
+    return `
+      <div class="team-card" style="border-left:4px solid ${color}">
+        <div class="team-card-name">${t.name}</div>
+        <div class="team-card-revenue">¥${t.revenue.toLocaleString()}</div>
+        <div class="team-card-sub">
+          <span>構成比 ${pct}%</span>
+          <span>請求 ${t.count}件</span>
+          ${t.unpaid > 0 ? `<span style="color:#c4613a">未入金 ¥${formatMillion(t.unpaid)}M</span>` : ''}
+        </div>
+        <div class="margin-bar-wrap" style="margin-top:8px">
+          <div class="margin-bar" style="width:${pct}%;background:${color}"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
 }

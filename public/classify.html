@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>チーム分類管理 — CreativeGroup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background: #f5f4f0;
+      color: #2c2c2c;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #fff;
+      border-bottom: 1px solid #e0ddd5;
+      padding: 0 32px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.02em;
+    }
+
+    .logo-mark {
+      background: #2c2c2c;
+      color: #fff;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    nav a {
+      color: #666;
+      text-decoration: none;
+      font-size: 13px;
+      margin-left: 20px;
+    }
+
+    nav a:hover { color: #2c2c2c; }
+    nav a.active { color: #2c2c2c; font-weight: 500; }
+
+    .page-header {
+      padding: 32px 32px 0;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .page-header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .page-header p {
+      font-size: 13px;
+      color: #888;
+      line-height: 1.6;
+    }
+
+    .toolbar {
+      max-width: 1000px;
+      margin: 20px auto 0;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s;
+    }
+
+    .btn:hover { opacity: 0.85; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-primary { background: #2c2c2c; color: #fff; }
+    .btn-secondary { background: #fff; color: #2c2c2c; border: 1px solid #d5d3cc; }
+
+    .save-status {
+      font-size: 12px;
+      color: #888;
+      margin-left: auto;
+    }
+
+    .save-status.saved { color: #4a7c59; }
+    .save-status.error { color: #c0392b; }
+
+    .filter-bar {
+      max-width: 1000px;
+      margin: 16px auto 0;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .filter-label { font-size: 12px; color: #888; }
+
+    .team-filter {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .team-chip {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid #d5d3cc;
+      background: #fff;
+      color: #555;
+      transition: all 0.15s;
+    }
+
+    .team-chip.active {
+      border-color: transparent;
+      color: #fff;
+    }
+
+    .team-chip[data-team="Marketing"].active  { background: #4a7c59; }
+    .team-chip[data-team="PR"].active          { background: #2c6e9e; }
+    .team-chip[data-team="Advertisement"].active { background: #8b5cf6; }
+    .team-chip[data-team="Casting"].active     { background: #d97706; }
+    .team-chip[data-team="Media"].active       { background: #dc2626; }
+    .team-chip[data-team="未分類"].active      { background: #9ca3af; }
+    .team-chip[data-team="all"].active         { background: #2c2c2c; }
+
+    .table-wrap {
+      max-width: 1000px;
+      margin: 16px auto 40px;
+      padding: 0 32px;
+    }
+
+    .table-card {
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid #e0ddd5;
+      overflow: hidden;
+    }
+
+    .table-info {
+      padding: 12px 20px;
+      font-size: 12px;
+      color: #888;
+      border-bottom: 1px solid #f0eee8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+
+    thead th {
+      padding: 12px 20px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: #faf9f7;
+      border-bottom: 1px solid #e8e6e0;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #f0eee8;
+      transition: background 0.1s;
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #faf9f7; }
+
+    td { padding: 13px 20px; font-size: 13px; }
+
+    td.partner-name { font-weight: 500; color: #2c2c2c; }
+
+    td.billing-count { color: #888; font-size: 12px; }
+
+    td.team-select { width: 200px; }
+
+    select.team-dropdown {
+      width: 100%;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #d5d3cc;
+      background: #fff;
+      font-size: 13px;
+      font-family: inherit;
+      color: #2c2c2c;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 28px;
+      transition: border-color 0.15s;
+    }
+
+    select.team-dropdown:focus {
+      outline: none;
+      border-color: #2c2c2c;
+    }
+
+    select.team-dropdown.assigned {
+      font-weight: 500;
+    }
+
+    select.team-dropdown[data-team="Marketing"]     { border-left: 3px solid #4a7c59; }
+    select.team-dropdown[data-team="PR"]            { border-left: 3px solid #2c6e9e; }
+    select.team-dropdown[data-team="Advertisement"] { border-left: 3px solid #8b5cf6; }
+    select.team-dropdown[data-team="Casting"]       { border-left: 3px solid #d97706; }
+    select.team-dropdown[data-team="Media"]         { border-left: 3px solid #dc2626; }
+    select.team-dropdown[data-team=""]              { border-left: 3px solid #e0ddd5; }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #aaa;
+    }
+
+    .empty-state p { font-size: 14px; margin-top: 8px; }
+
+    .loading-row td {
+      text-align: center;
+      padding: 40px;
+      color: #bbb;
+      font-size: 13px;
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #2c2c2c;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 100;
+    }
+
+    #toast.show { opacity: 1; }
+    #toast.error { background: #c0392b; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">CG</div>
+    CreativeGroup
+  </div>
+  <nav>
+    <a href="/dashboard.html">ダッシュボード</a>
+    <a href="/classify.html" class="active">チーム分類</a>
+  </nav>
+</header>
+
+<div class="page-header">
+  <h1>チーム分類管理</h1>
+  <p>MFクラウドに登録されている取引先を、担当チームに割り当ててください。<br>設定後、ダッシュボードのチーム別売上に反映されます。</p>
+</div>
+
+<div class="toolbar">
+  <button class="btn btn-secondary" id="btn-load" onclick="loadPartners()">↻ 取引先を再読み込み</button>
+  <button class="btn btn-primary" id="btn-save" onclick="saveClassifications()">保存する</button>
+  <span class="save-status" id="save-status"></span>
+</div>
+
+<div class="filter-bar">
+  <span class="filter-label">フィルタ：</span>
+  <div class="team-filter">
+    <span class="team-chip active" data-team="all" onclick="filterTeam('all', this)">すべて</span>
+    <span class="team-chip" data-team="Marketing" onclick="filterTeam('Marketing', this)">Marketing</span>
+    <span class="team-chip" data-team="PR" onclick="filterTeam('PR', this)">PR</span>
+    <span class="team-chip" data-team="Advertisement" onclick="filterTeam('Advertisement', this)">Advertisement</span>
+    <span class="team-chip" data-team="Casting" onclick="filterTeam('Casting', this)">Casting</span>
+    <span class="team-chip" data-team="Media" onclick="filterTeam('Media', this)">Media</span>
+    <span class="team-chip" data-team="未分類" onclick="filterTeam('未分類', this)">未分類</span>
+  </div>
+</div>
+
+<div class="table-wrap">
+  <div class="table-card">
+    <div class="table-info">
+      <span id="table-info-text">読み込み中...</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>取引先名</th>
+          <th>請求件数</th>
+          <th>担当チーム</th>
+        </tr>
+      </thead>
+      <tbody id="partners-body">
+        <tr class="loading-row"><td colspan="3">取引先データを読み込み中...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const TEAMS = ['Marketing', 'PR', 'Advertisement', 'Casting', 'Media'];
+let allPartners = [];   // { name, count }
+let mappings = {};       // { partnerName: teamName }
+let currentFilter = 'all';
+
+async function loadPartners() {
+  document.getElementById('btn-load').disabled = true;
+  document.getElementById('table-info-text').textContent = '読み込み中...';
+  document.getElementById('partners-body').innerHTML =
+    '<tr class="loading-row"><td colspan="3">取引先データを読み込み中...</td></tr>';
+
+  try {
+    // 分類データ取得
+    const [clsRes, billRes] = await Promise.all([
+      fetch('/api/classifications').then(r => r.json()),
+      fetch('/api/billings').then(r => r.json()),
+    ]);
+
+    mappings = clsRes.mappings || {};
+
+    // 取引先を請求書から抽出（件数付き）
+    const partnerMap = {};
+    (billRes.billings || []).forEach(b => {
+      const name = b.client || '不明';
+      if (!partnerMap[name]) partnerMap[name] = 0;
+      partnerMap[name]++;
+    });
+
+    allPartners = Object.entries(partnerMap)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+
+    renderTable();
+  } catch (e) {
+    showToast('データの読み込みに失敗しました', true);
+    document.getElementById('table-info-text').textContent = 'エラー';
+  }
+  document.getElementById('btn-load').disabled = false;
+}
+
+function renderTable() {
+  const filtered = currentFilter === 'all'
+    ? allPartners
+    : allPartners.filter(p => {
+        const team = mappings[p.name] || '';
+        if (currentFilter === '未分類') return !team;
+        return team === currentFilter;
+      });
+
+  const total = allPartners.length;
+  const unclassified = allPartners.filter(p => !mappings[p.name]).length;
+  document.getElementById('table-info-text').textContent =
+    `${total}件の取引先　／　未分類: ${unclassified}件`;
+
+  const tbody = document.getElementById('partners-body');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:40px;color:#bbb;">該当する取引先がありません</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(p => {
+    const currentTeam = mappings[p.name] || '';
+    const options = ['', ...TEAMS].map(t =>
+      `<option value="${t}" ${t === currentTeam ? 'selected' : ''}>${t || '── 未分類 ──'}</option>`
+    ).join('');
+    return `
+      <tr>
+        <td class="partner-name">${escHtml(p.name)}</td>
+        <td class="billing-count">${p.count}件</td>
+        <td class="team-select">
+          <select class="team-dropdown ${currentTeam ? 'assigned' : ''}"
+                  data-partner="${escHtml(p.name)}"
+                  data-team="${escHtml(currentTeam)}"
+                  onchange="onTeamChange(this)">
+            ${options}
+          </select>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function onTeamChange(sel) {
+  const partner = sel.dataset.partner;
+  const team = sel.value;
+  if (team) {
+    mappings[partner] = team;
+    sel.classList.add('assigned');
+  } else {
+    delete mappings[partner];
+    sel.classList.remove('assigned');
+  }
+  sel.dataset.team = team;
+}
+
+function filterTeam(team, el) {
+  currentFilter = team;
+  document.querySelectorAll('.team-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderTable();
+}
+
+async function saveClassifications() {
+  const btn = document.getElementById('btn-save');
+  const status = document.getElementById('save-status');
+  btn.disabled = true;
+  status.textContent = '保存中...';
+  status.className = 'save-status';
+
+  try {
+    const res = await fetch('/api/classifications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mappings }),
+    });
+    if (!res.ok) throw new Error('save failed');
+    status.textContent = '✓ 保存しました';
+    status.className = 'save-status saved';
+    showToast('分類設定を保存しました');
+  } catch (e) {
+    status.textContent = '保存に失敗しました';
+    status.className = 'save-status error';
+    showToast('保存に失敗しました', true);
+  }
+  btn.disabled = false;
+}
+
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show' + (isError ? ' error' : '');
+  setTimeout(() => { t.className = ''; }, 3000);
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// 初期読み込み
+loadPartners();
+</script>
+</body>
+</html>

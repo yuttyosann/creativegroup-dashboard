@@ -3,7 +3,29 @@ const express = require('express');
 const session = require('express-session');
 const axios = require('axios');
 const path = require('path');
+const fs = require('fs');
 const basicAuth = require('express-basic-auth');
+
+// ── チーム定義 ────────────────────────────────────────
+const TEAMS = ['Marketing', 'PR', 'Advertisement', 'Casting', 'Media'];
+
+// ── 分類データ読み書き ────────────────────────────────
+const DATA_DIR = path.join(__dirname, 'data');
+const CLASSIFICATIONS_FILE = path.join(DATA_DIR, 'classifications.json');
+
+function loadClassifications() {
+  try {
+    if (fs.existsSync(CLASSIFICATIONS_FILE)) {
+      return JSON.parse(fs.readFileSync(CLASSIFICATIONS_FILE, 'utf8'));
+    }
+  } catch (e) { console.error('classifications load error:', e.message); }
+  return { mappings: {} };
+}
+
+function saveClassifications(data) {
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  fs.writeFileSync(CLASSIFICATIONS_FILE, JSON.stringify(data, null, 2));
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -254,6 +276,68 @@ app.get('/api/partners', refreshIfNeeded, async (req, res) => {
 // 認証状態確認
 app.get('/api/auth-status', (req, res) => {
   res.json({ authenticated: !!sharedToken.accessToken });
+});
+
+// ── 分類管理API ──────────────────────────────────────
+
+// 分類データ取得
+app.get('/api/classifications', (req, res) => {
+  const data = loadClassifications();
+  res.json({ mappings: data.mappings || {}, teams: TEAMS });
+});
+
+// 分類データ保存
+app.post('/api/classifications', (req, res) => {
+  const { mappings } = req.body;
+  if (!mappings || typeof mappings !== 'object') {
+    return res.status(400).json({ error: 'invalid mappings' });
+  }
+  saveClassifications({ mappings });
+  res.json({ ok: true });
+});
+
+// チーム別売上サマリー
+app.get('/api/team-summary', refreshIfNeeded, async (req, res) => {
+  try {
+    const api = mfRequest();
+    const { months = 1 } = req.query;
+    const data = loadClassifications();
+    const mappings = data.mappings || {};
+
+    const now = new Date();
+    const startDate = new Date(now.getFullYear(), now.getMonth() - (parseInt(months) - 1), 1);
+    const from = `${startDate.getFullYear()}-${String(startDate.getMonth()+1).padStart(2,'0')}-01`;
+
+    const r = await api.get('/billings', { params: {
+      from,
+      range_key: 'billing_date',
+      per_page: 100,
+    }});
+    const billings = r.data.data || [];
+
+    // チームごとに集計
+    const teamStats = {};
+    TEAMS.forEach(t => { teamStats[t] = { name: t, revenue: 0, unpaid: 0, count: 0 }; });
+    teamStats['未分類'] = { name: '未分類', revenue: 0, unpaid: 0, count: 0 };
+
+    billings.forEach(b => {
+      const partner = b.partner_name || '不明';
+      const team = mappings[partner] || '未分類';
+      const amount = parseFloat(b.total_price) || 0;
+      if (!teamStats[team]) teamStats[team] = { name: team, revenue: 0, unpaid: 0, count: 0 };
+      teamStats[team].revenue += amount;
+      teamStats[team].count++;
+      if (b.payment_status === '未入金') teamStats[team].unpaid += amount;
+    });
+
+    const result = TEAMS.map(t => teamStats[t]);
+    if (teamStats['未分類'].count > 0) result.push(teamStats['未分類']);
+
+    res.json({ teams: result, period: { from, months: parseInt(months) } });
+  } catch (err) {
+    console.error('Team summary error:', (err.response && err.response.data) || err.message);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ログアウト（MFクラウドトークンをリセット）
