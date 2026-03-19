@@ -6,8 +6,10 @@ const path = require('path');
 const fs = require('fs');
 const basicAuth = require('express-basic-auth');
 
-// ── チーム定義 ────────────────────────────────────────
+// ── マスタ定義 ────────────────────────────────────────
 const TEAMS = ['Marketing', 'PR', 'Advertisement', 'Casting', 'Media'];
+const SERVICES = ['Pamun', 'インフルエンサー', 'PR', 'Trepo', '雑誌', '美容医療', 'SNS運用', '広告', 'オフラインイベント', '制作', 'その他'];
+const CONTRACT_TYPES = ['単発', 'サブスク'];
 
 // ── 分類データ読み書き ────────────────────────────────
 const DATA_DIR = path.join(__dirname, 'data');
@@ -283,7 +285,12 @@ app.get('/api/auth-status', (req, res) => {
 // 分類データ取得
 app.get('/api/classifications', (req, res) => {
   const data = loadClassifications();
-  res.json({ mappings: data.mappings || {}, teams: TEAMS });
+  res.json({
+    mappings: data.mappings || {},
+    teams: TEAMS,
+    services: SERVICES,
+    contractTypes: CONTRACT_TYPES,
+  });
 });
 
 // 分類データ保存
@@ -296,7 +303,7 @@ app.post('/api/classifications', (req, res) => {
   res.json({ ok: true });
 });
 
-// チーム別売上サマリー
+// チーム・サービス・契約形態 統合サマリー
 app.get('/api/team-summary', refreshIfNeeded, async (req, res) => {
   try {
     const api = mfRequest();
@@ -315,25 +322,65 @@ app.get('/api/team-summary', refreshIfNeeded, async (req, res) => {
     }});
     const billings = r.data.data || [];
 
-    // チームごとに集計
+    // チーム別集計
     const teamStats = {};
     TEAMS.forEach(t => { teamStats[t] = { name: t, revenue: 0, unpaid: 0, count: 0 }; });
     teamStats['未分類'] = { name: '未分類', revenue: 0, unpaid: 0, count: 0 };
 
+    // サービス別集計
+    const serviceStats = {};
+    SERVICES.forEach(s => { serviceStats[s] = { name: s, revenue: 0, unpaid: 0, count: 0 }; });
+    serviceStats['未分類'] = { name: '未分類', revenue: 0, unpaid: 0, count: 0 };
+
+    // 契約形態別集計
+    const contractStats = {
+      '単発':   { name: '単発',   revenue: 0, unpaid: 0, count: 0 },
+      'サブスク': { name: 'サブスク', revenue: 0, unpaid: 0, count: 0 },
+      '未分類':  { name: '未分類',  revenue: 0, unpaid: 0, count: 0 },
+    };
+
     billings.forEach(b => {
       const partner = b.partner_name || '不明';
-      const team = mappings[partner] || '未分類';
+      const mapping = mappings[partner] || {};
+      const team = mapping.team || '未分類';
+      const service = mapping.service || '未分類';
+      const contractType = mapping.contractType || '未分類';
       const amount = parseFloat(b.total_price) || 0;
+      const isUnpaid = b.payment_status === '未入金';
+
+      // チーム
       if (!teamStats[team]) teamStats[team] = { name: team, revenue: 0, unpaid: 0, count: 0 };
       teamStats[team].revenue += amount;
       teamStats[team].count++;
-      if (b.payment_status === '未入金') teamStats[team].unpaid += amount;
+      if (isUnpaid) teamStats[team].unpaid += amount;
+
+      // サービス
+      if (!serviceStats[service]) serviceStats[service] = { name: service, revenue: 0, unpaid: 0, count: 0 };
+      serviceStats[service].revenue += amount;
+      serviceStats[service].count++;
+      if (isUnpaid) serviceStats[service].unpaid += amount;
+
+      // 契約形態
+      if (!contractStats[contractType]) contractStats[contractType] = { name: contractType, revenue: 0, unpaid: 0, count: 0 };
+      contractStats[contractType].revenue += amount;
+      contractStats[contractType].count++;
+      if (isUnpaid) contractStats[contractType].unpaid += amount;
     });
 
-    const result = TEAMS.map(t => teamStats[t]);
-    if (teamStats['未分類'].count > 0) result.push(teamStats['未分類']);
+    const teamResult = TEAMS.map(t => teamStats[t]);
+    if (teamStats['未分類'].count > 0) teamResult.push(teamStats['未分類']);
 
-    res.json({ teams: result, period: { from, months: parseInt(months) } });
+    const serviceResult = SERVICES.map(s => serviceStats[s]);
+    if (serviceStats['未分類'].count > 0) serviceResult.push(serviceStats['未分類']);
+
+    const contractResult = Object.values(contractStats);
+
+    res.json({
+      teams: teamResult,
+      services: serviceResult,
+      contracts: contractResult,
+      period: { from, months: parseInt(months) },
+    });
   } catch (err) {
     console.error('Team summary error:', (err.response && err.response.data) || err.message);
     res.status(500).json({ error: err.message });

@@ -3,6 +3,8 @@
 let revenueChart = null;
 let pieChart = null;
 let teamChart = null;
+let serviceChart = null;
+let contractChart = null;
 
 // ── 初期化 ────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
@@ -219,6 +221,10 @@ async function loadTeamSummary() {
     const data = await fetch(`/api/team-summary?months=${months}`).then(r => r.json());
     renderTeamChart(data.teams || []);
     renderTeamCards(data.teams || []);
+    renderServiceChart(data.services || []);
+    renderServiceCards(data.services || []);
+    renderContractChart(data.contracts || []);
+    renderContractCards(data.contracts || []);
   } catch (e) {
     console.error('Team summary error:', e);
   }
@@ -264,6 +270,136 @@ function renderTeamChart(teams) {
       }
     }
   });
+}
+
+// ── サービス別売上 ─────────────────────────────────────
+const SERVICE_COLORS = [
+  '#4a7c59','#2c6e9e','#8b5cf6','#d97706','#dc2626',
+  '#059669','#db2777','#0891b2','#65a30d','#ea580c','#9ca3af'
+];
+
+function renderServiceChart(services) {
+  const active = services.filter(s => s.revenue > 0);
+  const labels = active.map(s => s.name);
+  const revenues = active.map(s => s.revenue / 1000000);
+  const bgColors = active.map((_, i) => SERVICE_COLORS[i % SERVICE_COLORS.length] + 'cc');
+  const borderColors = active.map((_, i) => SERVICE_COLORS[i % SERVICE_COLORS.length]);
+
+  if (serviceChart) serviceChart.destroy();
+  const ctx = document.getElementById('serviceChart');
+  if (!ctx) return;
+  serviceChart = new Chart(ctx.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: '売上',
+        data: revenues,
+        backgroundColor: bgColors,
+        borderColor: borderColors,
+        borderWidth: 1.5,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => `¥${(c.parsed.y * 1000000).toLocaleString()}` } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11, family: 'Noto Sans JP' }, color: '#555' } },
+        y: { grid: { color: 'rgba(26,20,16,0.05)' }, ticks: { font: { size: 10 }, color: '#8a857d', callback: v => '¥'+v+'M' } }
+      }
+    }
+  });
+}
+
+function renderServiceCards(services) {
+  const container = document.getElementById('service-cards');
+  if (!container) return;
+  const total = services.reduce((s, t) => s + t.revenue, 0);
+  const active = services.filter(s => s.revenue > 0);
+  if (active.length === 0) {
+    container.innerHTML = '<p class="muted-text">データがありません</p>';
+    return;
+  }
+  container.innerHTML = active.map((s, i) => {
+    const color = SERVICE_COLORS[i % SERVICE_COLORS.length];
+    const pct = total > 0 ? (s.revenue / total * 100).toFixed(1) : 0;
+    return `
+      <div class="team-card" style="border-left:4px solid ${color}">
+        <div class="team-card-name">${s.name}</div>
+        <div class="team-card-revenue">¥${s.revenue.toLocaleString()}</div>
+        <div class="team-card-sub">
+          <span>構成比 ${pct}%</span>
+          <span>請求 ${s.count}件</span>
+          ${s.unpaid > 0 ? `<span style="color:#c4613a">未入金 ¥${formatMillion(s.unpaid)}M</span>` : ''}
+        </div>
+        <div class="margin-bar-wrap" style="margin-top:8px">
+          <div class="margin-bar" style="width:${pct}%;background:${color}"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ── 契約形態別売上 ─────────────────────────────────────
+const CONTRACT_COLORS = {
+  '単発':   { bg: 'rgba(5,150,105,0.8)',   border: '#059669' },
+  'サブスク': { bg: 'rgba(124,58,237,0.8)',  border: '#7c3aed' },
+  '未分類':  { bg: 'rgba(156,163,175,0.6)', border: '#9ca3af' },
+};
+
+function renderContractChart(contracts) {
+  const active = contracts.filter(c => c.revenue > 0);
+  if (contractChart) contractChart.destroy();
+  const ctx = document.getElementById('contractChart');
+  if (!ctx) return;
+  contractChart = new Chart(ctx.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: active.map(c => c.name),
+      datasets: [{
+        data: active.map(c => c.revenue / 1000000),
+        backgroundColor: active.map(c => (CONTRACT_COLORS[c.name] || CONTRACT_COLORS['未分類']).bg),
+        borderColor: active.map(c => (CONTRACT_COLORS[c.name] || CONTRACT_COLORS['未分類']).border),
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { family: 'Noto Sans JP', size: 12 }, padding: 16 } },
+        tooltip: { callbacks: { label: c => `${c.label}: ¥${(c.parsed * 1000000).toLocaleString()}` } }
+      },
+      cutout: '62%',
+    }
+  });
+}
+
+function renderContractCards(contracts) {
+  const container = document.getElementById('contract-cards');
+  if (!container) return;
+  const total = contracts.reduce((s, c) => s + c.revenue, 0);
+  if (total === 0) {
+    container.innerHTML = '<p class="muted-text">データがありません</p>';
+    return;
+  }
+  container.innerHTML = contracts.map(c => {
+    const color = (CONTRACT_COLORS[c.name] || CONTRACT_COLORS['未分類']).border;
+    const pct = total > 0 ? (c.revenue / total * 100).toFixed(1) : 0;
+    return `
+      <div class="team-card" style="border-left:4px solid ${color}">
+        <div class="team-card-name">${c.name}</div>
+        <div class="team-card-revenue">¥${c.revenue.toLocaleString()}</div>
+        <div class="team-card-sub">
+          <span>構成比 ${pct}%</span>
+          <span>請求 ${c.count}件</span>
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 function renderTeamCards(teams) {
