@@ -167,6 +167,32 @@ function mfRequest() {
   });
 }
 
+// ── 全ページ取得ヘルパー（ページネーション対応） ────────
+// MFクラウドAPIは1回最大100件。pageパラメータでループして全件取得する
+async function fetchAllBillings(api, params = {}) {
+  const allItems = [];
+  let page = 1;
+  const perPage = 100;
+  const MAX_PAGES = 100; // 最大10,000件（安全策）
+
+  while (page <= MAX_PAGES) {
+    const r = await api.get('/billings', {
+      params: { ...params, per_page: perPage, page },
+    });
+    const items = r.data.data || [];
+    allItems.push(...items);
+
+    console.log(`  📄 請求書取得: page=${page}, 件数=${items.length}, 累計=${allItems.length}`);
+
+    // 100件未満 → 最終ページ
+    if (items.length < perPage) break;
+    page++;
+  }
+
+  console.log(`  ✅ 請求書合計: ${allItems.length}件`);
+  return allItems;
+}
+
 // 月次売上サマリー
 app.get('/api/summary', refreshIfNeeded, async (req, res) => {
   try {
@@ -181,14 +207,11 @@ app.get('/api/summary', refreshIfNeeded, async (req, res) => {
       const to = new Date(d.getFullYear(), d.getMonth()+1, 0);
       const toStr = `${to.getFullYear()}-${String(to.getMonth()+1).padStart(2,'0')}-${String(to.getDate()).padStart(2,'0')}`;
 
-      const r = await api.get('/billings', { params: {
+      const billings = await fetchAllBillings(api, {
         from: from,
         to: toStr,
         range_key: 'billing_date',
-        per_page: 100,
-      }});
-
-      const billings = r.data.data || [];
+      });
       const total = billings.reduce((sum, b) => sum + (parseFloat(b.total_price) || 0), 0);
       const unpaid = billings
         .filter(b => b.payment_status === '未入金')
@@ -216,10 +239,7 @@ app.get('/api/billings', refreshIfNeeded, async (req, res) => {
     const api = mfRequest();
     const { status } = req.query;
 
-    const params = { per_page: 100 };
-
-    const r = await api.get('/billings', { params });
-    let billings = r.data.data || [];
+    let billings = await fetchAllBillings(api);
 
     if (status === 'unpaid') {
       billings = billings.filter(b => b.payment_status === '未入金');
@@ -247,17 +267,23 @@ app.get('/api/partners', refreshIfNeeded, async (req, res) => {
   try {
     const api = mfRequest();
 
-    const partnersRes = await api.get('/partners', { params: { per_page: 100 } });
-    const partners = partnersRes.data.data || [];
+    // 取引先もページネーション対応
+    let partners = [];
+    let pPage = 1;
+    while (true) {
+      const pRes = await api.get('/partners', { params: { per_page: 100, page: pPage } });
+      const pItems = pRes.data.data || [];
+      partners.push(...pItems);
+      if (pItems.length < 100) break;
+      pPage++;
+    }
 
     const now = new Date();
     const from = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;
-    const billingsRes = await api.get('/billings', { params: {
-      from: from,
+    const billings = await fetchAllBillings(api, {
+      from,
       range_key: 'billing_date',
-      per_page: 100,
-    }});
-    const billings = billingsRes.data.data || [];
+    });
 
     const partnerMap = {};
     billings.forEach(b => {
@@ -315,12 +341,10 @@ app.get('/api/team-summary', refreshIfNeeded, async (req, res) => {
     const startDate = new Date(now.getFullYear(), now.getMonth() - (parseInt(months) - 1), 1);
     const from = `${startDate.getFullYear()}-${String(startDate.getMonth()+1).padStart(2,'0')}-01`;
 
-    const r = await api.get('/billings', { params: {
+    const billings = await fetchAllBillings(api, {
       from,
       range_key: 'billing_date',
-      per_page: 100,
-    }});
-    const billings = r.data.data || [];
+    });
 
     // チーム別集計
     const teamStats = {};
