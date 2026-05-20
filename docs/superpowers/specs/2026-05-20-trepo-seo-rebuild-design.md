@@ -64,6 +64,53 @@ trepo.jp          ──複製──▶      staging.trepo.jp
 - `staging.trepo.jp` にBasic認証付きでアクセスできる
 - 本番と同じデザイン・コンテンツが表示される
 - Google Search Consoleで `staging.trepo.jp` がnoindexになっている
+- SSH経由でClaudeがステージングファイルを編集できることを確認済み
+
+---
+
+## Claude Code SSH連携によるデザイン変更フロー
+
+### 概要
+
+非技術メンバーが「こういうデザインにしたい」と伝えるだけで、ClaudeがXserverへSSH接続してステージング環境のテーマファイルを直接編集する。ブラウザで確認後、OKであれば本番に適用する。
+
+### ワークフロー
+
+```
+メンバーが要望を伝える（テキスト or 参考画像）
+  ↓
+Claude が SSH でステージングサーバーに接続
+  ↓
+テーマCSS / functions.php / テンプレートを編集
+  ↓
+staging.trepo.jp をブラウザで確認・フィードバック
+  ↓
+OKなら本番（trepo.jp）に同じ変更を適用
+```
+
+### SSH初期設定手順（1回のみ）
+
+1. **Xserverサーバーパネル → SSH設定**でSSHアクセスを有効化
+2. ローカルでSSHキーペアを生成: `ssh-keygen -t ed25519 -C "trepo-claude"`
+3. Xserverサーバーパネルで公開鍵（`~/.ssh/id_ed25519.pub`）を登録
+4. `~/.ssh/config` に接続情報を追加:
+   ```
+   Host xserver-trepo
+     HostName サーバーID.xserver.jp
+     User サーバーID
+     Port 10022
+     IdentityFile ~/.ssh/id_ed25519
+   ```
+5. Claude Codeの設定（`.claude/settings.local.json`）にSSH・SFTPコマンドを許可リストに追加
+
+### 対応できるデザイン変更の例
+
+- 色・フォント・余白の変更
+- レイアウト変更（カラム数・ヘッダー・フッター構成）
+- コンポーネント追加（要約ボックス・バナー・CTAボタン）
+- 参考画像をもとにしたデザイン再現
+- スマホ表示の崩れ修正
+- SEO改善と同時適用（要約ボックス・FAQスキーマ埋め込み）
 
 ---
 
