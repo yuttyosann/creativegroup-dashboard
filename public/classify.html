@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>チーム分類管理 — CreativeGroup</title>
+  <title>品目分類管理 — CreativeGroup</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
@@ -39,7 +39,7 @@
 
     .logo-mark {
       background: #2c2c2c;
-      color: #fff;
+      color: #c9a84c;
       width: 28px;
       height: 28px;
       border-radius: 6px;
@@ -62,15 +62,15 @@
 
     .page-header {
       padding: 28px 32px 0;
-      max-width: 1200px;
+      max-width: 1300px;
       margin: 0 auto;
     }
 
     .page-header h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
-    .page-header p { font-size: 13px; color: #888; line-height: 1.6; }
+    .page-header p  { font-size: 13px; color: #888; line-height: 1.6; }
 
     .toolbar {
-      max-width: 1200px;
+      max-width: 1300px;
       margin: 16px auto 0;
       padding: 0 32px;
       display: flex;
@@ -93,18 +93,20 @@
       transition: opacity 0.15s;
     }
 
-    .btn:hover { opacity: 0.85; }
+    .btn:hover    { opacity: 0.85; }
     .btn:disabled { opacity: 0.45; cursor: not-allowed; }
-    .btn-primary { background: #2c2c2c; color: #fff; }
+    .btn-primary   { background: #2c2c2c; color: #fff; }
     .btn-secondary { background: #fff; color: #2c2c2c; border: 1px solid #d5d3cc; }
 
-    .save-status { font-size: 12px; color: #888; margin-left: auto; }
+    .save-status { font-size: 12px; color: #888; }
     .save-status.saved { color: #4a7c59; }
     .save-status.error { color: #c0392b; }
 
-    /* フィルタ */
+    .last-synced { font-size: 11px; color: #bbb; margin-left: auto; }
+
+    /* フィルタバー */
     .filter-bar {
-      max-width: 1200px;
+      max-width: 1300px;
       margin: 14px auto 0;
       padding: 0 32px;
       display: flex;
@@ -113,7 +115,55 @@
       flex-wrap: wrap;
     }
 
+    .search-box {
+      position: relative;
+      flex: 0 0 220px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 6px 10px 6px 30px;
+      border-radius: 6px;
+      border: 1px solid #d5d3cc;
+      font-size: 13px;
+      font-family: inherit;
+      background: #fff;
+      color: #2c2c2c;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .search-box input:focus { border-color: #2c2c2c; }
+
+    .search-icon {
+      position: absolute;
+      left: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      pointer-events: none;
+      color: #bbb;
+    }
+
+    .filter-sep   { width: 1px; height: 20px; background: #e0ddd5; margin: 0 4px; }
     .filter-label { font-size: 12px; color: #888; white-space: nowrap; }
+
+    .toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #555;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .toggle-label input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #2c2c2c;
+      cursor: pointer;
+    }
 
     .chip-group { display: flex; gap: 6px; flex-wrap: wrap; }
 
@@ -127,9 +177,10 @@
       background: #fff;
       color: #555;
       transition: all 0.15s;
+      user-select: none;
     }
 
-    .chip.active { border-color: transparent; color: #fff; background: #2c2c2c; }
+    .chip.active                        { border-color: transparent; color: #fff; background: #2c2c2c; }
     .chip[data-team="Marketing"].active  { background: #4a7c59; }
     .chip[data-team="PR"].active         { background: #2c6e9e; }
     .chip[data-team="Advertisement"].active { background: #8b5cf6; }
@@ -138,7 +189,7 @@
 
     /* テーブル */
     .table-wrap {
-      max-width: 1200px;
+      max-width: 1300px;
       margin: 14px auto 40px;
       padding: 0 32px;
     }
@@ -157,8 +208,69 @@
       border-bottom: 1px solid #f0eee8;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
     }
+
+    .info-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .info-badge.classified   { background: #e8f5e9; color: #4a7c59; }
+    .info-badge.unclassified { background: #fff3e0; color: #d97706; }
+
+    /* 空状態 */
+    .empty-state {
+      padding: 60px 20px;
+      text-align: center;
+      color: #bbb;
+    }
+
+    .empty-state h3 { font-size: 15px; color: #888; margin-bottom: 8px; }
+    .empty-state p  { font-size: 13px; line-height: 1.6; }
+
+    /* 同期オーバーレイ */
+    .sync-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sync-overlay.visible { display: flex; }
+
+    .sync-dialog {
+      background: #fff;
+      border-radius: 12px;
+      padding: 32px 40px;
+      text-align: center;
+      max-width: 360px;
+      width: 90%;
+    }
+
+    .sync-dialog h3 { font-size: 15px; margin-bottom: 8px; }
+    .sync-dialog p  { font-size: 13px; color: #888; line-height: 1.6; }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid #e0ddd5;
+      border-top-color: #2c2c2c;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     table { width: 100%; border-collapse: collapse; }
 
@@ -179,9 +291,11 @@
     tbody tr:last-child { border-bottom: none; }
     tbody tr:hover { background: #faf9f7; }
 
-    td { padding: 11px 16px; font-size: 13px; vertical-align: middle; }
-    td.partner-name { font-weight: 500; min-width: 160px; }
-    td.billing-count { color: #888; font-size: 12px; width: 80px; }
+    td { padding: 10px 16px; font-size: 13px; vertical-align: middle; }
+    td.item-name     { font-weight: 500; min-width: 160px; }
+    td.item-partner  { color: #555; font-size: 12px; min-width: 140px; }
+    td.item-billing  { color: #999; font-size: 11px; min-width: 160px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    td.item-count    { color: #888; font-size: 12px; width: 55px; }
 
     select.dropdown {
       width: 100%;
@@ -203,18 +317,15 @@
 
     select.dropdown:focus { outline: none; border-color: #2c2c2c; }
 
-    /* チームカラーの左ボーダー */
-    select.dropdown[data-team="Marketing"]     { border-left: 3px solid #4a7c59; }
-    select.dropdown[data-team="PR"]            { border-left: 3px solid #2c6e9e; }
-    select.dropdown[data-team="Advertisement"] { border-left: 3px solid #8b5cf6; }
-    select.dropdown[data-team="Casting"]       { border-left: 3px solid #d97706; }
-    select.dropdown[data-team="Media"]         { border-left: 3px solid #dc2626; }
-    select.dropdown[data-team=""]             { border-left: 3px solid #e0ddd5; }
-
-    /* 契約形態バッジ */
-    select.dropdown[data-contract="単発"]   { border-left: 3px solid #059669; }
-    select.dropdown[data-contract="サブスク"] { border-left: 3px solid #7c3aed; }
-    select.dropdown[data-contract=""]       { border-left: 3px solid #e0ddd5; }
+    select.dropdown[data-team="Marketing"]      { border-left: 3px solid #4a7c59; }
+    select.dropdown[data-team="PR"]             { border-left: 3px solid #2c6e9e; }
+    select.dropdown[data-team="Advertisement"]  { border-left: 3px solid #8b5cf6; }
+    select.dropdown[data-team="Casting"]        { border-left: 3px solid #d97706; }
+    select.dropdown[data-team="Media"]          { border-left: 3px solid #dc2626; }
+    select.dropdown[data-team=""]              { border-left: 3px solid #e0ddd5; }
+    select.dropdown[data-contract="単発"]       { border-left: 3px solid #059669; }
+    select.dropdown[data-contract="サブスク"]   { border-left: 3px solid #7c3aed; }
+    select.dropdown[data-contract=""]           { border-left: 3px solid #e0ddd5; }
 
     .loading-row td { text-align: center; padding: 40px; color: #bbb; font-size: 13px; }
 
@@ -229,10 +340,10 @@
       font-size: 13px;
       opacity: 0;
       transition: opacity 0.3s;
-      z-index: 100;
+      z-index: 300;
     }
 
-    #toast.show { opacity: 1; }
+    #toast.show  { opacity: 1; }
     #toast.error { background: #c0392b; }
   </style>
 </head>
@@ -245,130 +356,195 @@
   </div>
   <nav>
     <a href="/dashboard.html">ダッシュボード</a>
-    <a href="/classify.html" class="active">チーム分類</a>
+    <a href="/classify.html" class="active">品目分類</a>
   </nav>
 </header>
 
 <div class="page-header">
-  <h1>チーム分類管理</h1>
-  <p>MFクラウドの取引先ごとに「担当チーム」「サービス」「契約形態」を割り当ててください。<br>設定後、ダッシュボードのチーム別・サービス別・契約形態別売上に反映されます。</p>
+  <h1>品目分類管理</h1>
+  <p>請求書の<strong>品目</strong>ごとに「担当チーム」「サービス」「契約形態」を設定します。<br>
+  同一取引先でも品目によってチームやサービスが異なる場合に対応できます。<br>
+  まず「品目を同期」でMFクラウドから品目一覧を取得してください。</p>
 </div>
 
 <div class="toolbar">
-  <button class="btn btn-secondary" id="btn-load" onclick="loadPartners()">↻ 取引先を再読み込み</button>
-  <button class="btn btn-primary" id="btn-save" onclick="saveClassifications()">保存する</button>
+  <button class="btn btn-secondary" id="btn-sync" onclick="syncItems()">↻ 品目を同期（MFクラウドから取得）</button>
+  <button class="btn btn-primary"   id="btn-save" onclick="saveClassifications()">保存する</button>
   <span class="save-status" id="save-status"></span>
+  <span class="last-synced" id="last-synced"></span>
 </div>
 
 <div class="filter-bar">
-  <span class="filter-label">チームで絞り込み：</span>
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search-input" placeholder="品目名・取引先で検索..." oninput="applyFilters()">
+  </div>
+  <div class="filter-sep"></div>
+  <!-- 未設定のみ/全件トグル -->
+  <label class="toggle-label">
+    <input type="checkbox" id="hide-classified" checked onchange="applyFilters()">
+    <span class="toggle-text">未設定のみ表示</span>
+  </label>
+  <div class="filter-sep"></div>
+  <span class="filter-label">チーム：</span>
   <div class="chip-group">
-    <span class="chip active" data-team="all" onclick="filterTeam('all', this)">すべて</span>
-    <span class="chip" data-team="Marketing"     onclick="filterTeam('Marketing', this)">Marketing</span>
-    <span class="chip" data-team="PR"            onclick="filterTeam('PR', this)">PR</span>
-    <span class="chip" data-team="Advertisement" onclick="filterTeam('Advertisement', this)">Advertisement</span>
-    <span class="chip" data-team="Casting"       onclick="filterTeam('Casting', this)">Casting</span>
-    <span class="chip" data-team="Media"         onclick="filterTeam('Media', this)">Media</span>
-    <span class="chip" data-team="未分類"         onclick="filterTeam('未分類', this)">未分類</span>
+    <span class="chip active"  data-team="all"           onclick="setTeamFilter('all', this)">すべて</span>
+    <span class="chip"         data-team="Marketing"     onclick="setTeamFilter('Marketing', this)">Marketing</span>
+    <span class="chip"         data-team="PR"            onclick="setTeamFilter('PR', this)">PR</span>
+    <span class="chip"         data-team="Advertisement" onclick="setTeamFilter('Advertisement', this)">Advertisement</span>
+    <span class="chip"         data-team="Casting"       onclick="setTeamFilter('Casting', this)">Casting</span>
+    <span class="chip"         data-team="Media"         onclick="setTeamFilter('Media', this)">Media</span>
   </div>
 </div>
 
 <div class="table-wrap">
   <div class="table-card">
-    <div class="table-info">
+    <div class="table-info" id="table-info">
       <span id="table-info-text">読み込み中...</span>
     </div>
     <table>
       <thead>
         <tr>
-          <th>取引先名</th>
-          <th>請求件数</th>
+          <th>取引先</th>
+          <th>品目名</th>
+          <th>件数</th>
+          <th>請求書名</th>
           <th>担当チーム</th>
           <th>サービス</th>
           <th>契約形態</th>
         </tr>
       </thead>
-      <tbody id="partners-body">
-        <tr class="loading-row"><td colspan="5">取引先データを読み込み中...</td></tr>
+      <tbody id="items-body">
+        <tr class="loading-row"><td colspan="7">データを読み込み中...</td></tr>
       </tbody>
     </table>
+  </div>
+</div>
+
+<!-- 同期中オーバーレイ -->
+<div class="sync-overlay" id="sync-overlay">
+  <div class="sync-dialog">
+    <div class="spinner"></div>
+    <h3>MFクラウドから品目を取得中</h3>
+    <p>請求書データを読み込んでいます。<br>件数によっては数分かかる場合があります。</p>
   </div>
 </div>
 
 <div id="toast"></div>
 
 <script>
-const TEAMS = ['Marketing', 'PR', 'Advertisement', 'Casting', 'Media'];
-const SERVICES = ['Pamun', 'インフルエンサー', 'PR', 'Trepo', '雑誌', '美容医療', 'SNS運用', '広告', 'オフラインイベント', '制作', 'その他'];
+const TEAMS          = ['Marketing', 'PR', 'Advertisement', 'Casting', 'Media'];
+const SERVICES       = ['Pamun', 'インフルエンサー', 'PR', 'Trepo', '雑誌', '美容医療', 'SNS運用', '広告', 'オフラインイベント', '制作', 'その他'];
 const CONTRACT_TYPES = ['単発', 'サブスク'];
 
-let allPartners = [];  // { name, count }
-let mappings = {};      // { partnerName: { team, service, contractType } }
-let currentFilter = 'all';
+let allItems         = [];   // [{ name, count }]
+let itemMappings     = {};   // { itemName: { team, service, contractType } }
+let currentTeamFilter = 'all';
 
-async function loadPartners() {
-  document.getElementById('btn-load').disabled = true;
-  document.getElementById('table-info-text').textContent = '読み込み中...';
-  document.getElementById('partners-body').innerHTML =
-    '<tr class="loading-row"><td colspan="5">取引先データを読み込み中...</td></tr>';
-
+// ── 初期ロード ──────────────────────────────────────
+async function init() {
   try {
-    const [clsRes, billRes] = await Promise.all([
-      fetch('/api/classifications').then(r => r.json()),
-      fetch('/api/billings').then(r => r.json()),
-    ]);
+    const clsData = await fetch('/api/classifications').then(r => r.json());
+    itemMappings  = clsData.itemMappings || {};
+    allItems      = clsData.cachedItems  || [];
 
-    mappings = clsRes.mappings || {};
+    if (clsData.lastSynced) updateLastSynced(clsData.lastSynced);
 
-    // 取引先を請求書から抽出
-    const partnerMap = {};
-    (billRes.billings || []).forEach(b => {
-      const name = b.client || '不明';
-      partnerMap[name] = (partnerMap[name] || 0) + 1;
-    });
-
-    allPartners = Object.entries(partnerMap)
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count);
-
-    renderTable();
+    if (allItems.length === 0) renderEmpty();
+    else                        renderTable();
   } catch (e) {
     console.error(e);
-    showToast('データの読み込みに失敗しました', true);
-    document.getElementById('table-info-text').textContent = 'エラー';
+    document.getElementById('table-info-text').textContent = 'エラー: 読み込みに失敗しました';
   }
-  document.getElementById('btn-load').disabled = false;
 }
 
-function getMapping(name) {
-  const m = mappings[name];
-  if (!m) return { team: '', service: '', contractType: '' };
-  if (typeof m === 'string') return { team: m, service: '', contractType: '' }; // 旧形式
-  return { team: m.team || '', service: m.service || '', contractType: m.contractType || '' };
+// ── MFクラウドから品目を同期 ─────────────────────────
+async function syncItems() {
+  document.getElementById('sync-overlay').classList.add('visible');
+  document.getElementById('btn-sync').disabled = true;
+
+  try {
+    const data = await fetch('/api/item-names?refresh=true').then(r => r.json());
+    allItems = data.items || [];
+    if (data.lastSynced) updateLastSynced(data.lastSynced);
+    applyFilters();
+    showToast(`${allItems.length}件の品目を同期しました`);
+  } catch (e) {
+    console.error(e);
+    showToast('同期に失敗しました', true);
+  }
+
+  document.getElementById('sync-overlay').classList.remove('visible');
+  document.getElementById('btn-sync').disabled = false;
 }
 
-function renderTable() {
-  const filtered = currentFilter === 'all'
-    ? allPartners
-    : allPartners.filter(p => {
-        const m = getMapping(p.name);
-        if (currentFilter === '未分類') return !m.team;
-        return m.team === currentFilter;
-      });
+function updateLastSynced(isoStr) {
+  const d = new Date(isoStr);
+  document.getElementById('last-synced').textContent =
+    `最終同期: ${d.toLocaleDateString('ja-JP')} ${d.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}`;
+}
 
-  const total = allPartners.length;
-  const unclassified = allPartners.filter(p => !getMapping(p.name).team).length;
-  document.getElementById('table-info-text').textContent =
-    `${total}件の取引先　／　チーム未設定: ${unclassified}件`;
+// ── フィルタ ─────────────────────────────────────────
+function applyFilters() {
+  const search         = (document.getElementById('search-input').value || '').trim().toLowerCase();
+  const hideClassified = document.getElementById('hide-classified').checked;
 
-  const tbody = document.getElementById('partners-body');
-  if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#bbb">該当する取引先がありません</td></tr>';
+  const filtered = allItems.filter(item => {
+    const m = getMapping(item.name);
+    // 未設定のみ表示 ON → 分類済みを除外
+    if (hideClassified && m.team) return false;
+    // 検索フィルタ
+    const searchTarget = `${item.name || ''} ${item.partnerName || ''}`.toLowerCase();
+    if (search && !searchTarget.includes(search)) return false;
+    // チームフィルタ
+    if (currentTeamFilter === 'all') return true;
+    return m.team === currentTeamFilter;
+  });
+
+  renderRows(filtered);
+  updateTableInfo();
+}
+
+function setTeamFilter(team, el) {
+  currentTeamFilter = team;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
+}
+
+function renderTable() { applyFilters(); }
+
+// ── 空状態 ────────────────────────────────────────────
+function renderEmpty() {
+  updateTableInfo();
+  document.getElementById('items-body').innerHTML = `
+    <tr>
+      <td colspan="7">
+        <div class="empty-state">
+          <p style="font-size:36px;margin-bottom:12px">📋</p>
+          <h3>品目データがありません</h3>
+          <p>「↻ 品目を同期」ボタンをクリックして<br>MFクラウドから品目一覧を取得してください。</p>
+        </div>
+      </td>
+    </tr>`;
+}
+
+// ── テーブル行描画 ────────────────────────────────────
+function renderRows(items) {
+  const tbody = document.getElementById('items-body');
+
+  if (items.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:#bbb;font-size:13px">該当する品目がありません</td></tr>`;
     return;
   }
 
-  tbody.innerHTML = filtered.map(p => {
-    const m = getMapping(p.name);
+  tbody.innerHTML = items.map(item => {
+    const mapKey         = item.name;
+    const m              = getMapping(mapKey);
+    const escapedKey     = escHtml(mapKey);
+    const escapedName    = escHtml(item.name);
+    const escapedPartner = escHtml(item.partnerName || '');
+    const escapedBilling = escHtml(item.billingTitle || '');
 
     const teamOpts = ['', ...TEAMS].map(t =>
       `<option value="${t}" ${t === m.team ? 'selected' : ''}>${t || '── 未設定 ──'}</option>`
@@ -384,88 +560,140 @@ function renderTable() {
 
     return `
       <tr>
-        <td class="partner-name">${escHtml(p.name)}</td>
-        <td class="billing-count">${p.count}件</td>
+        <td class="item-partner">${escapedPartner}</td>
+        <td class="item-name">${escapedName}</td>
+        <td class="item-count">${item.count > 0 ? item.count + '件' : '—'}</td>
+        <td class="item-billing" title="${escapedBilling}">${escapedBilling || '—'}</td>
         <td>
-          <select class="dropdown" data-partner="${escHtml(p.name)}" data-field="team" data-team="${escHtml(m.team)}" onchange="onFieldChange(this)">
+          <select class="dropdown" data-item="${escapedKey}" data-field="team"
+                  data-team="${escHtml(m.team)}" onchange="onFieldChange(this)">
             ${teamOpts}
           </select>
         </td>
         <td>
-          <select class="dropdown" data-partner="${escHtml(p.name)}" data-field="service" onchange="onFieldChange(this)">
+          <select class="dropdown" data-item="${escapedKey}" data-field="service" onchange="onFieldChange(this)">
             ${svcOpts}
           </select>
         </td>
         <td>
-          <select class="dropdown" data-partner="${escHtml(p.name)}" data-field="contractType" data-contract="${escHtml(m.contractType)}" onchange="onFieldChange(this)">
+          <select class="dropdown" data-item="${escapedKey}" data-field="contractType"
+                  data-contract="${escHtml(m.contractType)}" onchange="onFieldChange(this)">
             ${ctOpts}
           </select>
         </td>
-      </tr>
-    `;
+      </tr>`;
   }).join('');
 }
 
-function onFieldChange(sel) {
-  const partner = sel.dataset.partner;
-  const field = sel.dataset.field;
-  const value = sel.value;
+// ── テーブル情報更新 ──────────────────────────────────
+function updateTableInfo() {
+  const total        = allItems.length;
+  const classified   = allItems.filter(i => getMapping(i.name).team).length;
+  const unclassified = total - classified;
 
-  if (!mappings[partner]) mappings[partner] = { team: '', service: '', contractType: '' };
-  if (typeof mappings[partner] === 'string') {
-    mappings[partner] = { team: mappings[partner], service: '', contractType: '' };
+  document.getElementById('table-info-text').textContent = `${total}件の品目`;
+
+  const infoEl = document.getElementById('table-info');
+  infoEl.querySelectorAll('.info-badge').forEach(b => b.remove());
+
+  if (total > 0) {
+    const c = document.createElement('span');
+    c.className = 'info-badge classified';
+    c.textContent = `✓ 設定済み ${classified}件`;
+    infoEl.appendChild(c);
+
+    if (unclassified > 0) {
+      const u = document.createElement('span');
+      u.className = 'info-badge unclassified';
+      u.textContent = `未設定 ${unclassified}件`;
+      infoEl.appendChild(u);
+    }
   }
-  mappings[partner][field] = value;
+}
 
-  // チームカラーのボーダー更新
-  if (field === 'team') sel.dataset.team = value;
+// ── フィールド変更 ────────────────────────────────────
+function onFieldChange(sel) {
+  const itemName = sel.dataset.item;
+  const field    = sel.dataset.field;
+  const value    = sel.value;
+
+  if (!itemMappings[itemName]) {
+    itemMappings[itemName] = { team: '', service: '', contractType: '' };
+  }
+  itemMappings[itemName][field] = value;
+
+  if (field === 'team')         sel.dataset.team     = value;
   if (field === 'contractType') sel.dataset.contract = value;
+
+  // すべて空ならエントリを削除（クリーンアップ）
+  const m = itemMappings[itemName];
+  if (!m.team && !m.service && !m.contractType) delete itemMappings[itemName];
+
+  document.getElementById('save-status').textContent = '● 未保存';
+  document.getElementById('save-status').className   = 'save-status';
+
+  // チームが設定され「未設定のみ表示」がONなら行をフェードアウトして消す
+  if (field === 'team' && value && document.getElementById('hide-classified').checked) {
+    const row = sel.closest('tr');
+    if (row) {
+      row.style.transition = 'opacity 0.4s';
+      row.style.opacity    = '0';
+      setTimeout(() => applyFilters(), 450);
+    }
+  } else {
+    updateTableInfo();
+  }
 }
 
-function filterTeam(team, el) {
-  currentFilter = team;
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  renderTable();
-}
-
+// ── 保存 ─────────────────────────────────────────────
 async function saveClassifications() {
-  const btn = document.getElementById('btn-save');
+  const btn    = document.getElementById('btn-save');
   const status = document.getElementById('save-status');
   btn.disabled = true;
   status.textContent = '保存中...';
-  status.className = 'save-status';
+  status.className   = 'save-status';
 
   try {
     const res = await fetch('/api/classifications', {
-      method: 'POST',
+      method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mappings }),
+      body:    JSON.stringify({ itemMappings }),
     });
     if (!res.ok) throw new Error('save failed');
     status.textContent = '✓ 保存しました';
-    status.className = 'save-status saved';
-    showToast('分類設定を保存しました');
+    status.className   = 'save-status saved';
+    showToast('品目分類設定を保存しました');
   } catch (e) {
     status.textContent = '保存に失敗しました';
-    status.className = 'save-status error';
+    status.className   = 'save-status error';
     showToast('保存に失敗しました', true);
   }
   btn.disabled = false;
 }
 
+// ── ユーティリティ ────────────────────────────────────
+function getMapping(itemName) {
+  const m = itemMappings[itemName];
+  if (!m) return { team: '', service: '', contractType: '' };
+  return { team: m.team || '', service: m.service || '', contractType: m.contractType || '' };
+}
+
 function showToast(msg, isError = false) {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.className = 'show' + (isError ? ' error' : '');
+  t.className   = 'show' + (isError ? ' error' : '');
   setTimeout(() => { t.className = ''; }, 3000);
 }
 
 function escHtml(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
-loadPartners();
+init();
 </script>
 </body>
 </html>

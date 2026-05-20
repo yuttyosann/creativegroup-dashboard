@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CreativeGroup 経営ダッシュボード</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #f5f2ed;
+      --surface: #ffffff;
+      --text:    #1a1410;
+      --muted:   #8a857d;
+      --gold:    #c9a84c;
+      --red:     #c4613a;
+      --border:  rgba(26,20,16,0.08);
+      --shadow:  0 1px 4px rgba(26,20,16,0.07), 0 4px 16px rgba(26,20,16,0.04);
+    }
+
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 48px 56px;
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 52px; height: 52px;
+      background: var(--text);
+      color: var(--gold);
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: 0.05em;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 36px;
+      line-height: 1.6;
+    }
+
+    /* 認証チェック中 */
+    .status {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 20px; height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ボタン */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 13px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn:hover    { opacity: 0.88; }
+    .btn:active   { transform: scale(0.98); }
+
+    .btn-primary  { background: var(--text); color: var(--gold); }
+    .btn-outline  { background: transparent; color: var(--text); border: 1px solid var(--border); margin-top: 10px; }
+    .btn-outline:hover { border-color: var(--muted); }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 28px 0;
+    }
+
+    .note {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    /* 認証済みのときに表示するリンク */
+    #authenticated-section { display: none; }
+
+    /* アラート */
+    .alert {
+      background: #fdf0ed;
+      border-left: 3px solid var(--red);
+      color: var(--red);
+      font-size: 12px;
+      padding: 10px 14px;
+      border-radius: 4px;
+      margin-top: 16px;
+      text-align: left;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">CG</div>
+  <h1>CreativeGroup</h1>
+  <p class="subtitle">経営ダッシュボード — MFクラウド連携</p>
+
+  <!-- 認証状態チェック中 -->
+  <div id="checking-section">
+    <p class="status">
+      <span class="spinner"></span>
+      認証状態を確認中...
+    </p>
+  </div>
+
+  <!-- 認証済み -->
+  <div id="authenticated-section">
+    <a href="/dashboard.html" class="btn btn-primary">
+      ダッシュボードへ進む
+    </a>
+    <a href="/auth/logout" class="btn btn-outline">
+      ログアウト（MFクラウド再接続）
+    </a>
+    <hr class="divider">
+    <p class="note">
+      管理者が一度 MFクラウドで認証すると、<br>
+      チーム全員がダッシュボードを閲覧できます。
+    </p>
+  </div>
+
+  <!-- 未認証 -->
+  <div id="unauthenticated-section" style="display:none">
+    <a href="/auth/login" class="btn btn-primary">
+      MFクラウドで認証する
+    </a>
+    <hr class="divider">
+    <p class="note">
+      MoneyForward クラウド請求書のアカウントで認証してください。<br>
+      認証は管理者が一度だけ実施します。その後は全メンバーが<br>
+      ダッシュボードを閲覧できます。
+    </p>
+    <div class="alert" id="auth-alert">
+      環境変数 MF_CLIENT_ID / MF_CLIENT_SECRET が設定されていません。<br>
+      .env ファイルを確認してください。
+    </div>
+  </div>
+</div>
+
+<script>
+(async function () {
+  try {
+    const res  = await fetch('/api/auth-status');
+    const data = await res.json();
+
+    document.getElementById('checking-section').style.display = 'none';
+
+    if (data.authenticated) {
+      // 認証済み → ダッシュボードへ自動遷移（1秒後）
+      document.getElementById('authenticated-section').style.display = 'block';
+      setTimeout(() => { window.location.href = '/dashboard.html'; }, 1000);
+    } else {
+      document.getElementById('unauthenticated-section').style.display = 'block';
+    }
+  } catch (e) {
+    // APIが応答しない場合（サーバー未起動など）
+    document.getElementById('checking-section').style.display = 'none';
+    document.getElementById('unauthenticated-section').style.display = 'block';
+    document.getElementById('auth-alert').style.display = 'block';
+  }
+})();
+</script>
+
+</body>
+</html>

@@ -1,3 +1,6312 @@
 {
-  "mappings": {}
+  "mappings": {},
+  "cachedItems": [
+    {
+      "name": "\t Instagram掲載料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "\t REJURAN 公式LINE ID費用",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "6月REJURAN 公式LINEに関しまして"
+    },
+    {
+      "name": "\t 掲載費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "\t 振込手数料(内税)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "\t 別途モニターへの配送料（佐川急便）",
+      "count": 0,
+      "partnerName": "株式会社呉竹",
+      "billingTitle": "Pamun口コミ施策 契約に関しまして"
+    },
+    {
+      "name": " 2.SNP W+マイクロニードルパッチ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": " ローションバー グレープフルーツ 50g発送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "　医療機関⼀覧・編集 コンテンツ⼀覧を表⽰、検索、管理、削除機能",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "・美ST\t",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "・美的.COM\t",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "\"\tBIBIDAY・Tea time ハンドクリーム\"配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "（LINEトラベル）うえむらちかアサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "（LINEトラベル）月森せいなアサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "（LINEトラベル）美波千夏アサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "（するり酵素革命）青木里美アサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "(上限300名)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "「niki.kawabe」さん追加費用",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "【REJURAN】9月「IGマイクロ」施策に関しまして"
+    },
+    {
+      "name": "「ノストラム」「メディテラニアンケア」新商品発売記念プレスレセプションキャスティング費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "『タイウェディングフェア2019 』インフルエンサー投稿費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "【１０月】明治おいしいミルクカルシウムインフルエンサーアサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "【JR東日本×JR東海×JR西日本】J・ADビジョン東名 阪ネットワークセット_5/11~5/17",
+      "count": 0,
+      "partnerName": "株式会社VISION",
+      "billingTitle": "【JR東日本×JR東海×JR西日本】J・ADビジョン東名 阪ネットワークセット"
+    },
+    {
+      "name": "【JR東日本×JR東海×JR西日本】J・ADビジョン東名 阪ネットワークセット_5/18~5/24",
+      "count": 0,
+      "partnerName": "株式会社VISION",
+      "billingTitle": "【JR東日本×JR東海×JR西日本】J・ADビジョン東名 阪ネットワークセット"
+    },
+    {
+      "name": "【LINEアプリ開発】　※LINE連携 ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "【UI構築】",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "【オプション施策】",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "【コンテンツ企画・制作】",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "【サーバー環境】",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "【システム開発-フロント機能】",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "【システム開発-管理機能】",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "【話題沸騰中】東京の香水手作り体験おすすめ6選♡への掲載料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "＠cosme TOKYOジャックプラン",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "【REJURAN】＠cosme POPUPに関する費用"
+    },
+    {
+      "name": "＠cosme TOKYOジャックプラン支払済文",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "@cosme体験型コンテンツ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "@cosme体験型コンテンツLP制作費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "@cosme体験型コンテンツ梱包配送費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "＠コスメインフルエンサー報酬費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "@コスメ掲載費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "※1名分宿泊・交通費別途",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "※別途Pamunモニターへの送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "※別途送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "<Instagram フォロワー購入費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "＜再送分＞ユードットウォッシュ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "■■■Instagram■■■",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "■■■LINE■■■",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "■■■PR施策■■■",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "■CanCam２／２２売り１P",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "■インフルエンサー",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "■スチールカメラマン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "■その他",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "■プレスリリース",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "■メイクアップアーティスト",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "■広告運用代行",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "△不実施分",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "▼宿泊費用立替（内税）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "●\tクリニック側（登録側）機能",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "●\tコンテンツ表⽰機能",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "●\tユーザ側（検索側）機能",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "●\t管理者機能",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "01rad preoil",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "0508at",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "1.SNP W+マイクロニードルパッチ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "1000件保証プランお支払い済相殺分",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "100分授業",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "100名起用プラン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "10月9日講師料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "10月配送料（佐川急便）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "11月発送費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "12/6 Gina掲載誌",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "120分授業",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "120分授業（英文読解）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "12月サブスク配送料（佐川急便）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "12月施策サブスク費用（1/2）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "12月授業料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "12月配送料（佐川）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "150分授業",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "180名プラン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "①THE PALLET MIND②GEM BALANCE LIP",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "1月サブスク配送料（佐川急便）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "1月管理費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "1月施策不足金（不課税）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "1月分授業料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "2000人起用プラン合計費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "21年分発送費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "240分授業",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "２７名送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "2月サブスク配送料（佐川急便）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "3.ブラックセラムパクト",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "366 birthday fragrance Instagram掲載費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "3GFリペアエッセンス 送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "3月口コミ施策（600名起用）",
+      "count": 0,
+      "partnerName": "愛敬産業株式会社",
+      "billingTitle": "AGE20'S LUNA 3月口コミ施策に関しまして（600名起用）"
+    },
+    {
+      "name": "3月分授業料(8コマ)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "4.ウミツバメの巣W+ アイクリーム",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "40分授業",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "4月お支払い費用(1/6回目)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "4月分授業料(8コマ)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "4月分追加コマ(4コマ)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "5.シカパンテノールスリーピングマスク",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "5月分授業料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "6/12 Sweet 掲載誌購入分（直送送料含む）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "60分授業",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "65分授業",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "6月20日Fabius レセプションパーティー インフルエンサーアサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "6月管理費用(日割り)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "6月授業料分（2コマ）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "6月分授業料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "70分授業",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "75分授業",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "7月サブスクリプション費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "7月モニター配送費用（佐川急便）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "7月管理費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "7月授業料分（4コマ）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "7月分授業料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "7月分授業料(12コマ)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "7月分授業料(4コマ)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "7月分授業料(4コマ対1)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "7月分授業料(7コマ)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "7月分授業料(8コマ)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "80分授業",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "80分授業対2",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "8月サブスクリプション費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "8月テスト",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "8月授業料追加コマ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "8月追加施策分",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "8月分授業料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "8月分授業料(12コマ)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "8月分授業料(4コマ)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "8月分授業料(4コマ対1)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "8月分授業料(8コマ)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "90分授業",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "90分授業（英文法）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "90分授業（当欠）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "9月授業料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "9月分管理費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "9月分授業料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "9月分授業料追加コマ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "AGE20's シグネチャーエッセンスパクト サブスクリプションB",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Amazonレビュー掲載料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Amazon掲載費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Amazon施策",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ARISA様",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "BEAW. 送料建替費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "BIBIDAY・Innocence Freesia マルチオイル",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "BOプレゼント付きブログ",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "2026年3月REJURAN アットコスメ施策"
+    },
+    {
+      "name": "Buzz ReachインフルエンサーPR施策",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "BUZZgram Instagram運用代行 ミニマムプラン 月額費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "BUZZgram Instagram運用代行 ミニマムプラン 初期費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "BUZZgram Instagram運用代行 月額費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "BUZZgram Instagram運用代行 初期費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "BUZZgramInstagram運用代行 ミニマムプラン 月額費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "CBD ウェルネスサプリメント 配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "CBD オイル 1,500mg (10%) 配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "CBDモイストリペアローション 配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "CBDモイストリペアローション配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "CGとリレーションのある個人や、企業への美容医療EXPOのご紹介活動費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "CG交通費持ち出し分お値引き",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "CG宿泊費持ち出し分お値引き",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "channel kie 施策費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "CLASSY掲載費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "CO ロングラッシュリッチ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Cozyplace1156（祐天寺）　会場費　　＜10月1日～10月30日＞\t\t\t\t\t\t\t\t\t\t\t\t",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "CSV CSVファイルダウンロード機能",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "cuana写真素材",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Danmee手数料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Dr,coffee",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "DUO（ストーリー）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "DUO（記事）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "DUOインフルエンサーアサイン費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "DUOクリア（ストーリー）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "DUOクリア（記事）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "DUOバリア（ストーリー）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "DUOバリア（記事）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ECレビュー掲載費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ECレビュー掲載料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "EC施策購入実施費用",
+      "count": 0,
+      "partnerName": "FANPANY",
+      "billingTitle": "10月Pamun施策費用に関しまして"
+    },
+    {
+      "name": "efferal ヘアオイルミスト",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "FedEx.立替金（税関）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ＧｄＳ イルミネイティングフェイスマスク/ @コスメ掲載費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ＧｄＳ イルミネイティングフェイスマスク配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "GiftPad インフルエンサーアサイン 月額費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "GiftPad インフルエンサーアサイン 初期費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Gorgee de Soleil　ボディスクラブ / 配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Gorgee de Soleil　ボディスクラブ/ @コスメ掲載費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "got2b ボンディング・ブリーチ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Gowvikes CV",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "GREEN&セラム 送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "GREEN&セラム配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "GREEN&モイストジェル 送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "GREEN&モイストジェル配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "HANATSUYU ティントリップ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "hayato_wear",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "HERBAL SHOT送料建替費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "HEXZE シーアイランドエクスプロワフォーカラーアイシャドウ K20",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Hima 投稿費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "HP作成費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "HP制作費用",
+      "count": 0,
+      "partnerName": "一般社団法人東京リプロヘルスケア",
+      "billingTitle": "2026年2月HP制作費用請求書"
+    },
+    {
+      "name": "Instagram Micro Influencer",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Instagram Mid-Tier Influencer",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Instagram レビュー専門アカウントPR 3名",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Instagram・X単発各30名プラン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Instagramタイアップ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Instagramタイアップ費用（2次利用込）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Instagramリーチ成果報酬",
+      "count": 0,
+      "partnerName": "株式会社サニーサイドアップ",
+      "billingTitle": "４月実施　Trepoスタジオアリス様タイアップ"
+    },
+    {
+      "name": "Instagram運用",
+      "count": 0,
+      "partnerName": "株式会社日テレWands",
+      "billingTitle": "株式会社ハローデイ様2026年3月Instagram運用請求書"
+    },
+    {
+      "name": "Instagram運用・インフルエンサーアサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Instagram運用及びインフルエンサーアサインプラン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Instagram運用代行 月額費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Instagram運用代行 初期費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Instagram運用代行月額費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Instagram運用代行費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Instagram運用費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Instagram掲載費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Instagram掲載料",
+      "count": 0,
+      "partnerName": "株式会社スモーカー大佐",
+      "billingTitle": "【Trepo】2月施策費用に関しまして（シーシャカフェ&バーmuse上野店様）"
+    },
+    {
+      "name": "Instagram投稿代行プラン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Istagram FEED+Story 投稿\t\t\t\t\t",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "iワークドリル英単語",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "iワーク英語中3",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "JKCS2024 サンプリング施策",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "JKCSブース出展料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "K style Beauty clinic Instagram運用費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "K style Beauty clinic LINE投稿作成費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "kai様投稿費用　投稿日 5/30",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "kana様タイアップ費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "KARE DELICATE WASH/KARE SENSITIVE OIL IN CREAM",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "kmyu（ストーリー）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "kmyu（記事）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "kuriwakiki",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "KUROJIRU（ストーリー）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "KUROJIRU（記事）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "LINE ライトプラン",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "10月、11月_REJURAN 公式LINEに関しまして"
+    },
+    {
+      "name": "LINEキャンペーン制作",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "LINEプロフィールページ作成",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "LINE登録時の挨拶メッセージ作成・設定",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "LIPS / @cosme",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Love Greenインフルエンサー費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "LoveGreenインフルエンサーアサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "LP制作費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "LUNA コンフィーライトクッション立替金",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "LUNA 口コミ施策（400名起用）",
+      "count": 0,
+      "partnerName": "愛敬産業株式会社",
+      "billingTitle": "AGE20'S LUNA 3月口コミ施策に関しまして（600名起用）"
+    },
+    {
+      "name": "LUNA_Mizukiタイアップ費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "MAYA フィード1投稿+ストーリーズ1投稿",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "mayu様投稿費用　投稿日 6/13",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "mayu様投稿費用　投稿日 6/25",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "MC、進行台本作成費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "MCキャスティング費（2コーナー分、1コーナー30分程度想定）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "MCキャスティング費（2ステージ）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "MC稼働",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "MELLOW TOUCH. 　No Wash Protein Hair Treatment Balm",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "MELLOW TOUCH. 　Silky Hair Treatment essence",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "MELLOW TOUCH.　Repair Treatment ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Mina ￤コスメ美容オタクOL　Instagram Feed",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "【REJURAN】PR施策に関しまして"
+    },
+    {
+      "name": "mizuki タイアップ費用（二次利用含む）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "momohoタイアップ費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "momoho二次利用費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "myufull 銀座 Instagram運用代行 月額費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "myufull 銀座 Instagram運用代行 初期費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "𝗡𝗮𝗴𝗼𝗺i様タイアップ費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "NAKED夏まつり2022 限定プラン｜Okimono屋 東山祇園店・清水寺店",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "NEW スカイボトル　バニラ　ヘア＆ボディミスト",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ninal コンシーラーセラム",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ninal ルースパウダー",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "No Wash Protein Hair Treatment Balm配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "NODOインフルエンサーアサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "NOIN",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "NUNSSUPJARA",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "NUNSSUPJARA（ヌンソップジャラ） 送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "NUNSSUPJARA配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "OASIS Laboratory Watery Bomb 発送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Oiad 施策費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Pamun サブスクリプション",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Pamun サブスクリプション 月額費用",
+      "count": 0,
+      "partnerName": "株式会社ポイントピュール",
+      "billingTitle": "Pamun施策費用に関しまして"
+    },
+    {
+      "name": "Pamun サブスクリプションA",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Pamun サブスクリプションB 月額費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Pamun サブスクリプション月額費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Pamun サブスクリプション特注プラン",
+      "count": 0,
+      "partnerName": "GLASSY株式会社",
+      "billingTitle": "Pamun年間契約の御見積に関しまして"
+    },
+    {
+      "name": "Pamun　口コミ2000件保証プラン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Pamun10月施策（ライトプラン）",
+      "count": 0,
+      "partnerName": "PurrSong, Inc.",
+      "billingTitle": "Pamun・インフルエンサー施策に関しまして"
+    },
+    {
+      "name": "Pamun11月施策（サブスクAプラン）",
+      "count": 0,
+      "partnerName": "PurrSong, Inc.",
+      "billingTitle": "Pamun・インフルエンサー施策に関しまして"
+    },
+    {
+      "name": "Pamunタグ除去費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Pamunタグ費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Pamun口コミ施策",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Pamun施策",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Pamun施策費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Pamun送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Pamun年間1000件保証プラン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Pamun年間クチコミ1000件保証プラン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Pamun年間クチコミ2000件（保障プラン）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Pamun年間サブスクリプションプラン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Pamun年間契約",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "PARANINAリラクシングナイトマスク(送料)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ponsuke_wear",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "POP UP　PR",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "POP UP制作費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "PORASH（記事）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "PR TIMES配信代行",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "PR TIMES配信費",
+      "count": 0,
+      "partnerName": "愛敬産業株式会社",
+      "billingTitle": "【LUNA】未請求分につきまして"
+    },
+    {
+      "name": "PRTIMES配信費（原価）",
+      "count": 0,
+      "partnerName": "株式会社VISION",
+      "billingTitle": "2026年2月_PRリテナー費用に関しまして"
+    },
+    {
+      "name": "PRTIMES配信費実費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "PRコンサルティング費用",
+      "count": 0,
+      "partnerName": "株式会社永晃",
+      "billingTitle": "3月_PRコンサルティング費用に関しまして"
+    },
+    {
+      "name": "PRリテナー活動費（1ヶ月）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "PR施策費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "PR施策費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Qoo10サムネイル肖像権利用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Qoo10掲載料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Repair Treatment配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Ringo フィード1投稿+ストーリーズ1投稿",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ROVECTIN　Micro Influencer",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ryota___2",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "SEO対策付きECサイト構築",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "setouchi kitchen Instagram運用代行 月額費用分",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "setouchi kitchen 初期費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "sho_zaki84",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "SINGTEX PROTECTOR＋",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "SNP LAB+ トリプルウォーターピールスージングパッド",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "SNP THE CICA エッセンシャルクリーム50ml",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "SNP ゴールドコラーゲンスリーピングパック",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "SNPゴールドコラーゲンスリーピングパック",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "SNS運用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "SNS運用関連費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "SNS運用代行費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "SNS運用代行費用(9月、10月分)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "SNS広告費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "SNS施策×６ヶ月",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "SP天野佳代子キャスティング費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Sweet雑誌掲載費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "SWEET誌面掲載費",
+      "count": 0,
+      "partnerName": "株式会社ナリス化粧品",
+      "billingTitle": "Sweet雑誌掲載費用に関しまして"
+    },
+    {
+      "name": "Sweet抜き刷りデザイン費用（２パターン）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Sweet抜き刷り印刷費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "THE CICA 4.0 エッセンシャルクリーム",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "THE CICA 4.0 オリジンアンプル送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "THE CICA 4.0 デイリーマスク",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "THE CICA 4.0 デイリーマスク送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "TikTok ミドル級PR 1名",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "TikTok ミドル級PR 1名（二次利用費用）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "TikTok2次利用費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "TikTok運用代行（2ヶ月）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "TOMOKA様投稿費用　投稿日 9/11",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Trepo Instagram掲載費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Trepo WEB掲載費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Trepo プレゼントCP RT費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Trepo現地取材費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Trepo公式アカウント投稿費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Trepo施策費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Trepo取材協力費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "TROPIKA/Herbal Shot（イベント用）：新商品パッケージデザイン一式\t\t\t\t\t\t\t\t\t\t\t\t",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "TROPIKA送料建替費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "TwitterPR費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Twitterアサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Twitter運用代行",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Twitter運用代行費用(2月~5月分)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "uka CV",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "UNA EC（Qoo10・楽天）の商品サムネイル・バナーに活用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "UZZgram Instagram運用代行 月額費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Vもぎ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Vもぎ教材",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "WHITE BRIGHT",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Wild Prairie Soap ラベンダーブルーム発送料　",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ＷＰＳローションバー　ラベンダー１５Ｇh配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Wリペアショット立替金",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Wリペアセラム立替金",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "X Micro Influencer",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "X マイクロ PR　追加費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Xコラボ費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "YOU TOKYO シャンプー ＆ トリートメント",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "YOU TOKYO ヘアオイル 洗い流さない トリートメント",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Youtuber施策費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "YouTube施策費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "Yukiko Hasegawaアサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "アイシャドウ パレット 配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "アイテム発送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "あきとんとん🤔様タイアップ費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "アクトレスルージュUVリップコーラルフラワー",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "アズミエステール Instagram運用代行 月額費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "アットコスメ_ブランドオフィシャル10月分",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "10月REJURAN アットコスメ施策"
+    },
+    {
+      "name": "アットコスメ_ブランドオフィシャル11月分",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "11月REJURAN アットコスメ施策"
+    },
+    {
+      "name": "アットコスメPOPUPリリース作成費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "アットコスメブログ制作費用",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "10月REJURAN アットコスメ施策"
+    },
+    {
+      "name": "アテニアスキンクリアレンズ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "アドバンス　イージー・カール32mm 配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "アドバンス　イージー・カール32mm配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "アドバンススマート　イージー・カール25mm 配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "アメリカン",
+      "count": 0,
+      "partnerName": "株式会社プラチナム",
+      "billingTitle": "【Trepo】11月実施｜ドミノ・ピザ × TABASCO® レビュー記事 食事代ご請求の件"
+    },
+    {
+      "name": "あやち　Instagram Reels",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "【ILO】PR施策に関しまして"
+    },
+    {
+      "name": "あやち　Instagram Stories",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "【ILO】PR施策に関しまして"
+    },
+    {
+      "name": "ありちゃん 二次利用費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "アルボ（ストーリー）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "アルボ（記事）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "アンパンマンあいうえお教室",
+      "count": 0,
+      "partnerName": "株式会社昭通",
+      "billingTitle": "インフルエンサー施策に関しまして"
+    },
+    {
+      "name": "あんりゴン 施策費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "イベント企画関連費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "イベント前日当日対応費（2名体制）※ディレクター1名、スタッフ１名",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "イベント当日対応　（2名想定、交通費宿泊費別途）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "イベント当日対応　（3名想定、交通費宿泊費別途）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "いゆぴ様2次利用費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "いゆぴ様タイアップ費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "インスタ試作費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "インフルエンサー",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "インフルエンサー（10,000人）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "インフルエンサー（50,000人）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "インフルエンサー1名・Pamunユーザー20名口コミ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "インフルエンサー2名起用費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "インフルエンサーPR",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "インフルエンサーPR費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "インフルエンサーPR付",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "インフルエンサーアサイン費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "インフルエンサーアサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "インフルエンサーキャスティング、投稿費用（Nami Channel込み）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "インフルエンサーキャスティング費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "インフルエンサー起用費用",
+      "count": 0,
+      "partnerName": "PurrSong, Inc.",
+      "billingTitle": "Pamun・インフルエンサー施策に関しまして"
+    },
+    {
+      "name": "インフルエンサー交通費片道",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "インフルエンサー施策",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "インフルエンサー施策（レディアス様）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "インフルエンサー施策費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "インフルエンサー投稿費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "インフルエンサー投稿費用(3名分)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "インフルエンサー投稿費用（追加分）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "インフルエンサー費用",
+      "count": 0,
+      "partnerName": "株式会社三栄コーポレーション",
+      "billingTitle": "インフルエンサー施策費用に関しまして"
+    },
+    {
+      "name": "ヴェールヌーディ エッセンスパクトグロウ サブスクB",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "うるおうクレンジング＆洗顔セット",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "エゴイプセ_アイロンセラム案件：小宮由記子様",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "エンジェルUVスプレーインフルエンサー施策費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "オージオ ビューティーオープナー リンクル&ホワイト（美容液） 配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "オーセンティック ビューティ コンセプト ハンド＆ヘア ライトセラム",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "オーテ　温感クレンジングバーム",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "オーバーナイトリップティント",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "オープンイベント",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "おかもとまり",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "オフラインレビュー",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "オフラインレビュー（♡ 𝓗 𝓐 𝓝 𝓐 ♡さん）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "オルビス クリアフル ウォッシュ配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "オルビス クリアフル モイスチャー配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "オルビス クリアフル ローション配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "お振り込み立替金",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "お振込手数料",
+      "count": 0,
+      "partnerName": "ザ・プレミエールファクトリー株式会社",
+      "billingTitle": "【Pamun2月施策】ECサイトレビュー施策ご費用に関しまして"
+    },
+    {
+      "name": "お打ち合わせ ※１",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "お値引き",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "お土産2,000個配送費用(内税)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ガソリン代",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "カナデルプレミアムリフト",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ガブリエラ令子投稿費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ガブリエラ令子様",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "カメラマン・ディレクション・備品購入費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "カラーシフォンパウダー",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ギフティング300名プラン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ギフティング送料",
+      "count": 0,
+      "partnerName": "愛敬産業株式会社",
+      "billingTitle": "【LUNA】未請求分につきまして"
+    },
+    {
+      "name": "ギフティング配送料（佐川急便）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "キャスティング費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "キャットウォーマー",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "キュレーション企画掲載費用",
+      "count": 0,
+      "partnerName": "弊社株式会社Crepity",
+      "billingTitle": "キュレーション企画掲載費用に関しまして"
+    },
+    {
+      "name": "キラーバーナーPR費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "クーポン代",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "クチコミ施策",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "クッション ド ルナ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "グッドスパイラル Instagram運用代行 月額費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "グッドスパイラル Instagram運用代行 初期費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "クリアエステフェイスパウダー クリア",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "クリーミーウォッシュ立替金",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "クリエイティブ関連費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "クリニックの掲載コース、オプションなど（課金内訳）を管理する機能",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "クリニック管理画面構築",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "クリニック側連携（1to1チャット管理、予約者ステータス管理）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "クレンジングバームプラス",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "コーディング",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "コールセンターシステム（LINEチャットシステム）構築",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ゴールドコラーゲンデイリーマスク",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ゴールドコラーゲンデュアルアイパッチ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ゴールドコラーゲンニードルパッチ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ココミスト 広告素材用インフルエンサーアサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ココミスト 広告素材用インフルエンサーアサイン費用※備考欄詳細添付",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ココミスト男性インフルエンサーアサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "コスメ怪獣ちゃん😈💄【美容・スキンケア】　TikTok＋Spark Ads（2w）",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "【REJURAN】PR施策に関しまして"
+    },
+    {
+      "name": "こももと愉快な仲間たち 施策費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "こももと愉快な仲間たち 登壇費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "コンシールブレンダーパレット サブスクB",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "コンテンツライティング",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "コンテンツ企画、編集",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "コンテンツ表⽰（検索、新着、ピックアップ、カテゴリ別表示",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "コンテンツ表⽰機能詳細表⽰",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "コンテンツ⼀覧・編集 コンテンツ⼀覧を表⽰、検索、管理、削除機能",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "コンパクトイオンヒートブラシ配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "サーバー構築、LINE連携他、初期設定",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "サービス初期導入費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "サイクルプラス エンリッチローション送料立替金",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "サイト製作",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "サステナブル ロケハン旅費（交通費・宿泊費）※スタッフ1名",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "サステナブル様とのお打ち合わせ費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "サブスクA施策費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "サブスクリプション カスタムプラン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "サブスクリプション ライトプラン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "サブスクリプションA",
+      "count": 0,
+      "partnerName": "株式会社ナムコミュニケーション",
+      "billingTitle": "3月Pamun施策費用に関しまして"
+    },
+    {
+      "name": "サブスクリプションAプラン",
+      "count": 0,
+      "partnerName": "SEVEN BEAUTY株式会社",
+      "billingTitle": "Pamun12月施策費用に関しまして"
+    },
+    {
+      "name": "サブスクリプションA施策費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "サブスクリプションB",
+      "count": 0,
+      "partnerName": "愛敬産業株式会社",
+      "billingTitle": "LUNA「ロングラスティングチップコンシーラー」「ロングラスティングチップコンシーラーEX」2月口コミ施策に関しまして"
+    },
+    {
+      "name": "サブスクリプションBプラン",
+      "count": 0,
+      "partnerName": "株式会社ダイヤコーポレーション",
+      "billingTitle": "Pamun11月施策のご請求に関しまして（ASUNE）"
+    },
+    {
+      "name": "サブスクリプションC",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "サブスクリプションCプラン",
+      "count": 0,
+      "partnerName": "株式会社DOTS CORPORATION.",
+      "billingTitle": "Pamun 12月〜1月施策に関しまして"
+    },
+    {
+      "name": "サブスクリプションD（150名）",
+      "count": 0,
+      "partnerName": "株式会社アイエスリンク",
+      "billingTitle": "2026年4月施策 サブスクリプションD"
+    },
+    {
+      "name": "サブスクリプションDプラン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "サブスクリプションライトプラン",
+      "count": 0,
+      "partnerName": "LEWA株式会社",
+      "billingTitle": "3月Pamun施策費用に関しまして"
+    },
+    {
+      "name": "サブスクリプション費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "サブスク費用（1/2）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "さやか　Instagram Reels",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "【ILO】PR施策に関しまして"
+    },
+    {
+      "name": "さらさん☺︎（美容オタク・プチプラコスメ）　Instagram Feed",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "【REJURAN】PR施策に関しまして"
+    },
+    {
+      "name": "サンプル品送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "サンプロテクトＵＶジェル50＋",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ジェントルクレンジングオイル/＠コスメ掲載料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ジェントルクレンジングオイル配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "シカパンテノールスリーピングマスク送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "シグネチャーエッセンス カバーパクト サブスクB",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "シグネチャーエッセンス カバーパクト レビュー費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "シグネチャーエッセンス カバーパクト立替金",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "システム要件定義",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "シピエレガン（ストーリー）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "シピエレガン（記事）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ショップサイトレビュー掲載費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ショップレビュー掲載費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ジョニーウォーカーインフルエンサーアサイン費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "シルバープラン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "シンデレラウォーク投稿費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "スカイボトル",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "スカイボトル　キチュツイリーヘア＆ボディミスト",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "スカイボトル　スターリーナイト　ハンドクリーム",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "スカイボトル　スプリングフェバーハンドクリーム",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "スカイボトル　ビバラピンクハンドクリーム",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "スカイボトル　ヘア＆ボディミスト　セレブリティ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "スカイボトル　ヘア＆ボディミスト　ビバラピンク",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "スカイボトルホワイトレイン ハンドクリーム送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "スカイボトルホワイトレイン ミルクローション 送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "スカイボトル配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "スキリス（ストーリー）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "スタジオ費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "スタッフ遠征費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "スタディチャンネル様2次利用費用",
+      "count": 0,
+      "partnerName": "株式会社東京個別指導学院",
+      "billingTitle": "STUDY DJ インフルエンサータイアップ"
+    },
+    {
+      "name": "スタディチャンネル様タイアップ費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ストーリーズ投稿費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ストーリー投稿",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ストーリー投稿ディスカウント",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "スパイシー",
+      "count": 0,
+      "partnerName": "株式会社プラチナム",
+      "billingTitle": "【Trepo】11月実施｜ドミノ・ピザ × TABASCO® レビュー記事 食事代ご請求の件"
+    },
+    {
+      "name": "スペシャルゲストやマネージャーとのコミュニケーション費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "スペシャルゲスト登壇の交渉稼働費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "スムースカバーベース",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "スリーキングスティック",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "セシュレル",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "セレッセンス セラム アクティベーター配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "セレッセンス ローション アクティベーター配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ダーマシンコンシーラー",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ターミナ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ダズルシャドウ リキッド 配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "タバスコ＿ミニ3本",
+      "count": 0,
+      "partnerName": "株式会社プラチナム",
+      "billingTitle": "【Trepo】11月実施｜ドミノ・ピザ × TABASCO® レビュー記事 食事代ご請求の件"
+    },
+    {
+      "name": "タレントタイアップ費",
+      "count": 0,
+      "partnerName": "株式会社ナリス化粧品",
+      "billingTitle": "Sweet雑誌掲載費用に関しまして"
+    },
+    {
+      "name": "ちぴこ🌷コスメ・美容　Instagram Feed",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "【REJURAN】PR施策に関しまして"
+    },
+    {
+      "name": "ちゃーちゃん様投稿費用　投稿日 9/23",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "チャンユカ 投稿費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "チラシ制作",
+      "count": 0,
+      "partnerName": "医療法人佐久平リプロダクションセンター",
+      "billingTitle": "2025年11月納品分PR・マーケティング施策費用請求書"
+    },
+    {
+      "name": "ディフェンセラ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ディレクション費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ディレクション費用（10％）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "デザイン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "デザイン費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "デジタル広告バナー制作",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ドクターリセラ スーパーホワイトEXスタートセット（成果分）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ドッカン酵素インフルエンサー投稿に関しまして",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ドミノ・デラックス",
+      "count": 0,
+      "partnerName": "株式会社プラチナム",
+      "billingTitle": "【Trepo】11月実施｜ドミノ・ピザ × TABASCO® レビュー記事 食事代ご請求の件"
+    },
+    {
+      "name": "ともよ様投稿費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "トリートメントフェイスウォッシュ/＠コスメ掲載料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "トリートメントフェイスウォッシュ/Instagram掲載料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "トリートメントフェイスウォッシュ配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "トリートメントフェイスフォッシュ 配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "トレンドお届けメディアTrepo掲載費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ナイス＆クイック ホットクレンジングジェル240g送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ナイトプールチケット代(女性1名/男性1名)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ナイトプールチケット代(女性2名)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "なすちゃん　TikTok＋Spark Ads（2w）",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "【REJURAN】PR施策に関しまして"
+    },
+    {
+      "name": "ナチュラル投稿費用(Pamun)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ナノエマルションローション 配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "なむ様投稿費用　投稿日 10/19",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ヌンちゃん　TikTok＋Spark Ads（2w）",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "【REJURAN】PR施策に関しまして"
+    },
+    {
+      "name": "ノエミュ立替金",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "パーフェクトワンモイスチャージェル",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "はがき制作",
+      "count": 0,
+      "partnerName": "医療法人佐久平リプロダクションセンター",
+      "billingTitle": "2025年5月納品分PR・マーケティング施策費用請求書"
+    },
+    {
+      "name": "バガチャン2025 インスタグラマーキャスティング費",
+      "count": 0,
+      "partnerName": "大場 友和",
+      "billingTitle": "バガチャン2025 インスタグラマーキャスティングに関しまして"
+    },
+    {
+      "name": "ハクアージュ 広告素材用インフルエンサーアサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ハクアージュ 広告素材用インフルエンサーアサイン費用※備考欄詳細添付",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ハクアージュインフルエンサーアサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ハッシュタグ分析・効果測定費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ハッシュタグ分析月額運用費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ハニーラスター r 24配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ハニーラスター r 25配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "パブリシティ活動費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "パブリシティ活動費\t",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "はむ　TikTok＋Spark Ads（2w）",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "【REJURAN】PR施策に関しまして"
+    },
+    {
+      "name": "バリアスキンケアセット施策費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "パワーインフルエンサー費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ビアミシカアンプルマスク",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ビアミシカダブルアンプル",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ビーグレン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ビタブリットC",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ビューティーオープナージェル",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ビューティーオープナージェル　リンクル&ホワイト 配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ビューティーオープナージェルVCブライト",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ピロー バーム リップ トリートメント 配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ファムズベビーインフルエンサー施策費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ブース設営(デザイン込み)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "フェイスケアローション立替金\t",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "フォーカスクレンジングバーム",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "フォント作成",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ふくすけ様投稿費用　投稿日 10/18",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ふくすけ様投稿費用　投稿日 3/14",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ふくすけ様投稿費用　投稿日 3/22",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ふくすけ様投稿費用　投稿日 3/8",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ふくすけ様投稿費用　投稿日 5/31",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ふくすけ様投稿費用　投稿日 6/15",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ふくすけ様投稿費用　投稿日 9/20",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ふくすけ様投稿費用　投稿日 9/9",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ブラーカバークッション サブスクB",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ブラックシュガー パーフェクト エッセンシャル スクラブ 2X 配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ブラックセラムパクト21号ライトベージュ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ブラックセラムパクト23号ナチュラルベージュ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "プレスリリース作成・配信",
+      "count": 0,
+      "partnerName": "ONE THING Inc.",
+      "billingTitle": "【5月】ONE THING様 PR施策のご請求につきまして"
+    },
+    {
+      "name": "プレスリリース作成・配信　（案内状作成費含む）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "プレスリリース作成（1件）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "プレスリリース制作サービス分",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "プレスリリース制作費",
+      "count": 0,
+      "partnerName": "株式会社VISION",
+      "billingTitle": "2026年2月_PRリテナー費用に関しまして"
+    },
+    {
+      "name": "プレゼントキャンペーン運営事務局費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "プレゼントキャンペーン運用費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "プレゼントキャンペーン投稿（X）",
+      "count": 0,
+      "partnerName": "株式会社H2O",
+      "billingTitle": "【Trepo】3月実施＿プレゼントキャンペーン施策（X）"
+    },
+    {
+      "name": "プレミアホワイト",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "プロテクティブモイストクリーム 配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "プロテクトバリアブライトリッチ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "プロテクトバリアリッチ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "プロテクトバリアリッチ　",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ページ設計",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ほだか🪴-호다카様タイアップ費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ボニーラッシュ（ストーリー）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ボニーラッシュ（記事）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ホワイトクリアエッセンス",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "マイウェディングインフルエンサーアサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "マイクロインフルエンサー施策（Instagram）",
+      "count": 0,
+      "partnerName": "株式会社第一通信社",
+      "billingTitle": "上野観光連盟「Peace of Light」"
+    },
+    {
+      "name": "まき|勉強×行動様2次利用費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "まき|勉強×行動様タイアップ費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "マグダレーナ様",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "マザーアンドドーター・クールフローズンスプレー送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "まつげ美容液（LIPS / @cosme）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "マテリアルカラーパレット配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "マヌカハニーのど飴",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ママコスメクレンジングバーム",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "まみこ様投稿費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "マリネスプロテイン配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "マルチグリッターカラー",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ミカホワイトPR費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "みこ様投稿費用　投稿日 1/18",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "みちょぱさん起用Sweet夏祭連動タイアップ二 次使用費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ミラー レンタル　　＜10月1日～10月30日＞\t\t\t\t\t\t\t\t\t\t\t\t",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "メイク道具購入費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "メディアキャラバン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "メディアタイアップ費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "メディアタイアップ費\t",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "メディアプロモート活動　（1名体制）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "メディアプロモート活動　（3名体制）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "メディアリスト作成",
+      "count": 0,
+      "partnerName": "ONE THING Inc.",
+      "billingTitle": "【4月】ONE THING様 PR施策のご請求につきまして"
+    },
+    {
+      "name": "メディア先行体験会 PR",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "メディア誘致リスト配信",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "メロウタッチ No Wash Protein Hair Treatment Balm",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "メロータッチ（LIPS / @cosme）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "モイスチャーローション立替金",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "モイストジェルクリーム立替金\t",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "モイスト投稿費用(Pamun)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "もうやんカレー Instagram運用代行 月額費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "モニターイベント参加費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "モニタークリッピング　（露出報告書作成）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "モニターへの配送料（佐川急便）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "モニター起用費用（12/15〜12/22）",
+      "count": 0,
+      "partnerName": "株式会社S&Cパートナーズ",
+      "billingTitle": "【MEDULLA_ 鈴木達央】Pamun12月施策費用に関しまして"
+    },
+    {
+      "name": "モニター起用費用（12/19〜12/25）",
+      "count": 0,
+      "partnerName": "株式会社S&Cパートナーズ",
+      "billingTitle": "【MEDULLA_ 阿久津仁愛】Pamun12月施策費用に関しまして"
+    },
+    {
+      "name": "モニター施策年間費用（M.CLINIC様）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "モバイルヘアアイロン（MHS-1341-W）配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "モバイルヘアアイロンプラス 配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "モバイルヘアアイロンプラス配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "モバイルヘアアイロンプラス発送費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ヤマト配送料（スターデザイン株式会社）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ヤマト発送費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ユーウォッシュ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ユーザーにポイントを付与する機能",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ユーザーの会員ランクを管理・編集する機能",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ユーザー側ログイン、マイページ構築",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ユーザー側連携（LINEログイン、マイページ）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ユースエイジヒアルロン酸アイクリーム",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "よくばりキレイな生酵素",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ライスフォース",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ライスフォース成果報酬",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ライトLP",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ライトプラン",
+      "count": 0,
+      "partnerName": "株式会社オージオ",
+      "billingTitle": "Pamun1月施策費用に関しまして"
+    },
+    {
+      "name": "ライトフルシリーズ 配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ライフカード",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ラクーアPRインフルエンサーアサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ラグジュアリーカードソーシャルアワーインフルエンサーアサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ラグジュアリスリムレッグ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "らな┊︎韓国スキンケア　Instagram Feed",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "【REJURAN】PR施策に関しまして"
+    },
+    {
+      "name": "リアルブースタージェル（ストーリー）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "リアルブースタージェル（記事）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "リール施策　AGE20'S ヴェールヌーディ エッセンスパクトグロウ 20オークル",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "リール施策　LUNAコンシールブレンダーパレット 1号クリアカバー",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "リサラット配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "リッチメニュー作成・導線設計",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "リラコラ男性モデルアサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "リラモード",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "リリース作成費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "リリース作成費お値引き",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "りりちゃん♡ももちゃん様投稿費用　投稿日 5/31",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "リンクメディカル（ストーリー）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "リンクメディカル（記事）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ルクエ コンク送料立替金",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ルジュアイラッシュセラム",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ルジュダイレクトVCショットセラム",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "るるちゃんキャスティング及び投稿費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "レカルカ  Instagram運用代行 月額費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "レカルカ  Instagram運用代行 初期費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "レビューサイト口コミ掲載費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "レビュー掲載費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "レビュー掲載費⽤",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "レポーティング",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "レポート提出費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ログイン 管理者登録ID、パスワードによるログインを行う機能",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ログイン 登録した情報でログインを行う機能",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ログイン 登録した情報ログインを行う機能",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "ロゴ使用期間1年延長費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "わぶ様投稿費用　投稿日 9/13",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "芦田純子様アサイン費用",
+      "count": 0,
+      "partnerName": "株式会社アクアイグニス",
+      "billingTitle": "アクアイグニス淡路島「Trailer Park」PR案件に関しまして"
+    },
+    {
+      "name": "椅子（4脚セット） レンタル　　＜10月1日～10月30日＞\t\t\t\t\t\t\t\t\t\t\t\t",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "違約金",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "医療機関詳細表示（基本情報、診療メニュー、インタビュー、口コミ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "医療機関表⽰（検索、新着、ピックアップ、カテゴリ別表示",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "井本悦代 インフルエンサー費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "井本様 交通費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "印刷費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "運営者管理画面構築",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "運用環境構築/テスト環境構築",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "運用代行費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "英語",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "押田朋子",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "横山 史子",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "岡見瑞希",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "下書き費用",
+      "count": 0,
+      "partnerName": "株式会社レターズ",
+      "billingTitle": "「BOTANIST」IGフィード&リール投稿施策"
+    },
+    {
+      "name": "加藤綾香",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "夏期講習コマ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "夏期講習コマ(60分)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "夏期講習教材費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "稼働費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "稼働費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "花びら発送費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "画面設計、UI制作",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "会員数等の統計データを見る機能",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "会員登録・編集 会員登録、本⼈確認、編集を行う機能",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "会員⼀覧・編集 会員⼀覧を表⽰、検索、管理、削除機能",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "開発進行管理・ディレクション",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "角彩水アサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "楽天BOXインフルエンサーアサイン費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "楽天カード",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "楽天レビュー掲載料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "楽天掲載費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "株式会社GOSSO Instagram運用代行 月額費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "株式会社GOSSO Instagram運用代行 初期費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "株式会社マイプリント Instagram運用代行 月額費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "株式会社マイプリント Instagram運用代行 初期費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "乾奈津子",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "管理者アカウント管理 管理者情報登録、編集、削除を行う機能",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "管理者側連携（1to1チャット管理、予約者ステータス管理、各種配信管理）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "管理費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "管理費(2ヶ月分)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "管理費(3ヶ月分)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "管理費(9月分)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "韓国留学生momona二次利用費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "丸テーブル　レンタル　＜10月1日～10月30日＞\t\t\t\t\t\t\t\t\t\t\t\t",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "岩崎美紗",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "岩本梨奈アサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "企画・ディレクション費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "基本システム構築",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "基本戦略策定",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "基本戦略策定費用",
+      "count": 0,
+      "partnerName": "株式会社永晃",
+      "billingTitle": "12月_PRコンサルティング費用に関しまして"
+    },
+    {
+      "name": "記事",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "吉田亜理沙",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "宮崎宣子",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "共同通信WEBタイアップ　※二次利用費含む\t",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "協力費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "教材費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "橋本 和佳奈",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "近郊交通費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "銀座aimy Instagram運用代行 5月 月額費用分",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "銀座カラー",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "栗原千詠歌",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "栗林りり様アサイン費用",
+      "count": 0,
+      "partnerName": "株式会社アクアイグニス",
+      "billingTitle": "アクアイグニス淡路島「Trailer Park」PR案件に関しまして"
+    },
+    {
+      "name": "契約期間:2021年12月～2022年11月",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "契約期間:2022年1月～2022年12月",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "契約期間:2023年12月～2024年11月",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "掲載費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "掲載料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "月額運用費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "研修　15名",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "研修費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "現場稼働",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "現地取材費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "五十嵐茉穂",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "交通費",
+      "count": 0,
+      "partnerName": "株式会社アクアイグニス",
+      "billingTitle": "アクアイグニス淡路島「Trailer Park」PR案件に関しまして"
+    },
+    {
+      "name": "交通費（京都→品川）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "交通費１名分(新横浜→新大阪)",
+      "count": 0,
+      "partnerName": "㈱プラチナム",
+      "billingTitle": "【Trepo】11月・USJ クリスマス・イベント『ユニバーサル・クリスマス・ジョイ』／『ユニバーサル・クールジャパン』モンスターハンターワイルズ ～モリバーの宴～メディア体験取材会"
+    },
+    {
+      "name": "交通費１名分(新大阪→小田原)",
+      "count": 0,
+      "partnerName": "㈱プラチナム",
+      "billingTitle": "【Trepo】11月・USJ クリスマス・イベント『ユニバーサル・クリスマス・ジョイ』／『ユニバーサル・クールジャパン』モンスターハンターワイルズ ～モリバーの宴～メディア体験取材会"
+    },
+    {
+      "name": "交通費１名分(新大阪→新大阪)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "交通費１名分(東京→新大阪)",
+      "count": 0,
+      "partnerName": "㈱プラチナム",
+      "billingTitle": "【Trepo】11月・USJ クリスマス・イベント『ユニバーサル・クリスマス・ジョイ』／『ユニバーサル・クールジャパン』モンスターハンターワイルズ ～モリバーの宴～メディア体験取材会"
+    },
+    {
+      "name": "口コミ掲載費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "口コミ施策",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "口座振替手数料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "広告運用手数料",
+      "count": 0,
+      "partnerName": "医療法人佐久平リプロダクションセンター",
+      "billingTitle": "2026年1月納品分PR・マーケティング施策費用請求書"
+    },
+    {
+      "name": "広告配信設計・運用代行・レポーティング",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "広告費用(Meta)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "広報事務局の設置",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "広報事務局の設置　（企画打ち合わせ費含む）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "高橋愛",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "高橋晴香",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "高瀬彩華アサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "高速代（西池袋↔富浦）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "黒田真友香　Instagram Reels＋Stories",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "【REJURAN】PR施策に関しまして"
+    },
+    {
+      "name": "黒糖抹茶青汁寒天ジュレ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "佐久平エンゼルクリニック the Beauty Instagram運用費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "佐久平エンゼルクリニック the Beauty LINE投稿作成費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "佐川急便配送費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "佐川急便立替費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "佐達ももこアサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "佐野真依子　Instagram Reels",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "【ILO】PR施策に関しまして"
+    },
+    {
+      "name": "佐野真依子　Instagram Stories",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "【ILO】PR施策に関しまして"
+    },
+    {
+      "name": "材料費",
+      "count": 0,
+      "partnerName": "株式会社ヴァーナル",
+      "billingTitle": "動画制作に関して_ガダバウツ"
+    },
+    {
+      "name": "雑誌メンズクラブザ・マーベリック・オブ2019インフルエンサーアサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "雑費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "三浦いずみ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "三佐和あや",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "三澤あずみアサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "山本彩未アサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "使用期限１年延長",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "四辻 里奈",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "志垣 奈々アサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "施策費用",
+      "count": 0,
+      "partnerName": "株式会社三栄コーポレーション",
+      "billingTitle": "Pamun2月施策に関しまして"
+    },
+    {
+      "name": "施策費用（口コミ掲載料）1人複数投稿プラン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "紙本真琴アサイン費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "紙本真琴アサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "紙面掲載費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "辞退者(3名)",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "【REJURAN】9月「オフラインレビュー  パッケージ」施策に関しまして"
+    },
+    {
+      "name": "取材稼働費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "取材協力費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "取材協力費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "取材費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "手数料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "手数料20％",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "手続費用（スターデザイン株式会社）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "手配等手数料\t\t\t\t\t\t\t\t\t\t\t\t",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "授業料未納分",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "秋の日キャンペーンバナー制作",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "集客関連費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "出力費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "潤静インフルエンサー投稿費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "初回特典",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "初期費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "商品購入代金",
+      "count": 0,
+      "partnerName": "株式会社JABLE",
+      "billingTitle": "1月〜2月レビュー施策に関しまして"
+    },
+    {
+      "name": "商品購入費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "商品購入費用立替金",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "商品代",
+      "count": 0,
+      "partnerName": "株式会社呉竹",
+      "billingTitle": "Pamun7月施策に関しまして"
+    },
+    {
+      "name": "商品代金",
+      "count": 0,
+      "partnerName": "株式会社レターズ",
+      "billingTitle": "「Qurap」IGフィード&リール投稿施策"
+    },
+    {
+      "name": "商品代金・送料返金分",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "商品代金振込手数料（非課税）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "商品代金立替え",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "商品代金立替金",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "商品代金立替費",
+      "count": 0,
+      "partnerName": "FANPANY",
+      "billingTitle": "10月Pamun施策費用に関しまして"
+    },
+    {
+      "name": "商品代立替金",
+      "count": 0,
+      "partnerName": "ザ・プレミエールファクトリー株式会社",
+      "billingTitle": "【Pamun2月施策】ECサイトレビュー施策ご費用に関しまして"
+    },
+    {
+      "name": "商品発送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "商品立替金",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "商品立替金（クーポン使用）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "商品⽴替⾦",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "小栗有以 Meta広告使用料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "小栗有以 タイアップ費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "小栗有以 各媒体広告費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "小栗有以　各媒体広告費 2週間（Instagram）",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "【ILO】PR施策に関しまして"
+    },
+    {
+      "name": "小栗有以　二次利用追加費用",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "【ILO】PR施策に関しまして"
+    },
+    {
+      "name": "小栗有以 二次利用費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "小原亜希",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "湘南美容アイリッドグルー",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "湘南美容コンシーラー",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "焼き鳥・水炊きたから 五反田店 Instagram運用代行 月額費用分",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "焼き鳥・水炊きたから 五反田店 初期費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "焼肉均一食堂39高田馬場店　インフルエンサーアサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "症例テンプレート作成費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "上記値引き",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "情報登録・編集 情報登録、編集を行う機能",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "振り込み手数料",
+      "count": 0,
+      "partnerName": "FANPANY",
+      "billingTitle": "10月Pamun施策費用に関しまして"
+    },
+    {
+      "name": "振込手数料",
+      "count": 0,
+      "partnerName": "株式会社JABLE",
+      "billingTitle": "1月〜2月レビュー施策に関しまして"
+    },
+    {
+      "name": "振込手数料立替金",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "新幹線（新大阪 → 品川）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "新幹線（品川 → 京都）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "森山里奈",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "森田めぐみ様",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "進行管理費",
+      "count": 0,
+      "partnerName": "愛敬産業株式会社",
+      "billingTitle": "LUNA様 コスメヲタちゃんねるサラさんPOPUPスタッフ手配費用に関しまして"
+    },
+    {
+      "name": "進行手数料20％",
+      "count": 0,
+      "partnerName": "株式会社VISION",
+      "billingTitle": "【JR東日本×JR東海×JR西日本】J・ADビジョン東名 阪ネットワークセット"
+    },
+    {
+      "name": "進行台本作成（2コーナー分）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "水越みさと二次利用費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "水素浴サロン銀座4丁目プレミアム店 Instagram運用代行 月額費用分",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "水素浴サロン銀座4丁目プレミアム店 初期費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "水素浴サロン銀座6丁目店 Instagram運用代行 月額費用分",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "水素浴サロン銀座6丁目店初期費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "数学",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "杉崎ろみ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "杉本様 交通費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "制作管理費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "成果報酬10%",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "成果報酬費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "製作費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "青木里美アサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "石川マリー投稿費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "先月不足分（口座振替不可分）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "先月分",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "川口彩香",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "川崎香織",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "扇谷幸花（Trepo編集部）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "全体企画、進行ディレクション",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "全体設計",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "相殺金額（プラン切り替え）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "草田千雅子様アサイン費用",
+      "count": 0,
+      "partnerName": "株式会社アクアイグニス",
+      "billingTitle": "アクアイグニス淡路島「Trailer Park」PR案件に関しまして"
+    },
+    {
+      "name": "送料",
+      "count": 0,
+      "partnerName": "株式会社三栄コーポレーション",
+      "billingTitle": "インフルエンサー施策費用に関しまして"
+    },
+    {
+      "name": "送料（税込）",
+      "count": 0,
+      "partnerName": "株式会社ヴァーナル",
+      "billingTitle": "9月Pamun施策費用"
+    },
+    {
+      "name": "送料建替費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "送料返金分",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "送料立替金",
+      "count": 0,
+      "partnerName": "GLASSY株式会社",
+      "billingTitle": "Pamun12月施策送料に関しまして"
+    },
+    {
+      "name": "送料立替費",
+      "count": 0,
+      "partnerName": "株式会社ナムコミュニケーション",
+      "billingTitle": "3月Pamun施策費用に関しまして"
+    },
+    {
+      "name": "増田康瑛",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "速水ティーナ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "村岡 美里",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "【REJURAN】9月「IGミドル〜マクロ PR」施策に関しまして"
+    },
+    {
+      "name": "打ち合わせ費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "対象ブランド：got2b・syoss・フレッシュライト",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "退会 退会処理を行える機能",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "台湾プレミアムライチの試食パーティーインフルエンサーアサイン費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "大阪周遊パス OSAKA AMAZING PASS｜大阪お得チケット｜電子チケット",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "大場亜沙美",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "大谷朋子アサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "大田くるみ　Instagram Reels",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "【ILO】PR施策に関しまして"
+    },
+    {
+      "name": "大田くるみ　Instagram Stories",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "【ILO】PR施策に関しまして"
+    },
+    {
+      "name": "拓海君",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "拓海君教材費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "単発施策Instagram投稿プラン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "値引",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "値引き",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "遅延損害金",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "竹内美紅",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "中村亜紀",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "中島ケイカ",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "【REJURAN】9月「IGミドル〜マクロ PR」施策に関しまして"
+    },
+    {
+      "name": "中尾絵理",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "中藏彩乃",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "長谷川夕希子様",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "塚本　美帆",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "提供費（8：00－23：35分までのご利用）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "泥マスク",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "店舗購入手数料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "田中志乃",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "渡引智美",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "土屋まゆ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "冬期講習授業料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "投稿者：倉俣あい",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "投稿費用",
+      "count": 0,
+      "partnerName": "株式会社ヴァーナル",
+      "billingTitle": "動画制作に関して_ガダバウツ"
+    },
+    {
+      "name": "東京MX番組タイアップ（五時に夢中ｏｒバラ色ダンディ）※1分尺\t",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "藤井 祥花",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "動画使用した広告",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "堂島ロール",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "特注プラン",
+      "count": 0,
+      "partnerName": "REVU Corporation",
+      "billingTitle": "Pamunクチコミ施策に関しまして (ザ·ハルナイ)"
+    },
+    {
+      "name": "特別プラン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "二次利用（1ヶ月）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "二次利用費",
+      "count": 0,
+      "partnerName": "Meitu Inc.",
+      "billingTitle": "【BeautyCam】10月Trepo_Instagram（フィード）タイアップ"
+    },
+    {
+      "name": "二次利用費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "二次利用費用（1ヶ月）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "入塾金",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "入塾費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "入塾費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "年間1,000件保証プラン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "年間1000件保証プラン",
+      "count": 0,
+      "partnerName": "BESTINNOVATION Co., Ltd.",
+      "billingTitle": "Pamun 口コミ施策に関しまして"
+    },
+    {
+      "name": "年間クチコミ1000件保証プラン",
+      "count": 0,
+      "partnerName": "株式会社 マリークワント コスメチックス",
+      "billingTitle": "Pamun「年間クチコミ1000件保証プラン」のご請求に関しまして"
+    },
+    {
+      "name": "年間口コミ1,000件保証プラン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "年間口コミ2000件保証プラン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "配送費用概算",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "配送料(soarsome)(3)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "配送料(アクアバンク)(1)",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "配送料（佐川）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "配送料（佐川急便）",
+      "count": 0,
+      "partnerName": "株式会社ポイントピュール",
+      "billingTitle": "Pamun施策費用に関しまして"
+    },
+    {
+      "name": "配送料（内税）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "配送料立替",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "配送料立替金",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "媒体費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "肌ナチュール",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "肌ナチュール（記事）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "発送費（概算）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "発送費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "発送費用：関西近郊",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "発送費用：関東近郊",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "販売手数料20%",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "美人百花掲載費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "美容スキンケア.コスメ.韓国美容.新潟 投稿費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "美容医療EXPOのキャンペーンの事務局対応費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "美容医療EXPO打ち合わせ費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "不足額",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "武井美樹（トンちゃん）　投稿費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "福岡みなみタイアップトークイベント",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "福岡様",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "複数掲載プラン",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "分析レポート",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "平台 レンタル　　＜10月1日～10月30日＞\t\t\t\t\t\t\t\t\t\t\t\t",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "別途Pamunモニターへの送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "別途モニターへの送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "別途モニターへの配送料",
+      "count": 0,
+      "partnerName": "BESTINNOVATION Co., Ltd.",
+      "billingTitle": "Pamun 口コミ施策に関しまして"
+    },
+    {
+      "name": "別途モニターへの配送料（佐川急便）",
+      "count": 0,
+      "partnerName": "G-FUTURES Inc.",
+      "billingTitle": "2026年3月 BONCEPT Pamun施策"
+    },
+    {
+      "name": "別途交通費用・宿泊費用（当日4名想定）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "別途商品購入代金",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "別途商品代",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "別途商品代金",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "別途送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "別途配送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "別途発送料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "編集部 取材・投稿費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "編集部取材稼働費用",
+      "count": 0,
+      "partnerName": "株式会社サニーサイドアップ",
+      "billingTitle": "４月実施　Trepoスタジオアリス様タイアップ"
+    },
+    {
+      "name": "保存数開示手数料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "朋原エミ",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "本人写真撮影",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "名刺作成費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "問い合わせ管理 メッセージボックスで問い合わせ対応を行う機能",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "門口妙子",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "野村日香理様",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "野田有美アサイン費",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "野田有美アサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "有村藍里 年間契約費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "有村藍里（登壇、SNS投稿）費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "有村藍里キャスティング費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "予約した医療機関の履歴、評価・口コミ投稿機能",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "予約した患者の⼀覧、ステータス編集を行う機能",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "蘭子様",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "李美沙",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "梨木タイアップ費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "梨木広告利用費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "梨木二次利用費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "陸君",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "陸君1月分授業料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "陸君2月分授業料",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "立替金",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "立替分交通費（品川⇔新大阪間）",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "旅費（交通費・宿泊費）※MC含む3名",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "鈴木綾子アサイン費用",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "和希詩織",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "眞利子様",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    },
+    {
+      "name": "⼿数料⽴替⾦",
+      "count": 0,
+      "partnerName": "",
+      "billingTitle": ""
+    }
+  ],
+  "itemsLastSynced": "2026-03-24T04:00:27.987Z",
+  "itemMappings": {
+    "PRTIMES配信費（原価）": {
+      "team": "PR",
+      "service": "PR",
+      "contractType": "単発"
+    },
+    "プレスリリース制作費": {
+      "team": "PR",
+      "service": "PR",
+      "contractType": "単発"
+    }
+  }
 }

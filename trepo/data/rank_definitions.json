@@ -1,0 +1,79 @@
+[
+  {
+    "rank_id": 1,
+    "rank_name": "研修生",
+    "rank_label": null,
+    "hourly_rate": 1260,
+    "incentive_rate": 0.00,
+    "ig_summary_bonus": 2000,
+    "short_video_bonus": 3000,
+    "salary_cap": 50000,
+    "perk_description": null
+  },
+  {
+    "rank_id": 2,
+    "rank_name": "ジュニアII",
+    "rank_label": null,
+    "hourly_rate": 1260,
+    "incentive_rate": 0.01,
+    "ig_summary_bonus": 2000,
+    "short_video_bonus": 3000,
+    "salary_cap": 50000,
+    "perk_description": "インセンティブが発生するようになる"
+  },
+  {
+    "rank_id": 3,
+    "rank_name": "ジュニアI",
+    "rank_label": null,
+    "hourly_rate": 1300,
+    "incentive_rate": 0.01,
+    "ig_summary_bonus": 2000,
+    "short_video_bonus": 3000,
+    "salary_cap": null,
+    "perk_description": "時給での給料の上限がなくなる"
+  },
+  {
+    "rank_id": 4,
+    "rank_name": "ミドルII",
+    "rank_label": null,
+    "hourly_rate": 1350,
+    "incentive_rate": 0.03,
+    "ig_summary_bonus": 2500,
+    "short_video_bonus": 3500,
+    "salary_cap": null,
+    "perk_description": "自宅出勤が可能（シフト20時間/月は維持）"
+  },
+  {
+    "rank_id": 5,
+    "rank_name": "ミドルI",
+    "rank_label": "リーダー",
+    "hourly_rate": 1400,
+    "incentive_rate": 0.03,
+    "ig_summary_bonus": 2500,
+    "short_video_bonus": 3500,
+    "salary_cap": null,
+    "perk_description": "タイアップ案件など優先的に案内"
+  },
+  {
+    "rank_id": 6,
+    "rank_name": "シニア",
+    "rank_label": "副編集長",
+    "hourly_rate": 1500,
+    "incentive_rate": 0.05,
+    "ig_summary_bonus": 3000,
+    "short_video_bonus": 4000,
+    "salary_cap": null,
+    "perk_description": null
+  },
+  {
+    "rank_id": 7,
+    "rank_name": "プロフェッショナル",
+    "rank_label": "編集長",
+    "hourly_rate": 1700,
+    "incentive_rate": 0.07,
+    "ig_summary_bonus": 3000,
+    "short_video_bonus": 4000,
+    "salary_cap": null,
+    "perk_description": null
+  }
+]

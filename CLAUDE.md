@@ -1,8 +1,13 @@
 # CreativeGroup 経営ダッシュボード — Claude Code 指示書
 
+> ⚠️ **重要**: このプロジェクトは「CreativeGroup データプラットフォーム」の一部です。
+> 開発・提案を行う際は必ず **`ARCHITECTURE.md`** の設計思想に従ってください。
+> すべてのデータはBigQuery（Google Cloud）に集約し、Googleエコシステムで統一する方針です。
+
 ## プロジェクト概要
 MFクラウド（MoneyForward）APIと連携し、売上・請求書・入金データを
 リアルタイムでダッシュボードに表示するWebアプリ。
+将来的には広告媒体・Pamunアンケート・Gmail等のデータもBigQuery経由で統合する。
 
 ## 技術スタック
 - Node.js (Express) — APIサーバー・OAuthフロー処理
