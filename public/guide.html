@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ポータルガイド — CreativeGroup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    body { background:#f8f7f4; }
+    .guide-header { background:#2c2c2c; color:#fff; padding:12px 24px; display:flex; justify-content:space-between; align-items:center; }
+    .guide-header a { color:#aaa; text-decoration:none; font-size:12px; }
+    .guide-layout { display:grid; grid-template-columns:220px 1fr; min-height:calc(100vh - 48px); }
+    .guide-nav { background:#fff; border-right:1px solid #e5e2db; padding:20px 16px; position:sticky; top:0; height:100vh; overflow-y:auto; }
+    .nav-section { margin-bottom:20px; }
+    .nav-label { font-size:10px; font-weight:700; color:#aaa; letter-spacing:.1em; text-transform:uppercase; margin-bottom:8px; }
+    .nav-link { display:block; padding:6px 8px; border-radius:6px; font-size:13px; color:#555; text-decoration:none; margin-bottom:2px; }
+    .nav-link:hover { background:#f5f2ed; color:#2c2c2c; }
+    .guide-content { padding:32px 48px; max-width:780px; }
+    .guide-content h2 { font-size:20px; font-weight:700; margin:36px 0 12px; padding-top:20px; border-top:1px solid #e5e2db; color:#2c2c2c; }
+    .guide-content h2:first-child { border-top:none; margin-top:0; }
+    .guide-content h3 { font-size:15px; font-weight:700; margin:20px 0 8px; color:#2c2c2c; }
+    .guide-content p { font-size:14px; line-height:1.8; color:#444; margin:0 0 12px; }
+    .guide-content ul { font-size:14px; line-height:1.8; color:#444; margin:0 0 12px; padding-left:20px; }
+    .callout { background:#e3f2fd; border-left:4px solid #1565c0; border-radius:0 8px 8px 0; padding:12px 16px; margin:12px 0; font-size:13px; color:#1a237e; }
+    .callout.tip { background:#e8f5e9; border-color:#2e7d32; color:#1b5e20; }
+    .callout.warn { background:#fff8e1; border-color:#f57f17; color:#e65100; }
+    .ice-demo { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:12px 0; }
+    .ice-box { background:#fff; border:1px solid #e5e2db; border-radius:8px; padding:12px; text-align:center; }
+    .ice-box .label { font-size:11px; color:#888; margin-bottom:4px; }
+    .ice-box .val { font-size:24px; font-weight:700; }
+    .ice-box .desc { font-size:11px; color:#555; margin-top:4px; line-height:1.5; }
+    .dashboard-cards { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin:12px 0; }
+    .dashboard-card { background:#fff; border:1px solid #e5e2db; border-radius:8px; padding:12px; }
+    .dashboard-card .icon { font-size:20px; margin-bottom:6px; }
+    .dashboard-card .title { font-weight:700; font-size:13px; margin-bottom:4px; }
+    .dashboard-card .desc { font-size:12px; color:#888; line-height:1.6; }
+  </style>
+</head>
+<body>
+  <header class="guide-header">
+    <div style="display:flex;align-items:center;gap:12px">
+      <a href="/portal">← ポータルへ</a>
+      <span style="color:#555">|</span>
+      <span style="font-weight:700">📖 ポータルガイド</span>
+    </div>
+  </header>
+
+  <div class="guide-layout">
+    <!-- サイドナビ -->
+    <nav class="guide-nav">
+      <div class="nav-section">
+        <div class="nav-label">はじめに</div>
+        <a class="nav-link" href="#portal">ポータルの使い方</a>
+        <a class="nav-link" href="#roles">ロールについて</a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">グロースハック</div>
+        <a class="nav-link" href="#growth">グロースハックとは</a>
+        <a class="nav-link" href="#funnel">ファネルの読み方</a>
+        <a class="nav-link" href="#ice">ICEスコアの使い方</a>
+        <a class="nav-link" href="#initiative">良い施策の書き方</a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">各ダッシュボード</div>
+        <a class="nav-link" href="#dash-sales">売上ダッシュボード</a>
+        <a class="nav-link" href="#dash-ads">広告ROAS</a>
+        <a class="nav-link" href="#dash-pamun">Pamunアンケート</a>
+        <a class="nav-link" href="#dash-trepo">Trepo分析</a>
+      </div>
+    </nav>
+
+    <!-- コンテンツ -->
+    <main class="guide-content">
+      <h2 id="portal">ポータルの使い方</h2>
+      <p>このポータルは CreativeGroup の全データを一箇所で管理するためのハブです。ログイン後に表示されるカード一覧から、各ダッシュボードやツールにアクセスできます。</p>
+      <div class="dashboard-cards">
+        <div class="dashboard-card"><div class="icon">📊</div><div class="title">売上ダッシュボード</div><div class="desc">MFクラウドの請求データを可視化。月次売上・未入金・チーム別・クライアント別に確認できます。</div></div>
+        <div class="dashboard-card"><div class="icon">🚀</div><div class="title">グロースハック</div><div class="desc">会社の成長施策を管理。KPIのボトルネック発見とICEスコアによる施策の優先順位付けができます。</div></div>
+        <div class="dashboard-card"><div class="icon">📱</div><div class="title">広告ROAS（準備中）</div><div class="desc">Google/Meta/TikTok広告のROASをチャネル横断で比較。予算の最適配分に活用します。</div></div>
+        <div class="dashboard-card"><div class="icon">📝</div><div class="title">Pamunアンケート</div><div class="desc">Pamunのアンケート回答データを分析。満足度トレンドやフィードバックの傾向を把握できます。</div></div>
+      </div>
+
+      <h2 id="roles">ロールについて</h2>
+      <p>このポータルでは5種類のロールに応じてアクセスできる機能が異なります。</p>
+      <ul>
+        <li><strong>オーナー / マネージャー</strong> — 全機能にアクセス・編集可能</li>
+        <li><strong>社員</strong> — 売上閲覧・グロースハック編集・広告/Pamun/Trepo閲覧</li>
+        <li><strong>スタッフ</strong> — 自分に関係する売上・グロースハック閲覧・自分のTrepoデータ</li>
+        <li><strong>外部</strong> — 管理者が発行した個別URLのみアクセス可能</li>
+      </ul>
+      <div class="callout">ロールの変更は管理者にお問い合わせください。Googleアカウントのメールアドレスで管理されています。</div>
+
+      <h2 id="growth">グロースハックとは</h2>
+      <p>グロースハック（Growth Hacking）とは、データに基づいて仮説を立て、素早く実験し、効果のある施策を見つけて拡大していくアプローチです。</p>
+      <p>伝統的なマーケティングが「予算を使って認知を広げる」のに対し、グロースハックは「少ないコストで最大の成長を生む」ことを目指します。</p>
+      <div class="callout tip">💡 グロースハックの核心は「試す→測る→学ぶ」の繰り返しです。完璧な施策より、多くの実験が重要です。</div>
+
+      <h2 id="funnel">ファネルの読み方</h2>
+      <p>グロースファネルは「認知 → 興味 → 成約 → 継続 → 売上」の流れを可視化したものです。各ステップで顧客がどれだけ次に進んでいるかを見ます。</p>
+      <ul>
+        <li><strong>Acquisition（認知）</strong> — 広告・SNS・紹介などで知ってもらった人数</li>
+        <li><strong>Interest（興味）</strong> — 問い合わせ・資料請求など興味を示した数</li>
+        <li><strong>Conversion（成約）</strong> — 実際に契約・購入した数</li>
+        <li><strong>Retention（継続）</strong> — 継続して利用している顧客数</li>
+        <li><strong>Revenue（売上）</strong> — 顧客から得た売上金額</li>
+      </ul>
+      <div class="callout warn">⚠️ 最も転換率が低いステップが「ボトルネック」です。そこを改善する施策が最も効果的です。</div>
+
+      <h2 id="ice">ICEスコアの使い方</h2>
+      <p>ICEスコアは施策の優先順位を決めるためのフレームワークです。3つの指標を1〜10で採点し、その平均を出します。</p>
+      <div class="ice-demo">
+        <div class="ice-box">
+          <div class="label">Impact（影響度）</div>
+          <div class="val" style="color:#2e7d32">8</div>
+          <div class="desc">成功した場合にビジネスにどれだけ影響を与えるか</div>
+        </div>
+        <div class="ice-box">
+          <div class="label">Confidence（自信度）</div>
+          <div class="val" style="color:#1565c0">7</div>
+          <div class="desc">この施策が実際に効果を出せると思う確信の度合い</div>
+        </div>
+        <div class="ice-box">
+          <div class="label">Ease（実行容易度）</div>
+          <div class="val" style="color:#f57f17">6</div>
+          <div class="desc">施策を実装・実行するのがどれだけ簡単か</div>
+        </div>
+      </div>
+      <p>上記の例では ICEスコア = (8 + 7 + 6) ÷ 3 = <strong>7.0</strong> となります。スコアが高い施策から優先的に実行します。</p>
+      <div class="callout">採点は直感で構いません。チーム内で議論しながら付けることで、優先順位の認識をそろえることが目的です。</div>
+
+      <h2 id="initiative">良い施策の書き方</h2>
+      <h3>テンプレート</h3>
+      <p>「<strong>（対象）</strong> に対して <strong>（施策）</strong> を行うことで、<strong>（指標）</strong> が改善できると仮説する」</p>
+      <h3>具体例</h3>
+      <ul>
+        <li>「商談後フォローしていないリードに対してメール自動送信を行うことで、Conversion率が改善できると仮説する」</li>
+        <li>「既存クライアントに対して月次レポートを自動送付することで、Retention率が改善できると仮説する」</li>
+      </ul>
+      <div class="callout tip">💡 施策は小さく始めましょう。2週間以内に結果が出るものが理想です。大きな施策は小さく分割してください。</div>
+
+      <h2 id="dash-sales">売上ダッシュボードの読み方</h2>
+      <p>MFクラウドの請求データをリアルタイムで取得・集計しています。月次・チーム別・クライアント別の売上を確認できます。未入金の請求書も一覧で確認でき、フォローアップに使えます。</p>
+
+      <h2 id="dash-ads">広告ROASの読み方</h2>
+      <p>ROAS（Return On Advertising Spend）= 売上 ÷ 広告費。3.0以上が一般的な目安です。チャネルごとのROASを比較することで、予算を最も効果的な媒体に集中させることができます。（Phase 2で実装予定）</p>
+
+      <h2 id="dash-pamun">Pamunアンケートの見方</h2>
+      <p>PamunユーザーのアンケートデータがBigQueryに日次同期されています。満足度の推移・フリーコメントのトレンドを把握し、サービス改善の優先順位付けに活用してください。</p>
+
+      <h2 id="dash-trepo">Trepo分析の見方</h2>
+      <p>Trepoの記事データ（360件）とGA4の流入データを連携。記事ごとのPV・ランクシステムのKPI・インターン生の活動データを確認できます。スタッフは自分のデータのみ閲覧できます。</p>
+    </main>
+  </div>
+</body>
+</html>
