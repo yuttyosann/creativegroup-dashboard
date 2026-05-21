@@ -1057,6 +1057,14 @@ ${freeTexts}
 
 const PORTAL_CARDS_FILE = path.join(__dirname, '..', 'data', 'portal-cards.json');
 
+// portal-cards.json は静的設定なのでモジュールロード時に一度だけ読む
+let _portalCards = null;
+try {
+  _portalCards = JSON.parse(fs.readFileSync(PORTAL_CARDS_FILE, 'utf8'));
+} catch (err) {
+  console.error('portal-cards.json load error:', err.message);
+}
+
 /**
  * GET /api/portal/me — ログイン中のユーザー情報とロールを返す
  */
@@ -1078,14 +1086,8 @@ router.get('/portal/me', (req, res) => {
 router.get('/portal/cards', (req, res) => {
   const role = req.session?.googleUser?.role;
   if (!role) return res.status(401).json({ error: 'not_authenticated' });
-  try {
-    const allCards = JSON.parse(fs.readFileSync(PORTAL_CARDS_FILE, 'utf8'));
-    const filtered = allCards.filter(c => c.roles.includes(role));
-    res.json(filtered);
-  } catch (err) {
-    console.error('portal-cards.json read error:', err.message);
-    res.status(500).json({ error: 'config_read_error' });
-  }
+  if (!_portalCards) return res.status(500).json({ error: 'config_read_error' });
+  res.json(_portalCards.filter(c => c.roles.includes(role)));
 });
 
 module.exports = router;
