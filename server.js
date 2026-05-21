@@ -20,6 +20,8 @@ const path     = require('path');
 const { router: authRouter, callbackHandler } = require('./routes/auth');
 const apiRouter                               = require('./routes/api');
 const { requireAuth, requireRole }            = require('./middleware/auth');
+// TODO Task 7: growthRouter を追加する
+// const growthRouter = require('./routes/growth');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -39,7 +41,12 @@ app.use(session({
   secret:            process.env.SESSION_SECRET || 'cg_secret',
   resave:            false,
   saveUninitialized: false,
-  cookie:            { maxAge: 24 * 60 * 60 * 1000 }, // 24時間
+  cookie: {
+    maxAge:   24 * 60 * 60 * 1000, // 24時間
+    httpOnly: true,
+    sameSite: 'lax',
+    // secure: true を本番環境（HTTPS）では有効化すること
+  },
 }));
 
 // passport（Google OAuth）
@@ -82,6 +89,8 @@ app.get('/classify', requireAuth, requireRole(['owner', 'manager']), (req, res) 
 
 // APIプロキシ（MFクラウド）
 app.use('/api', requireAuth, apiRouter);
+// TODO Task 7: 施策CRUD / KPI API を有効化する
+// app.use('/api/growth', requireAuth, growthRouter);
 
 // ルート → ログイン済みならポータルへ、未ログインならGoogleログインへ
 app.get('/', (req, res) => {

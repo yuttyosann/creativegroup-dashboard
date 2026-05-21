@@ -222,9 +222,11 @@ router.get('/error', (req, res) => {
 });
 
 // GET /auth/google/logout — Googleログアウト
-router.get('/google/logout', (req, res) => {
-  req.session.googleUser = null;
-  req.session.save(() => res.redirect('/auth/google'));
+router.get('/google/logout', (req, res, next) => {
+  req.logout(err => {
+    if (err) return next(err);
+    req.session.destroy(() => res.redirect('/auth/google'));
+  });
 });
 
 module.exports = { router, callbackHandler, refreshAccessToken };
