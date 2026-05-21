@@ -29,7 +29,10 @@ function loadInitiatives() {
 }
 
 function saveInitiatives(data) {
-  fs.writeFileSync(INITIATIVES_FILE, JSON.stringify(data, null, 2));
+  // アトミック書き込み: 書き込み中にプロセスが落ちてもデータが壊れない
+  const tmp = INITIATIVES_FILE + '.tmp';
+  fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
+  fs.renameSync(tmp, INITIATIVES_FILE);
 }
 
 function calcIce(impact, confidence, ease) {
@@ -73,8 +76,19 @@ router.put('/initiatives/:id', (req, res) => {
   const idx  = list.findIndex(i => i.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: '施策が見つかりません' });
 
-  const updated = { ...list[idx], ...req.body, updatedAt: new Date().toISOString() };
-  if (req.body.impact != null || req.body.confidence != null || req.body.ease != null) {
+  // 許可フィールドのみ更新（id/createdAt/createdBy の上書きを防ぐ）
+  const { title, description, impact, confidence, ease, status } = req.body;
+  const updated = {
+    ...list[idx],
+    ...(title       !== undefined && { title }),
+    ...(description !== undefined && { description }),
+    ...(impact      !== undefined && { impact:      Number(impact) }),
+    ...(confidence  !== undefined && { confidence:  Number(confidence) }),
+    ...(ease        !== undefined && { ease:        Number(ease) }),
+    ...(status      !== undefined && { status }),
+    updatedAt: new Date().toISOString(),
+  };
+  if (impact != null || confidence != null || ease != null) {
     updated.iceScore = calcIce(updated.impact, updated.confidence, updated.ease);
   }
   list[idx] = updated;

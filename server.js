@@ -12,6 +12,12 @@
 
 require('dotenv').config({ override: true });
 
+// SESSION_SECRET が未設定の場合は起動を拒否する（セキュリティ必須）
+if (!process.env.SESSION_SECRET) {
+  console.error('FATAL: SESSION_SECRET が設定されていません。.env を確認してください。');
+  process.exit(1);
+}
+
 const express  = require('express');
 const session  = require('express-session');
 const passport = require('passport');
@@ -37,14 +43,14 @@ app.use(express.json({ limit: '5mb' }));
 
 // セッション
 app.use(session({
-  secret:            process.env.SESSION_SECRET || 'cg_secret',
+  secret:            process.env.SESSION_SECRET,
   resave:            false,
   saveUninitialized: false,
   cookie: {
     maxAge:   24 * 60 * 60 * 1000, // 24時間
     httpOnly: true,
     sameSite: 'lax',
-    // secure: true を本番環境（HTTPS）では有効化すること
+    secure: process.env.NODE_ENV === 'production', // HTTPS本番環境では自動的に有効化
   },
 }));
 
@@ -86,10 +92,10 @@ app.get('/classify', requireAuth, requireRole(['owner', 'manager']), (req, res) 
   res.sendFile(path.join(__dirname, 'public', 'classify.html'));
 });
 
+// 施策CRUD / KPI API（/api より先にマウントして確実にマッチさせる）
+app.use('/api/growth', requireAuth, growthRouter);
 // APIプロキシ（MFクラウド）
 app.use('/api', requireAuth, apiRouter);
-// 施策CRUD / KPI API
-app.use('/api/growth', requireAuth, growthRouter);
 
 // ルート → ログイン済みならポータルへ、未ログインならGoogleログインへ
 app.get('/', (req, res) => {
