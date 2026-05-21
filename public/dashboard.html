@@ -2,12 +2,48 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
+  <!-- URLに認証情報が含まれる場合、クリーンなURLへ即リダイレクト（fetch()のセキュリティ制限回避）-->
+  <script>
+    if (location.href.indexOf('@') !== -1) {
+      location.replace(location.protocol + '//' + location.host + location.pathname + location.search + location.hash);
+    }
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CreativeGroup 経営ダッシュボード</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    /* ── Pamun ビュー切替トグル ── */
+    .pamun-toggle { display:flex;gap:0;border:1px solid #d5d3cc;border-radius:6px;overflow:hidden;flex-shrink:0 }
+    .pamun-toggle button { padding:6px 14px;font-size:13px;border:none;cursor:pointer;font-family:inherit;transition:background .15s,color .15s }
+    .pamun-toggle button.active { background:#2c2c2c;color:#fff }
+    .pamun-toggle button:not(.active) { background:#fff;color:#555 }
+    /* ── エクスポートボタン ── */
+    .export-btn { padding:7px 14px;border-radius:6px;border:1px solid #d5d3cc;background:#fff;font-size:13px;cursor:pointer;font-family:inherit }
+    .export-btn:hover { background:#f5f2ed }
+    /* ── 全件読み込みバー ── */
+    #pamun-load-progress { font-size:12px;color:#2c6e9e;padding:6px 0 0 }
+    /* ── AI インサイト ── */
+    .insight-body { font-size:13px;line-height:1.8;color:#333;min-height:60px;padding:0 4px }
+    .insight-body h2 { font-size:14px;font-weight:700;margin:16px 0 6px;color:#2c2c2c;border:none;padding:0 }
+    .insight-body h2:first-child { margin-top:0 }
+    .insight-body ul { margin:0 0 8px 0;padding:0 0 0 20px }
+    .insight-body li { margin-bottom:4px;color:#444 }
+    .insight-body p { margin:0 0 8px;color:#444 }
+    .insight-body strong { font-weight:600;color:#2c2c2c }
+    /* ── 印刷用CSS ── */
+    @media print {
+      .header,.tab-nav,.fab,#error-msg,.export-btn,.pamun-toggle,#btn-insight,button { display:none !important }
+      #tab-pamun { display:block !important }
+      main section:not(#tab-pamun) { display:none !important }
+      .card { break-inside:avoid;box-shadow:none !important;border:1px solid #ccc }
+      .chart-wrap { height:200px !important }
+      #pamun-file-list tr { page-break-inside:avoid }
+    }
+  </style>
 </head>
 <body>
 
@@ -40,6 +76,7 @@
       <button class="tab" onclick="switchTab(this,'teams')">チーム別売上</button>
       <button class="tab" onclick="switchTab(this,'unpaid')">未入金</button>
       <button class="tab" onclick="switchTab(this,'clients')">クライアント</button>
+      <button class="tab" onclick="switchTab(this,'pamun')">Pamunアンケート</button>
     </div>
   </nav>
 
@@ -52,17 +89,17 @@
       <div class="kpi-grid">
         <div class="kpi-card">
           <div class="kpi-label">当月売上</div>
-          <div class="kpi-value">¥<span id="kpi-revenue">—</span>M</div>
+          <div class="kpi-value"><span id="kpi-revenue">—</span></div>
           <div id="kpi-revenue-change" class="kpi-change">—</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">未入金合計</div>
-          <div class="kpi-value kpi-danger">¥<span id="kpi-unpaid">—</span>M</div>
+          <div class="kpi-value kpi-danger"><span id="kpi-unpaid">—</span></div>
           <div class="kpi-change">現在の未入金残高</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">年間累計売上</div>
-          <div class="kpi-value">¥<span id="kpi-annual">—</span>M</div>
+          <div class="kpi-value"><span id="kpi-annual">—</span></div>
           <div class="kpi-change">直近12ヶ月</div>
         </div>
       </div>
@@ -85,12 +122,9 @@
       <!-- 期間セレクター -->
       <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:14px;gap:8px">
         <span style="font-size:12px;color:#888">期間：</span>
-        <select id="team-period" onchange="loadTeamSummary()" style="padding:5px 10px;border-radius:6px;border:1px solid #d5d3cc;font-size:13px;font-family:inherit">
-          <option value="1">今月</option>
-          <option value="3">直近3ヶ月</option>
-          <option value="6">直近6ヶ月</option>
-          <option value="12">直近12ヶ月</option>
-        </select>
+        <input type="month" id="team-from" onchange="loadTeamSummary()" style="padding:5px 10px;border-radius:6px;border:1px solid #d5d3cc;font-size:13px;font-family:inherit">
+        <span style="font-size:12px;color:#888">〜</span>
+        <input type="month" id="team-to" onchange="loadTeamSummary()" style="padding:5px 10px;border-radius:6px;border:1px solid #d5d3cc;font-size:13px;font-family:inherit">
       </div>
 
       <!-- チーム別 -->
@@ -169,6 +203,21 @@
 
     <!-- ── クライアントタブ ── -->
     <section id="tab-clients" style="display:none">
+
+      <!-- 売上推移（折れ線グラフ） -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <h2 class="card-title">クライアント別売上推移</h2>
+          <input type="month" id="client-from" onchange="loadClientHistory()" style="padding:5px 10px;border-radius:6px;border:1px solid #d5d3cc;font-size:13px;font-family:inherit">
+          <span style="font-size:12px;color:#888">〜</span>
+          <input type="month" id="client-to" onchange="loadClientHistory()" style="padding:5px 10px;border-radius:6px;border:1px solid #d5d3cc;font-size:13px;font-family:inherit">
+        </div>
+        <div class="chart-wrap" style="height:320px">
+          <canvas id="clientHistChart"></canvas>
+        </div>
+      </div>
+
+      <!-- 今月サマリーカード -->
       <div class="card">
         <div class="card-header">
           <h2 class="card-title">クライアント別収益（今月）</h2>
@@ -177,12 +226,137 @@
           <p class="muted-text">読み込み中…</p>
         </div>
       </div>
+
     </section>
 
   </main>
 
   <!-- データ更新ボタン -->
   <button class="fab" onclick="loadAllData()" title="データを更新">↻</button>
+
+  <!-- ── Pamunアンケートタブ ── -->
+  <section id="tab-pamun" style="display:none">
+
+    <!-- KPI行 -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">総回答数</div>
+        <div class="kpi-value"><span id="pamun-total">—</span></div>
+        <div class="kpi-change">全期間累計</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">平均NPSスコア</div>
+        <div class="kpi-value"><span id="pamun-avg-nps">—</span><span style="font-size:14px;color:#888">/10</span></div>
+        <div class="kpi-change">全回答平均</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">平均満足度</div>
+        <div class="kpi-value"><span id="pamun-avg-sat">—</span><span style="font-size:14px;color:#888">/5</span></div>
+        <div class="kpi-change">全回答平均</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">推奨者率（NPS 9-10）</div>
+        <div class="kpi-value"><span id="pamun-promoter">—</span><span style="font-size:14px;color:#888">%</span></div>
+        <div class="kpi-change">プロモーター比率</div>
+      </div>
+    </div>
+
+    <!-- フィルタ & コントロール -->
+    <div class="card" style="padding:14px 20px;margin-bottom:0">
+      <!-- Row 1: 絞り込み -->
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <span style="font-size:13px;color:#888">絞り込み：</span>
+        <select id="pamun-genre-filter" onchange="filterPamun()" style="padding:6px 10px;border-radius:6px;border:1px solid #d5d3cc;font-size:13px;font-family:inherit">
+          <option value="">すべてのジャンル</option>
+        </select>
+        <select id="pamun-company-filter" onchange="filterPamun()" style="padding:6px 10px;border-radius:6px;border:1px solid #d5d3cc;font-size:13px;font-family:inherit">
+          <option value="">すべてのクライアント</option>
+        </select>
+        <button onclick="loadSurveys(true)" class="export-btn" style="margin-left:auto">↻ 再取得</button>
+        <span id="pamun-sync-status" style="font-size:11px;color:#bbb"></span>
+      </div>
+      <!-- Row 2: 表示切替 + エクスポート -->
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid #f0eee8">
+        <span style="font-size:12px;color:#888">表示：</span>
+        <div class="pamun-toggle">
+          <button id="btn-by-file"  class="active" onclick="setPamunView('file')">商品別</button>
+          <button id="btn-by-brand"            onclick="setPamunView('brand')">ブランド別</button>
+        </div>
+        <span style="font-size:12px;color:#888;margin-left:16px">エクスポート：</span>
+        <button onclick="exportPamunExcel()" class="export-btn">↓ Excel</button>
+        <button onclick="exportPamunPdf()"   class="export-btn">🖨 PDF印刷</button>
+        <button onclick="loadAllSurveys()"   class="export-btn" id="btn-load-all" style="margin-left:auto">⬇ 全件取得</button>
+      </div>
+      <div id="pamun-load-progress" style="display:none"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+
+      <!-- 商品別 / ブランド別 満足度ランキング -->
+      <div class="card">
+        <div class="card-header"><h2 class="card-title" id="pamun-nps-chart-title">商品別 満足度スコア（1-5点）</h2></div>
+        <div class="chart-wrap" style="height:300px"><canvas id="pamunNpsChart"></canvas></div>
+      </div>
+
+      <!-- ジャンル別傾向 -->
+      <div class="card">
+        <div class="card-header"><h2 class="card-title">商品ジャンル別 傾向比較</h2></div>
+        <div class="chart-wrap" style="height:300px"><canvas id="pamunGenreChart"></canvas></div>
+      </div>
+
+    </div>
+
+    <!-- 継続意向分布 -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+      <div class="card">
+        <div class="card-header"><h2 class="card-title">満足度分布（5段階評価）</h2></div>
+        <div class="chart-wrap" style="height:260px"><canvas id="pamunNpsDistChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2 class="card-title">継続意向分布</h2></div>
+        <div class="chart-wrap" style="height:260px"><canvas id="pamunIntentionChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- ジャンル内 商品別比較（ジャンル選択時のみ表示） -->
+    <div class="card" id="pamun-intra-genre-card" style="margin-top:16px;display:none">
+      <div class="card-header">
+        <h2 class="card-title" id="pamun-intra-genre-title">ジャンル内 商品比較</h2>
+      </div>
+      <div class="chart-wrap" style="height:320px"><canvas id="pamunIntraGenreChart"></canvas></div>
+    </div>
+
+    <!-- AI インサイト -->
+    <div class="card" style="margin-top:16px">
+      <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+        <h2 class="card-title">AI インサイト（Claude分析）</h2>
+        <button id="btn-insight" onclick="generateInsight()"
+          style="padding:8px 18px;border-radius:6px;background:#2c2c2c;color:#fff;border:none;font-size:13px;cursor:pointer;font-family:inherit">
+          分析を生成
+        </button>
+      </div>
+      <div id="insight-status" style="font-size:12px;color:#888;padding:0 0 8px"></div>
+      <div id="insight-body" class="insight-body">
+        <p style="color:#aaa;font-size:13px">「分析を生成」ボタンを押すと、表示中のフィルタ条件でClaude AIがアンケート自由記述を分析します。</p>
+      </div>
+    </div>
+
+    <!-- ファイル一覧 -->
+    <div class="card" style="margin-top:16px">
+      <div class="card-header"><h2 class="card-title">アンケートファイル一覧</h2></div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr style="background:#faf9f7;border-bottom:1px solid #e8e6e0">
+            <th style="padding:10px 16px;text-align:left;color:#999;font-size:11px;text-transform:uppercase;font-weight:600">ファイル名</th>
+            <th style="padding:10px 16px;text-align:left;color:#999;font-size:11px;text-transform:uppercase;font-weight:600">カテゴリ</th>
+            <th style="padding:10px 16px;text-align:right;color:#999;font-size:11px;text-transform:uppercase;font-weight:600">回答数</th>
+          </tr>
+        </thead>
+        <tbody id="pamun-file-list"></tbody>
+      </table>
+    </div>
+
+  </section>
 
   <script src="/dashboard.js"></script>
 </body>

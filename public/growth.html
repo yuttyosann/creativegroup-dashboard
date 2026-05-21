@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>グロースハック — CreativeGroup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    body { background:#f8f7f4; }
+    .gh-header { background:#2c2c2c; color:#fff; padding:12px 24px; display:flex; justify-content:space-between; align-items:center; }
+    .gh-header a { color:#aaa; text-decoration:none; font-size:12px; }
+    .gh-header a:hover { color:#fff; }
+    .kpi-bar { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; padding:16px 24px; background:#fff; border-bottom:1px solid #e5e2db; }
+    .kpi-card { text-align:center; }
+    .kpi-label { font-size:11px; color:#888; margin-bottom:4px; }
+    .kpi-value { font-size:20px; font-weight:700; color:#2c2c2c; }
+    .kpi-change { font-size:11px; margin-top:2px; }
+    .kpi-change.up { color:#2e7d32; }
+    .kpi-change.down { color:#c62828; }
+    .gh-body { display:grid; grid-template-columns:260px 1fr; gap:0; min-height:calc(100vh - 130px); }
+    .funnel-panel { padding:16px 20px; border-right:1px solid #e5e2db; background:#fff; }
+    .panel-title { font-size:11px; font-weight:700; color:#888; letter-spacing:.08em; margin-bottom:12px; }
+    .funnel-step { display:flex; justify-content:space-between; align-items:center; border-radius:6px; padding:8px 12px; margin-bottom:5px; font-size:12px; color:#fff; }
+    .funnel-bottleneck { background:#fff8e1; border-radius:6px; padding:8px 10px; font-size:11px; color:#f57f17; margin-top:10px; }
+    .initiatives-panel { padding:16px 24px; }
+    .initiatives-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+    .btn-add { background:#2c2c2c; color:#fff; border:none; border-radius:6px; padding:7px 14px; font-size:12px; cursor:pointer; font-family:inherit; }
+    .btn-add:hover { background:#444; }
+    .ice-table { width:100%; border-collapse:collapse; font-size:13px; }
+    .ice-table th { text-align:left; padding:6px 10px; font-size:11px; font-weight:700; color:#888; border-bottom:2px solid #e5e2db; }
+    .ice-table th.center { text-align:center; }
+    .ice-table td { padding:10px; border-bottom:1px solid #f0ede8; }
+    .ice-table td.center { text-align:center; }
+    .ice-score { font-weight:700; }
+    .score-high { color:#2e7d32; }
+    .score-mid  { color:#1565c0; }
+    .score-low  { color:#f57f17; }
+    .status-badge { display:inline-block; border-radius:4px; padding:2px 8px; font-size:10px; font-weight:700; }
+    .status-idea        { background:#f5f5f5; color:#555; }
+    .status-planned     { background:#e3f2fd; color:#1565c0; }
+    .status-in_progress { background:#e8f5e9; color:#2e7d32; }
+    .status-done        { background:#f3e5f5; color:#6a1b9a; }
+    /* ツールチップ */
+    .tip { position:relative; display:inline-flex; align-items:center; justify-content:center; width:15px; height:15px; background:#e5e2db; border-radius:50%; font-size:9px; cursor:pointer; color:#555; margin-left:4px; vertical-align:middle; }
+    .tip-body { display:none; position:absolute; bottom:120%; left:50%; transform:translateX(-50%); background:#2c2c2c; color:#fff; border-radius:6px; padding:6px 10px; font-size:11px; white-space:nowrap; z-index:100; font-weight:400; }
+    .tip:hover .tip-body { display:block; }
+    /* モーダル */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:200; align-items:center; justify-content:center; }
+    .modal-overlay.open { display:flex; }
+    .modal { background:#fff; border-radius:12px; padding:24px; width:480px; max-width:90vw; }
+    .modal h3 { margin:0 0 16px; font-size:16px; }
+    .form-group { margin-bottom:14px; }
+    .form-label { display:block; font-size:12px; font-weight:700; color:#555; margin-bottom:5px; }
+    .form-input { width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid #ddd; border-radius:6px; font-size:13px; font-family:inherit; }
+    .form-input:focus { outline:none; border-color:#2c2c2c; }
+    .score-inputs { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+    .modal-footer { display:flex; justify-content:flex-end; gap:10px; margin-top:16px; }
+    .btn-cancel { background:#f5f5f5; border:none; border-radius:6px; padding:8px 16px; cursor:pointer; font-family:inherit; }
+    .btn-save { background:#2c2c2c; color:#fff; border:none; border-radius:6px; padding:8px 16px; cursor:pointer; font-family:inherit; }
+  </style>
+</head>
+<body>
+  <header class="gh-header">
+    <div style="display:flex;align-items:center;gap:12px">
+      <a href="/portal">← ポータルへ</a>
+      <span style="color:#555">|</span>
+      <span style="font-weight:700">🚀 グロースハック</span>
+    </div>
+    <a href="/guide#growth">使い方ガイド 📖</a>
+  </header>
+
+  <!-- KPIサマリー -->
+  <div class="kpi-bar">
+    <div class="kpi-card">
+      <div class="kpi-label">月次売上</div>
+      <div class="kpi-value" id="kpi-sales">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">新規案件</div>
+      <div class="kpi-value" id="kpi-deals">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">継続率</div>
+      <div class="kpi-value" id="kpi-retention">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">広告ROAS</div>
+      <div class="kpi-value" id="kpi-roas">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">施策実行中</div>
+      <div class="kpi-value" id="kpi-active" style="color:#1565c0">0</div>
+    </div>
+  </div>
+
+  <div class="gh-body">
+    <!-- ファネル -->
+    <div class="funnel-panel">
+      <div class="panel-title">グロースファネル</div>
+      <div id="funnel-steps"></div>
+      <div class="funnel-bottleneck" id="funnel-note" style="display:none"></div>
+    </div>
+
+    <!-- 施策管理 -->
+    <div class="initiatives-panel">
+      <div class="initiatives-header">
+        <div class="panel-title" style="margin:0">
+          施策管理 × ICEスコア
+          <span class="tip">?<span class="tip-body">ICE = Impact・Confidence・Ease の平均。高いほど優先度が高い。</span></span>
+        </div>
+        <button class="btn-add" onclick="openModal()">＋ 施策を追加</button>
+      </div>
+      <table class="ice-table">
+        <thead>
+          <tr>
+            <th>施策名</th>
+            <th class="center">
+              Impact<span class="tip">?<span class="tip-body">この施策が成功した場合のビジネスへの影響度（1〜10）</span></span>
+            </th>
+            <th class="center">
+              Confidence<span class="tip">?<span class="tip-body">この施策が効果を出せるという自信の度合い（1〜10）</span></span>
+            </th>
+            <th class="center">
+              Ease<span class="tip">?<span class="tip-body">実装・実行のしやすさ（1〜10）</span></span>
+            </th>
+            <th class="center">ICE</th>
+            <th class="center">ステータス</th>
+          </tr>
+        </thead>
+        <tbody id="initiatives-tbody">
+          <tr><td colspan="6" style="text-align:center;color:#aaa;padding:20px">施策がまだありません。追加してください。</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 施策追加モーダル -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <h3>施策を追加</h3>
+      <div class="form-group">
+        <label class="form-label">施策名 <span style="color:#c62828">*</span></label>
+        <input class="form-input" id="f-title" placeholder="例: Metaリターゲティング広告の最適化">
+      </div>
+      <div class="form-group">
+        <label class="form-label">内容・仮説</label>
+        <input class="form-input" id="f-desc" placeholder="例: CVRが低いページの訪問者に再アプローチ">
+      </div>
+      <div class="form-group">
+        <label class="form-label">ICEスコア（各 1〜10）</label>
+        <div class="score-inputs">
+          <div>
+            <div style="font-size:11px;color:#888;margin-bottom:4px">Impact</div>
+            <input class="form-input" id="f-impact" type="number" min="1" max="10" value="5">
+          </div>
+          <div>
+            <div style="font-size:11px;color:#888;margin-bottom:4px">Confidence</div>
+            <input class="form-input" id="f-confidence" type="number" min="1" max="10" value="5">
+          </div>
+          <div>
+            <div style="font-size:11px;color:#888;margin-bottom:4px">Ease</div>
+            <input class="form-input" id="f-ease" type="number" min="1" max="10" value="5">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal()">キャンセル</button>
+        <button class="btn-save" onclick="saveInitiative()">追加する</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/growth.js"></script>
+</body>
+</html>

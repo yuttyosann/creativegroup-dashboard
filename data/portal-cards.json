@@ -1,0 +1,73 @@
+[
+  {
+    "id": "dashboard",
+    "icon": "📊",
+    "title": "売上ダッシュボード",
+    "description": "月次売上・未入金・チーム別・クライアント別",
+    "href": "/dashboard",
+    "status": "active",
+    "roles": ["owner", "manager", "employee", "staff"],
+    "badgeKey": null
+  },
+  {
+    "id": "growth",
+    "icon": "🚀",
+    "title": "グロースハック",
+    "description": "KPIファネル・ICEスコア・施策管理",
+    "href": "/growth",
+    "status": "phase1",
+    "roles": ["owner", "manager", "employee"],
+    "badgeKey": null
+  },
+  {
+    "id": "ads",
+    "icon": "📱",
+    "title": "広告ROAS",
+    "description": "Google/Meta/TikTok チャネル横断分析",
+    "href": "/ads",
+    "status": "coming",
+    "roles": ["owner", "manager", "employee"],
+    "badgeKey": null
+  },
+  {
+    "id": "pamun",
+    "icon": "📝",
+    "title": "Pamunアンケート",
+    "description": "回答データ分析・満足度トレンド",
+    "href": "/dashboard#tab-pamun",
+    "status": "active",
+    "roles": ["owner", "manager", "employee"],
+    "badgeKey": null
+  },
+  {
+    "id": "trepo",
+    "icon": "📰",
+    "title": "Trepo分析",
+    "description": "記事・GA4・ランク管理",
+    "href": "/trepo",
+    "status": "active",
+    "roles": ["owner", "manager", "employee", "staff"],
+    "badgeKey": null
+  },
+  {
+    "id": "guide",
+    "icon": "📖",
+    "title": "ポータルガイド",
+    "description": "各機能の使い方・グロースハック入門",
+    "href": "/guide",
+    "status": "active",
+    "roles": ["owner", "manager", "employee", "staff"],
+    "badgeKey": null
+  },
+  {
+    "id": "classify",
+    "icon": "🎯",
+    "title": "分類ツール",
+    "description": "請求分類の設定・管理",
+    "href": "/classify",
+    "status": "active",
+    "roles": ["owner", "manager"],
+    "badgeKey": null,
+    "isAdmin": true
+  }
+]
