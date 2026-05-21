@@ -106,3 +106,35 @@ OAuthフローを完成させ、アクセストークンをセッションに保
 ### タスク4: ダッシュボードUIとの接続
 `public/dashboard.js` で `/api/*` を呼び出し、
 Chart.jsのグラフをリアルタイムデータで更新する。
+
+---
+
+## 完了済み（2026-05-21）
+
+### Phase 0 — Google OAuth + ポータル
+- ✅ Google OAuth 2.0（passport.js）実装
+- ✅ 5ロール権限管理（data/roles.json + middleware/auth.js）
+- ✅ ポータルハブページ（/portal）— ロール別カードグリッド
+- ✅ ポータル全体リファレンスガイド（/guide）— サイドナビ付き読み物
+- ✅ 既存ダッシュボードの認証ミドルウェア適用（requireAuth / requireRole）
+
+### Phase 1 — グロースハックダッシュボード
+- ✅ 施策CRUD API（routes/growth.js）— ICEスコア自動計算 + JSON永続化
+- ✅ グロースハックダッシュボード（/growth）— KPIバー・ファネル・施策テーブル
+- ✅ インラインヘルプ（ツールチップ）— ICE/Impact/Confidence/Ease等
+
+### セットアップ（初回のみ）
+1. GCP Console → `cg-project-491303` → APIとサービス → 認証情報 → OAuth 2.0 クライアントIDを作成
+2. 承認済みリダイレクトURIに `http://localhost:3000/auth/google/callback` を追加
+3. `.env` に追記:
+   ```
+   GOOGLE_CLIENT_ID=取得したID
+   GOOGLE_CLIENT_SECRET=取得したSecret
+   GOOGLE_CALLBACK_URL=http://localhost:3000/auth/google/callback
+   ```
+4. `data/roles.json` に自分のGmailアドレスとロールを追加
+
+### 次のフェーズ（Phase 2）
+- 広告媒体API連携（Google Ads / Meta / TikTok / Yahoo!）
+- チャネル横断ROASダッシュボード
+→ 別スペック・別プランで実施
