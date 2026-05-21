@@ -1,24 +1,5 @@
 // dashboard.js — MFクラウドAPIからデータを取得してダッシュボードを更新
 
-// ── Basic Auth 自動付与（URLに認証情報が含まれる環境での fetch エラー回避） ──
-// 相対パスを明示的な絶対URL（認証情報なし）に変換してから Authorization ヘッダーを付与
-(function() {
-  const _fetch = window.fetch.bind(window);
-  window.fetch = function(input, init) {
-    let url = typeof input === 'string' ? input : (input && input.url) || '';
-    // 相対パスを絶対URLに（page URLの認証情報を引き継がないため）
-    if (url.startsWith('/')) {
-      url = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '') + url;
-    }
-    init = Object.assign({}, init || {});
-    init.headers = Object.assign(
-      { 'Authorization': 'Basic ' + btoa('admin:creativegroup2025') },
-      init.headers || {}
-    );
-    return _fetch(url, init);
-  };
-})();
-
 let revenueChart     = null;
 let clientHistChart  = null;
 let teamChart        = null;
