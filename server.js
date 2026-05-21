@@ -20,8 +20,7 @@ const path     = require('path');
 const { router: authRouter, callbackHandler } = require('./routes/auth');
 const apiRouter                               = require('./routes/api');
 const { requireAuth, requireRole }            = require('./middleware/auth');
-// TODO Task 7: growthRouter を追加する
-// const growthRouter = require('./routes/growth');
+const growthRouter = require('./routes/growth');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -89,8 +88,8 @@ app.get('/classify', requireAuth, requireRole(['owner', 'manager']), (req, res) 
 
 // APIプロキシ（MFクラウド）
 app.use('/api', requireAuth, apiRouter);
-// TODO Task 7: 施策CRUD / KPI API を有効化する
-// app.use('/api/growth', requireAuth, growthRouter);
+// 施策CRUD / KPI API
+app.use('/api/growth', requireAuth, growthRouter);
 
 // ルート → ログイン済みならポータルへ、未ログインならGoogleログインへ
 app.get('/', (req, res) => {
