@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CreativeGroup ポータル</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .portal-header { background:#2c2c2c; color:#fff; padding:14px 24px; display:flex; justify-content:space-between; align-items:center; }
+    .portal-logo { display:flex; align-items:center; gap:12px; }
+    .portal-logo-mark { font-weight:700; font-size:18px; }
+    .portal-logo-sub { font-size:11px; color:#aaa; }
+    .user-badge { display:flex; align-items:center; gap:10px; font-size:13px; }
+    .user-avatar { width:28px; height:28px; border-radius:50%; background:#4285f4; display:flex; align-items:center; justify-content:center; font-size:12px; color:#fff; overflow:hidden; }
+    .user-avatar img { width:100%; height:100%; object-fit:cover; }
+    .role-tag { background:#444; border-radius:4px; padding:2px 8px; font-size:11px; }
+    .logout-link { color:#aaa; text-decoration:none; font-size:12px; }
+    .logout-link:hover { color:#fff; }
+    .portal-main { padding:28px 32px; background:#f8f7f4; min-height:calc(100vh - 56px); }
+    .greeting { margin-bottom:24px; }
+    .greeting h1 { font-size:22px; font-weight:700; color:#2c2c2c; margin:0 0 6px; }
+    .greeting .sub { font-size:13px; color:#888; }
+    .section-label { font-size:11px; font-weight:700; color:#888; letter-spacing:.08em; text-transform:uppercase; margin-bottom:12px; }
+    .cards-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:14px; margin-bottom:28px; }
+    .portal-card { background:#fff; border-radius:12px; padding:18px; border:1px solid #e5e2db; cursor:pointer; text-decoration:none; color:inherit; display:block; transition:box-shadow .15s, border-color .15s; }
+    .portal-card:hover { box-shadow:0 4px 12px rgba(0,0,0,.08); border-color:#bbb; }
+    .portal-card.coming { opacity:.55; cursor:default; pointer-events:none; }
+    .card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+    .card-icon { font-size:26px; }
+    .card-badge { font-size:10px; font-weight:700; border-radius:4px; padding:2px 8px; }
+    .badge-active { background:#e8f5e9; color:#2e7d32; }
+    .badge-phase1 { background:#e3f2fd; color:#1565c0; }
+    .badge-coming { background:#f5f5f5; color:#888; }
+    .badge-guide { background:#f8f7f4; color:#555; }
+    .card-title { font-weight:700; font-size:14px; margin-bottom:5px; }
+    .card-desc { font-size:12px; color:#888; line-height:1.6; }
+    .admin-section { border-top:1px solid #e5e2db; padding-top:18px; }
+    .admin-tools { display:flex; gap:10px; flex-wrap:wrap; }
+    .admin-tool-link { background:#fff; border:1px solid #e5e2db; border-radius:8px; padding:9px 16px; font-size:13px; text-decoration:none; color:#2c2c2c; display:flex; align-items:center; gap:8px; }
+    .admin-tool-link:hover { background:#f5f2ed; }
+  </style>
+</head>
+<body>
+  <header class="portal-header">
+    <div class="portal-logo">
+      <span class="portal-logo-mark">CG</span>
+      <div>
+        <div style="font-size:13px;font-weight:600">CreativeGroup</div>
+        <div class="portal-logo-sub">データプラットフォーム</div>
+      </div>
+    </div>
+    <div class="user-badge">
+      <div class="user-avatar" id="user-avatar"><span id="user-initial">?</span></div>
+      <span id="user-name">読み込み中...</span>
+      <span class="role-tag" id="user-role-tag"></span>
+      <a href="/auth/google/logout" class="logout-link">ログアウト</a>
+    </div>
+  </header>
+
+  <main class="portal-main">
+    <div class="greeting">
+      <h1 id="greeting-text">こんにちは 👋</h1>
+      <div class="sub" id="greeting-sub"></div>
+    </div>
+
+    <div class="section-label">ダッシュボード & ツール</div>
+    <div class="cards-grid" id="cards-grid">
+      <div style="color:#aaa;font-size:13px">読み込み中...</div>
+    </div>
+
+    <div class="admin-section" id="admin-section" style="display:none">
+      <div class="section-label">管理ツール</div>
+      <div class="admin-tools" id="admin-tools"></div>
+    </div>
+  </main>
+
+  <script src="/portal.js"></script>
+</body>
+</html>
