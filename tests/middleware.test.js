@@ -34,6 +34,14 @@ describe('requireAuth', () => {
     expect(res.redirect).toHaveBeenCalledWith('/auth/google');
     expect(mockNext).not.toHaveBeenCalled();
   });
+
+  test('session が undefined でも /auth/google にリダイレクト', () => {
+    const req = {};
+    const res = { redirect: jest.fn() };
+    requireAuth(req, res, mockNext);
+    expect(res.redirect).toHaveBeenCalledWith('/auth/google');
+    expect(mockNext).not.toHaveBeenCalled();
+  });
 });
 
 // ── requireRole のテスト ──────────────────────────────────
@@ -54,6 +62,14 @@ describe('requireRole', () => {
     const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
     requireRole(['owner', 'manager'])(req, res, mockNext);
     expect(res.status).toHaveBeenCalledWith(403);
+    expect(mockNext).not.toHaveBeenCalled();
+  });
+
+  test('session がない場合 /auth/google にリダイレクト', () => {
+    const req = {};
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), redirect: jest.fn() };
+    requireRole(['owner'])(req, res, mockNext);
+    expect(res.redirect).toHaveBeenCalledWith('/auth/google');
     expect(mockNext).not.toHaveBeenCalled();
   });
 });

@@ -41,8 +41,12 @@ function requireAuth(req, res, next) {
  */
 function requireRole(allowedRoles) {
   return (req, res, next) => {
-    const role = req.session?.googleUser?.role;
-    if (allowedRoles.includes(role)) {
+    const user = req.session?.googleUser;
+    if (!user) {
+      // 未認証 → ログインにリダイレクト
+      return res.redirect('/auth/google');
+    }
+    if (allowedRoles.includes(user.role)) {
       return next();
     }
     res.status(403).json({ error: 'forbidden', message: 'アクセス権限がありません' });
