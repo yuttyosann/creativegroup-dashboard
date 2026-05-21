@@ -166,4 +166,65 @@ router.get('/logout', (req, res) => {
   res.redirect('/');
 });
 
+// ── Google OAuth 2.0 ─────────────────────────────────────
+const passport             = require('passport');
+const GoogleStrategy       = require('passport-google-oauth20').Strategy;
+const { getRoleFromEmail } = require('../middleware/auth');
+
+passport.use(new GoogleStrategy(
+  {
+    clientID:     process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL:  process.env.GOOGLE_CALLBACK_URL,
+  },
+  (_accessToken, _refreshToken, profile, done) => {
+    const email = profile.emails?.[0]?.value;
+    const role  = getRoleFromEmail(email);
+    if (!role) {
+      return done(null, false, { message: `${email} はアクセス権限がありません` });
+    }
+    return done(null, {
+      email,
+      name:    profile.displayName,
+      picture: profile.photos?.[0]?.value,
+      role,
+    });
+  }
+));
+
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((user, done) => done(null, user));
+
+// GET /auth/google — Googleログイン開始
+router.get('/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+// GET /auth/google/callback — Googleからのコールバック
+router.get('/google/callback',
+  passport.authenticate('google', { failureRedirect: '/auth/error' }),
+  (req, res) => {
+    req.session.googleUser = req.user;
+    res.redirect('/portal');
+  }
+);
+
+// GET /auth/error — 権限なしエラーページ
+router.get('/error', (req, res) => {
+  res.status(403).send(`
+    <html><body style="font-family:sans-serif;padding:40px;text-align:center">
+      <h2>アクセスが拒否されました</h2>
+      <p>このダッシュボードへのアクセス権限がありません。</p>
+      <p>管理者にメールアドレスの登録を依頼してください。</p>
+      <a href="/auth/google">別のアカウントでログイン</a>
+    </body></html>
+  `);
+});
+
+// GET /auth/google/logout — Googleログアウト
+router.get('/google/logout', (req, res) => {
+  req.session.googleUser = null;
+  req.session.save(() => res.redirect('/auth/google'));
+});
+
 module.exports = { router, callbackHandler, refreshAccessToken };
