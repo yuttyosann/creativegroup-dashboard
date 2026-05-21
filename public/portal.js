@@ -15,8 +15,10 @@ const STATUS_BADGE = {
 };
 
 async function init() {
-  // ユーザー情報取得
-  const me = await fetch('/api/portal/me').then(r => r.json());
+  // ユーザー情報取得（401なら再ログイン）
+  const meRes = await fetch('/api/portal/me');
+  if (meRes.status === 401) { window.location.href = '/auth/google'; return; }
+  const me = await meRes.json();
 
   // ヘッダー更新
   document.getElementById('user-name').textContent = me.name || me.email;
@@ -36,7 +38,9 @@ async function init() {
     new Date().toLocaleDateString('ja-JP', { year:'numeric', month:'long', day:'numeric', weekday:'long' });
 
   // カード取得・描画
-  const cards = await fetch('/api/portal/cards').then(r => r.json());
+  const cardsRes = await fetch('/api/portal/cards');
+  if (cardsRes.status === 401) { window.location.href = '/auth/google'; return; }
+  const cards = await cardsRes.json();
   const normalCards = cards.filter(c => !c.isAdmin);
   const adminCards  = cards.filter(c => c.isAdmin);
 
