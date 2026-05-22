@@ -77,11 +77,11 @@
 
 - [ ] **Step 3: ステージングのファイルを準備**
 
-  FTPクライアント（FileZilla等）でXserverに接続し、`/home/{SERVER_ID}/staging.trepo.jp/public_html/` 内の既存ファイルをすべて削除する（WordPressかんたんインストールで設置されたファイル）。
+  FTPクライアント（FileZilla等）でXserverに接続し、`/home/buzzreach/staging.trepo.jp/public_html/` 内の既存ファイルをすべて削除する（WordPressかんたんインストールで設置されたファイル）。
 
 - [ ] **Step 4: FTPでアップロード**
 
-  ダウンロードした `archive_YYYYMMDD_trepo_jp.zip` と `installer.php` を `/home/{SERVER_ID}/staging.trepo.jp/public_html/` にアップロードする。
+  ダウンロードした `archive_YYYYMMDD_trepo_jp.zip` と `installer.php` を `/home/buzzreach/staging.trepo.jp/public_html/` にアップロードする。
 
 - [ ] **Step 5: installer.php を実行**
 
@@ -101,8 +101,8 @@
 ### Task 3: ステージングに Basic 認証と noindex を設定する
 
 **Files:**
-- Create: `/home/{SERVER_ID}/staging.trepo.jp/public_html/.htpasswd`
-- Modify: `/home/{SERVER_ID}/staging.trepo.jp/public_html/.htaccess`
+- Create: `/home/buzzreach/staging.trepo.jp/public_html/.htpasswd`
+- Modify: `/home/buzzreach/staging.trepo.jp/public_html/.htaccess`
 
 - [ ] **Step 1: SSHかFTPで .htpasswd を作成**
 
@@ -116,21 +116,21 @@
   "
   ```
 
-  出力された1行（例: `staging:$6$xxxx...`）を `.htpasswd` ファイルとして FTP で `/home/{SERVER_ID}/staging.trepo.jp/public_html/.htpasswd` にアップロードする。
+  出力された1行（例: `staging:$6$xxxx...`）を `.htpasswd` ファイルとして FTP で `/home/buzzreach/staging.trepo.jp/public_html/.htpasswd` にアップロードする。
 
 - [ ] **Step 2: .htaccess に Basic 認証を追加**
 
-  FTPで `/home/{SERVER_ID}/staging.trepo.jp/public_html/.htaccess` を開き、ファイルの先頭に以下を追記する（既存内容は消さずに追記）:
+  FTPで `/home/buzzreach/staging.trepo.jp/public_html/.htaccess` を開き、ファイルの先頭に以下を追記する（既存内容は消さずに追記）:
 
   ```apache
   # Basic Auth for staging
   AuthType Basic
   AuthName "Trepo Staging"
-  AuthUserFile /home/{SERVER_ID}/staging.trepo.jp/public_html/.htpasswd
+  AuthUserFile /home/buzzreach/staging.trepo.jp/public_html/.htpasswd
   Require valid-user
   ```
 
-  `{SERVER_ID}` は実際のXserverサーバーIDに置き換える。
+  `buzzreach` は実際のXserverサーバーIDに置き換える。
 
 - [ ] **Step 3: Basic 認証確認**
 
@@ -192,12 +192,12 @@
 
 - [ ] **Step 5: ~/.ssh/config に接続情報を追加**
 
-  `~/.ssh/config` に以下を追記する（`{SERVER_ID}` を実際のサーバーIDに置き換える）:
+  `~/.ssh/config` に以下を追記する（`buzzreach` を実際のサーバーIDに置き換える）:
 
   ```
   Host xserver-trepo
-    HostName {SERVER_ID}.xsrv.jp
-    User {SERVER_ID}
+    HostName buzzreach.xsrv.jp
+    User buzzreach
     Port 10022
     IdentityFile ~/.ssh/id_ed25519_trepo
     ServerAliveInterval 60
@@ -245,7 +245,7 @@
   ssh xserver-trepo "pwd"
   ```
 
-  期待出力: `/home/{SERVER_ID}`
+  期待出力: `/home/buzzreach`
 
 ---
 
@@ -256,15 +256,15 @@
 - [ ] **Step 1: WordPressテーマ名を確認**
 
   ```bash
-  ssh xserver-trepo "ls /home/{SERVER_ID}/staging.trepo.jp/public_html/wp-content/themes/"
+  ssh xserver-trepo "ls /home/buzzreach/staging.trepo.jp/public_html/wp-content/themes/"
   ```
 
-  有効テーマ名（例: `sango`, `lightning` 等）をメモする。以降 `{THEME_NAME}` をこの値に置き換える。
+  有効テーマ名（例: `sango`, `lightning` 等）をメモする。以降 `snow-monkey` をこの値に置き換える。
 
 - [ ] **Step 2: テーマのstyle.cssを確認**
 
   ```bash
-  ssh xserver-trepo "head -20 /home/{SERVER_ID}/staging.trepo.jp/public_html/wp-content/themes/{THEME_NAME}/style.css"
+  ssh xserver-trepo "head -20 /home/buzzreach/staging.trepo.jp/public_html/wp-content/themes/snow-monkey/style.css"
   ```
 
   テーマ名・バージョン等が表示されることを確認する。
@@ -274,7 +274,7 @@
   ステージングのテーマCSSにテスト用のコメントを追加する:
 
   ```bash
-  ssh xserver-trepo "echo '/* Claude SSH test - $(date) */' >> /home/{SERVER_ID}/staging.trepo.jp/public_html/wp-content/themes/{THEME_NAME}/style.css"
+  ssh xserver-trepo "echo '/* Claude SSH test - $(date) */' >> /home/buzzreach/staging.trepo.jp/public_html/wp-content/themes/snow-monkey/style.css"
   ```
 
 - [ ] **Step 4: ブラウザで確認**
@@ -284,7 +284,7 @@
 - [ ] **Step 5: テスト用コメントを削除**
 
   ```bash
-  ssh xserver-trepo "sed -i '$ d' /home/{SERVER_ID}/staging.trepo.jp/public_html/wp-content/themes/{THEME_NAME}/style.css"
+  ssh xserver-trepo "sed -i '$ d' /home/buzzreach/staging.trepo.jp/public_html/wp-content/themes/snow-monkey/style.css"
   ```
 
 - [ ] **Step 6: コミット**
@@ -416,12 +416,12 @@
 ### Task 10: 著者ページの E-E-A-T を強化する
 
 **Files:**
-- Modify（SSH）: `/home/{SERVER_ID}/staging.trepo.jp/public_html/wp-content/themes/{THEME_NAME}/author.php` または対応するテンプレートファイル
+- Modify（SSH）: `/home/buzzreach/staging.trepo.jp/public_html/wp-content/themes/snow-monkey/author.php` または対応するテンプレートファイル
 
 - [ ] **Step 1: 著者テンプレートを確認**
 
   ```bash
-  ssh xserver-trepo "ls /home/{SERVER_ID}/staging.trepo.jp/public_html/wp-content/themes/{THEME_NAME}/ | grep -i author"
+  ssh xserver-trepo "ls /home/buzzreach/staging.trepo.jp/public_html/wp-content/themes/snow-monkey/ | grep -i author"
   ```
 
   `author.php` が存在しない場合は `archive.php` または `index.php` が使われている。
@@ -451,7 +451,7 @@
   SSHで直接編集する場合:
 
   ```bash
-  ssh xserver-trepo "cat /home/{SERVER_ID}/staging.trepo.jp/public_html/wp-content/themes/{THEME_NAME}/author.php"
+  ssh xserver-trepo "cat /home/buzzreach/staging.trepo.jp/public_html/wp-content/themes/snow-monkey/author.php"
   ```
 
   ファイルの内容を確認してから、Claudeが適切な箇所に追記する。
@@ -465,7 +465,7 @@
   SSH で同じコードを本番テーマに適用する:
 
   ```bash
-  ssh xserver-trepo "cat /home/{SERVER_ID}/trepo.jp/public_html/wp-content/themes/{THEME_NAME}/author.php"
+  ssh xserver-trepo "cat /home/buzzreach/trepo.jp/public_html/wp-content/themes/snow-monkey/author.php"
   ```
 
   内容を確認後、ステージングと同じ変更を加える。
@@ -514,14 +514,14 @@
 ### Task 12: 要約ボックスショートコードをステージングに実装する
 
 **Files:**
-- Modify（SSH）: `/home/{SERVER_ID}/staging.trepo.jp/public_html/wp-content/themes/{THEME_NAME}/functions.php`
+- Modify（SSH）: `/home/buzzreach/staging.trepo.jp/public_html/wp-content/themes/snow-monkey/functions.php`
 
 - [ ] **Step 1: ステージングのfunctions.phpに追記**
 
-  > ⚠️ functions.php の末尾に `?>` がある場合は先に削除してから追記すること。`?>` の後にPHPコードを追加しても実行されない。確認方法: `ssh xserver-trepo "tail -3 /home/{SERVER_ID}/staging.trepo.jp/public_html/wp-content/themes/{THEME_NAME}/functions.php"`
+  > ⚠️ functions.php の末尾に `?>` がある場合は先に削除してから追記すること。`?>` の後にPHPコードを追加しても実行されない。確認方法: `ssh xserver-trepo "tail -3 /home/buzzreach/staging.trepo.jp/public_html/wp-content/themes/snow-monkey/functions.php"`
 
   ```bash
-  ssh xserver-trepo "cat >> /home/{SERVER_ID}/staging.trepo.jp/public_html/wp-content/themes/{THEME_NAME}/functions.php" << 'EOF'
+  ssh xserver-trepo "cat >> /home/buzzreach/staging.trepo.jp/public_html/wp-content/themes/snow-monkey/functions.php" << 'EOF'
 
   // Trepo 要約ボックス ショートコード
   function trepo_summary_box( $atts, $content = null ) {
@@ -542,7 +542,7 @@
 - [ ] **Step 2: 要約ボックスのCSSをステージングに追加**
 
   ```bash
-  ssh xserver-trepo "cat >> /home/{SERVER_ID}/staging.trepo.jp/public_html/wp-content/themes/{THEME_NAME}/style.css" << 'EOF'
+  ssh xserver-trepo "cat >> /home/buzzreach/staging.trepo.jp/public_html/wp-content/themes/snow-monkey/style.css" << 'EOF'
 
   /* Trepo 要約ボックス */
   .trepo-summary-box {
@@ -593,13 +593,13 @@
   ステージングで確認後、同じコードを本番テーマに適用する:
 
   ```bash
-  ssh xserver-trepo "cat >> /home/{SERVER_ID}/trepo.jp/public_html/wp-content/themes/{THEME_NAME}/functions.php" << 'EOF'
+  ssh xserver-trepo "cat >> /home/buzzreach/trepo.jp/public_html/wp-content/themes/snow-monkey/functions.php" << 'EOF'
   [Step 1と同じコードを貼る]
   EOF
   ```
 
   ```bash
-  ssh xserver-trepo "cat >> /home/{SERVER_ID}/trepo.jp/public_html/wp-content/themes/{THEME_NAME}/style.css" << 'EOF'
+  ssh xserver-trepo "cat >> /home/buzzreach/trepo.jp/public_html/wp-content/themes/snow-monkey/style.css" << 'EOF'
   [Step 2と同じコードを貼る]
   EOF
   ```
