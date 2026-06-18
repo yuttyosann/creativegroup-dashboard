@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CG 施策進行コックピット</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="config.js"></script>
+<style>
+  :root{
+    --navy:#1E2D40; --blue:#2E6DA4; --blue2:#1A5276; --green:#117A65; --purple:#6C3483;
+    --orange:#B9770E; --bg:#F4F6F8; --card:#fff; --line:#E1E5EA; --text:#1E2D40; --muted:#6B7785;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+  header{background:var(--navy);color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+  header h1{font-size:16px;font-weight:600}
+  header .meta{font-size:12px;color:#A9BBD0}
+  .wrap{display:flex;max-width:1200px;margin:0 auto}
+  nav{width:230px;flex-shrink:0;padding:18px 12px;position:sticky;top:54px;height:calc(100vh - 54px);overflow-y:auto}
+  nav button{display:block;width:100%;text-align:left;background:none;border:none;padding:9px 12px;border-radius:8px;font-size:13px;color:var(--muted);cursor:pointer;margin-bottom:2px}
+  nav button:hover{background:#E9EEF3}
+  nav button.active{background:var(--blue);color:#fff;font-weight:600}
+  nav .done{color:var(--green)}
+  main{flex:1;padding:24px;min-width:0}
+  .step{display:none}
+  .step.active{display:block;animation:fade .2s}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+  .step h2{font-size:20px;margin-bottom:4px}
+  .step .sub{color:var(--muted);font-size:13px;margin-bottom:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+  .card h3{font-size:14px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  label{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px}
+  input,textarea,select{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit}
+  textarea{min-height:64px;resize:vertical}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .pill{display:inline-block;font-size:11px;padding:3px 10px;border-radius:20px;margin:2px 4px 2px 0}
+  .p-blue{background:#E6F1FB;color:#0C447C}.p-green{background:#D5F5E3;color:#0F6E56}
+  .p-purple{background:#EEEDFE;color:#3C3489}.p-orange{background:#FBE7CF;color:#7A4E07}.p-gray{background:#ECEFF2;color:#5F6B78}
+  pre{background:#1E2D40;color:#E6F1FB;padding:12px 14px;border-radius:8px;font-size:12px;overflow-x:auto;position:relative;font-family:ui-monospace,Menlo,monospace}
+  .copy{position:absolute;top:8px;right:8px;background:#33445C;color:#fff;border:none;border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer}
+  .copy:hover{background:#46597a}
+  .copy.ok{background:var(--green)}
+  .tiers{display:grid;grid-template-columns:1fr;gap:8px}
+  .tier{border-left:4px solid var(--blue);background:#F7FAFD;padding:10px 14px;border-radius:0 8px 8px 0}
+  .tier.t15{border-color:var(--purple);background:#FAF8FE}
+  .tier.t2{border-color:var(--green);background:#F4FBF8}
+  .tier b{font-size:13px}.tier span{font-size:12px;color:var(--muted)}
+  .axis{display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid var(--line)}
+  .axis .pt{color:var(--muted)}
+  .chk{display:flex;align-items:center;gap:9px;padding:7px 0;font-size:13px;cursor:pointer}
+  .chk input{width:auto}
+  .note{background:#FFF8E6;border:1px solid #F0D98A;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#7A5B00;margin-top:10px}
+  a.link{color:var(--blue);font-size:13px;text-decoration:none}a.link:hover{text-decoration:underline}
+  .flowstep{display:flex;gap:12px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .flowstep .num{width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+  .flowstep.star .num{background:var(--purple)}
+  .btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer}
+  .btn:hover{opacity:.9}
+  .progress{height:5px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:6px}
+  .progress div{height:100%;background:var(--green);transition:width .3s}
+</style>
+</head>
+<body>
+<div id="login" style="display:none;position:fixed;inset:0;background:#1E2D40;color:#fff;z-index:100;flex-direction:column;align-items:center;justify-content:center;gap:18px">
+  <div style="font-size:20px;font-weight:600">🚀 CG 施策進行コックピット</div>
+  <div style="font-size:13px;color:#A9BBD0">許可されたメンバーのGoogleアカウントでログイン</div>
+  <div id="gbtn"></div>
+  <div id="loginerr" style="color:#F09595;font-size:13px"></div>
+</div>
+<header>
+  <h1>🚀 CG 施策進行コックピット</h1>
+  <span class="meta">マニュアルに沿って1ページで進行 ／ 入力は自動保存</span>
+</header>
+<div class="wrap">
+  <nav id="nav"></nav>
+  <main id="main"></main>
+</div>
+
+<script>
+let ID_TOKEN = sessionStorage.getItem("cg_idtoken") || "";
+const API_BASE = (window.CG_CONFIG && window.CG_CONFIG.API_BASE) || "";
+
+function showLogin(msg){
+  document.getElementById("login").style.display="flex";
+  if(msg) document.getElementById("loginerr").textContent=msg;
+}
+function hideLogin(){ document.getElementById("login").style.display="none"; }
+
+window.onGoogleCredential=(resp)=>{
+  ID_TOKEN=resp.credential;
+  sessionStorage.setItem("cg_idtoken",ID_TOKEN);
+  hideLogin();
+};
+
+function initAuth(){
+  const cid = window.CG_CONFIG && window.CG_CONFIG.GOOGLE_CLIENT_ID;
+  if(!cid){ hideLogin(); return; } // 未設定なら開発用に素通り
+  if(ID_TOKEN){ hideLogin(); return; }
+  showLogin();
+  if(window.google && google.accounts){
+    google.accounts.id.initialize({ client_id: cid, callback: window.onGoogleCredential });
+    google.accounts.id.renderButton(document.getElementById("gbtn"), { theme:"filled_blue", size:"large" });
+  }
+}
+
+const STEPS = [
+  {id:"flow", t:"0. 全体フロー", sub:"発注から成果回収までの13ステップ。★が診断ツールの主戦場。"},
+  {id:"hearing", t:"1. ヒアリング", sub:"ブランド・商品情報を取得（商品分析の入力になる）"},
+  {id:"product", t:"2. 商品分析", sub:"需要タイプ・肌悩み・訴求を抽出するプロンプト"},
+  {id:"source", t:"3. 候補を探す", sub:"3パターン × 診断3層で候補リストを作る"},
+  {id:"diagnose", t:"4. 診断する", sub:"スクリーニング／転換質（PR投稿のみ）／フル10軸"},
+  {id:"prompts", t:"5. 診断プロンプト", sub:"インフルエンサー分析・マッチング診断をコピー"},
+  {id:"record", t:"6. 記録する", sub:"提案ログDBに提案・採用・成果を貯める"},
+  {id:"check", t:"7. チェックリスト", sub:"各案件で確認すること"},
+];
+
+const PROMPT_PRODUCT = `以下の商品を、インフルエンサーマッチング診断のために分析してください。
+【商品名・ブランド】
+【提供情報】公式ページ/商品資料/ECレビュー/SNS反応/競合
+【分析項目】表で整理：
+1. カテゴリ・主役アイテム
+2. 価格帯（定価/メガ割/割引率）
+3. メイン訴求軸TOP3
+4. 需要タイプ（カバー需要型/ツヤ保湿型/機能解決型/情緒憧れ型）
+5. ターゲット肌質・肌悩み（or利用文脈）
+6. 高評価レビュー頻出テーマTOP5
+7. 不満レビュー・NG訴求
+8. 競合との差別化
+9. メガ割で押す訴求TOP3
+10. 商品ベース力（受賞/ランキング/評価点）
+最後に「この商品が最も売れるインフルエンサー像」を100字で。`;
+
+const PROMPT_INFLU = `以下のインフルエンサーを客観的に分析してください（実売結果は使わずブラインドで）。
+【アカウント・規模】【直近投稿サマリー】【代表PR投稿】【コメント傾向】【プロフィール】
+【分析項目】
+1. 発信ジャンル 2. 投稿スタイル
+3. 本人の肌タイプ・肌悩み（客観事実のみ）
+4. フォロワー層（購買層か応援層か）
+5. コメント2分類：購買意向（買った/届いた/どこで）vs 虚栄（可愛い/おめでとう）→ 購買意向比率
+6. PR自然度・ガチレビュー感（1-5）
+7. 過去のコスメPR実績 8. EC誘導の実績
+9. 懸念・リスク 10. 向く施策タイプ（レビュー型/アンバサダー型）`;
+
+const PROMPT_MATCH = `商品分析とインフルエンサー分析からマッチング診断してください（採点は入力データのみ＝ブラインド）。
+■STEP1 施策タイプ判定（レビュー型/アンバサダー型）
+■STEP2 10軸採点：M01カテゴリ/M02需要・肌悩み適合(15)/M03投稿スタイル/M04フォロワー層/M05過去実績/M06コメント信頼(購買意向のみ)/M07PR自然度/M08購買導線/M09メガ割適性/M10リスク控除(-20〜0)
+■STEP3 ROAS試算（タイアップ費÷単価＝損益分岐販売数を超える見込みか／契約構造）
+■STEP4 診断結果（85+◎/70-84○/55-69△/-54×・強み3・懸念3・推奨投稿・避ける表現・推奨契約）`;
+
+const AXES = [
+  ["M01 商品カテゴリ適合","10"],["M02 需要・肌悩み適合","15"],["M03 投稿スタイル適合","10"],
+  ["M04 フォロワー層適合","10"],["M05 過去実績","10"],["M06 コメント信頼（購買意向のみ）","10"],
+  ["M07 PR自然度","10"],["M08 購買導線","10"],["M09 メガ割/セール適性","10"],["M10 リスク控除","-20〜0"],
+];
+
+function copyBtn(text){
+  return `<button class="copy" onclick="cp(this)" data-t="${encodeURIComponent(text)}">コピー</button>`;
+}
+window.cp = (btn)=>{
+  navigator.clipboard.writeText(decodeURIComponent(btn.dataset.t));
+  btn.textContent="コピー済";btn.classList.add("ok");
+  setTimeout(()=>{btn.textContent="コピー";btn.classList.remove("ok")},1500);
+};
+
+function field(id,label,ph,ta){
+  const v = localStorage.getItem("cg_"+id)||"";
+  const el = ta?`<textarea id="${id}" oninput="save('${id}',this.value)" placeholder="${ph}">${v}</textarea>`
+               :`<input id="${id}" oninput="save('${id}',this.value)" placeholder="${ph}" value="${v.replace(/"/g,'&quot;')}">`;
+  return `<label>${label}</label>${el}`;
+}
+window.save=(id,v)=>localStorage.setItem("cg_"+id,v);
+
+const RENDER = {
+  flow(){
+    const steps=["インフルエンサーPRの発注","ヒアリング（ブランド・商品情報取得）","★ リスト作成（Astream＋診断ツール）",
+    "クライアント選定","選定者へアプローチ","実施者確定（提案ログDBに記録）","オリエンシート作成","商品体験",
+    "投稿下書き作成","下書き確認・添削（NG/薬機法）","修正","投稿ポスト","★ インサイト回収・成果集計（提案ログDB）"];
+    return `<div class="card">${steps.map((s,i)=>`<div class="flowstep ${s.includes('★')?'star':''}"><div class="num">${i+1}</div><div>${s.replace('★ ','')}</div></div>`).join("")}</div>
+    <div class="note">★が診断ツールの主戦場。STEP3でリストの質を上げ、STEP13で成果を貯めて精度を上げる。</div>`;
+  },
+  hearing(){
+    return `<div class="card"><h3>商談基本</h3>
+      <div class="row">${field("h_company","会社名","株式会社〇〇")}${field("h_person","担当者・役職","")}</div>
+      ${field("h_brand","ブランド／商品名","")}
+      ${field("h_url","商品URL（Qoo10/公式）","")}
+    </div>
+    <div class="card"><h3>商品の訴求・ターゲット</h3>
+      ${field("h_benefit","一番売りたいベネフィット","乾燥肌にうるおい / 毛穴カバー 等","ta")}
+      <div class="row">${field("h_skin","ターゲット肌質","乾燥/混合/敏感 等")}${field("h_concern","ターゲット肌悩み","毛穴/乾燥/くすみ 等")}</div>
+      ${field("h_nego","メガ割/目標売上・予算","目標〇〇万 / 予算〇〇万","ta")}
+      ${field("h_ng","NG訴求・競合","フルカバー誇張NG 等","ta")}
+    </div>
+    <div class="note">記入内容は次の「商品分析プロンプト」にそのまま貼り付けて使えます。</div>`;
+  },
+  product(){
+    return `<div class="card"><h3>📦 商品分析プロンプト</h3>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:8px">商品情報・レビューを貼り付けてClaudeへ。需要タイプと肌悩みを抽出＝M02の基準になる。</p>
+      <pre>${copyBtn(PROMPT_PRODUCT)}${PROMPT_PRODUCT}</pre></div>
+    <div class="note">出力の「需要タイプ」「肌悩み」「向くインフルエンサー像」を控えておく。</div>`;
+  },
+  source(){
+    return `<div class="card"><h3>候補を探す 3パターン</h3>
+      <div class="tier"><b>A ジャンルで探す</b><br><span>マスタDB検索 → Astream/YouTube自動検索で発掘 → Tier1 → Tier1.5 → コンテンツ型で振り分け</span></div>
+      <div class="tier t15" style="margin-top:8px"><b>B ブランド・商品で探す</b><br><span>商品分析 → マスタDBを適性で絞る＋Astream補完 → Tier1.5＋簡易Tier2 → 商品特化ランク</span></div>
+      <div class="tier t2" style="margin-top:8px"><b>C 候補が既にいる</b><br><span>候補リストを Tier1.5転換質 ＋ Tier2フル診断</span></div>
+    </div>
+    <div class="card"><h3>🔎 YouTube自動検索（1から探す）</h3>
+      <pre>${copyBtn('node scripts/youtube/search_channels.js "乾燥肌 ファンデ レビュー" --max 12')}node scripts/youtube/search_channels.js "乾燥肌 ファンデ レビュー" --max 12</pre></div>
+    <div class="card"><h3>🤝 Astreamの役割</h3>
+      <span class="pill p-blue">客層を取得</span><span class="pill p-blue">実在率(bot)</span><span class="pill p-blue">競合PR調査</span><span class="pill p-blue">類似アカウント</span>
+      <p style="font-size:12.5px;color:var(--muted);margin-top:8px">Astream＝客層・競合を丸裸に／当社＝買う気と商品適合を見極める。CSVは ingest_csv.py でマスタDBに取込。</p>
+      <pre>${copyBtn('python3 scripts/astream/ingest_csv.py "Astream出力.csv"')}python3 scripts/astream/ingest_csv.py "Astream出力.csv"</pre></div>`;
+  },
+  diagnose(){
+    return `<div class="card"><h3>診断の3層</h3>
+      <div class="tiers">
+        <div class="tier"><b>Tier1 スクリーニング</b> <span>リーチ効率＋客層で粗く絞る（商品不問）</span></div>
+        <div class="tier t15"><b>Tier1.5 転換質スキャン</b> <span>直近のPR投稿のコメントで購買意向を見る</span></div>
+        <div class="tier t2"><b>Tier2 フル10軸マッチング</b> <span>商品確定後に相性を精査（本診断）</span></div>
+      </div>
+      <div class="note">スクリーニング低スコアでも美容系は落とさずTier1.5へ。フォロワー数・ER/CPVは規模/効率であって成果ではない。</div>
+    </div>
+    <div class="card"><h3>⚡ 転換質スキャン（媒体で手法が違う）</h3>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:8px">YouTube＝コメント購買意向が強い。Instagram＝コメントは弱いのでPRエンゲージのプロキシ＋人間の目で見る。</p>
+      <span class="pill p-green">YouTube：コメント転換質（強）</span><span class="pill p-orange">Instagram：プロキシ＋人間（ハイブリッド）</span>
+      <pre>${copyBtn('node scripts/youtube/fetch_channel.js <ID> --pr-only --pr-posts 10')}# YouTube（PR投稿のコメント購買意向）
+node scripts/youtube/fetch_channel.js &lt;ID&gt; --pr-only --pr-posts 10</pre>
+      <pre>${copyBtn('python3 scripts/astream/ig_conversion_proxy.py "AstreamのCSV"')}# Instagram（Astream PRエンゲージの転換質プロキシ）
+python3 scripts/astream/ig_conversion_proxy.py "AstreamのCSV"</pre>
+      <pre>${copyBtn('node scripts/apify/fetch_instagram.js <user> --pr-only --pr-posts 10')}# Instagram（参考：コメントも見る場合・ノイズ大）
+node scripts/apify/fetch_instagram.js &lt;user&gt; --pr-only --pr-posts 10</pre>
+      <div class="note">IGはこの3つを組み合わせる：①プロキシ（定量）②人間の推薦理由・タグ（定性）③Tier2商品適合。</div>
+    </div>
+    <div class="card"><h3>🟢 ライブ実行（YouTube）</h3>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:8px">cockpit-server.js 起動時のみ動作。ブラウザから直接スキャンします。</p>
+      <label>チャンネルID（UC…）or @ハンドル</label>
+      <div style="display:flex;gap:8px"><input id="ytin" placeholder="UCGUhj0lwUUkhPr_KyXss_BQ"><button class="btn" onclick="runYT()">診断</button></div>
+      <label style="margin-top:8px"><input type="checkbox" id="ytpr" style="width:auto"> PR投稿のみで測る</label>
+      <div id="ytresult" style="margin-top:10px;font-size:13px"></div>
+      <hr style="border:none;border-top:1px solid var(--line);margin:14px 0">
+      <label>キーワードで候補を探す</label>
+      <div style="display:flex;gap:8px"><input id="ytkw" placeholder="乾燥肌 ファンデ レビュー"><button class="btn" onclick="searchYT()">検索</button></div>
+      <div id="ytsearch" style="margin-top:10px;font-size:13px"></div>
+    </div>
+    <div class="card"><h3>📊 10軸（Tier2フル診断・100点）</h3>
+      ${AXES.map(a=>`<div class="axis"><span>${a[0]}</span><span class="pt">${a[1]}点</span></div>`).join("")}
+      <div class="note">判定：85+◎ / 70-84○ / 55-69△ / -54×。M02需要・肌悩み適合が最重要（10点未満は非推奨）。</div>
+    </div>`;
+  },
+  prompts(){
+    return `<div class="card"><h3>👤 インフルエンサー分析プロンプト</h3><pre>${copyBtn(PROMPT_INFLU)}${PROMPT_INFLU}</pre></div>
+    <div class="card"><h3>🎯 マッチング診断プロンプト</h3><pre>${copyBtn(PROMPT_MATCH)}${PROMPT_MATCH}</pre></div>`;
+  },
+  record(){
+    return `<div class="card"><h3>提案ログDBに記録</h3>
+      <p style="font-size:13px">全案件を1行=1インフルエンサーで貯める。人間の目利き×ツール診断×成果を紐づける。</p>
+      <div style="margin-top:8px">
+        <span class="pill p-green">①提案時 案件情報・基本・人間選定</span>
+        <span class="pill p-purple">②診断時 スクリーニング・転換質</span>
+        <span class="pill p-gray">③選定後 採用/見送り</span>
+        <span class="pill p-orange">④実施後 インサイト・購入・ROAS</span>
+      </div>
+    </div>
+    <div class="note">GASの buildProposalLog で生成。過去案件も「案件ID/ブランド/商品/名前/要望クリア/推薦理由/採用有無」だけでも価値あり。</div>`;
+  },
+  check(){
+    const items=["ヒアリングシートで商品情報を取得した","商品分析で需要タイプ・肌悩みを抽出した","候補を3パターンのいずれかで抽出した",
+    "候補にPR投稿のみで転換質スキャンをかけた","必要に応じてTier2フル診断をした","提案ログDBに提案を記録した",
+    "クライアント選定後に採用/見送りを更新した","実施後にインサイト・成果を記録した","人間評価とツール評価の差をメモした"];
+    return `<div class="card">${items.map((s,i)=>{
+      const k="chk_"+i, c=localStorage.getItem(k)==="1"?"checked":"";
+      return `<label class="chk"><input type="checkbox" ${c} onchange="toggleChk('${k}',this.checked)">${s}</label>`;
+    }).join("")}
+    <div class="progress"><div id="cbar" style="width:0%"></div></div></div>`;
+  },
+};
+window.toggleChk=(k,v)=>{localStorage.setItem(k,v?"1":"0");updateBar();};
+function updateBar(){
+  let done=0,total=9;for(let i=0;i<total;i++)if(localStorage.getItem("chk_"+i)==="1")done++;
+  const bar=document.getElementById("cbar");if(bar)bar.style.width=(done/total*100)+"%";
+}
+
+async function api(path,body){
+  const r=await fetch(API_BASE+path,{
+    method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+ID_TOKEN},
+    body:JSON.stringify(body)
+  });
+  if(r.status===401){ showLogin("再ログインしてください"); }
+  if(r.status===403){ showLogin("このアカウントは許可リストにありません"); }
+  return r.json();
+}
+window.runYT=async()=>{
+  const input=document.getElementById("ytin").value.trim();
+  const prOnly=document.getElementById("ytpr").checked;
+  const el=document.getElementById("ytresult");
+  if(!input){el.innerHTML="<span style='color:#A32D2D'>IDを入力してください</span>";return;}
+  el.innerHTML="⏳ 実行中…（30〜60秒）";
+  try{
+    const d=await api("/api/cockpit/youtube",{input,prOnly});
+    if(!d.ok){el.innerHTML=`<span style='color:#A32D2D'>エラー: ${d.error||"失敗"}</span>`;return;}
+    const badge=d.purchaseIntentRate>=15?"p-green":d.purchaseIntentRate>=5?"p-orange":"p-gray";
+    el.innerHTML=`<div class="card" style="margin:0;background:#F7FAFD">
+      <b>${d.title}</b><br>
+      登録者 ${d.subscribers.toLocaleString()} ／ 平均ER ${d.avgER}%<br>
+      <span class="pill ${badge}">転換質 ${d.purchaseIntentRate}%</span>
+      <span style="color:var(--muted);font-size:12px">（${prOnly?"PR投稿":"人気投稿"}・${d.commentsAnalyzed}コメント）</span>
+      ${d.sampleComments&&d.sampleComments.length?`<div style="margin-top:6px;font-size:11.5px;color:var(--muted)">例：${d.sampleComments.slice(0,3).map(c=>c.slice(0,40)).join(" ／ ")}</div>`:""}
+    </div>`;
+  }catch(e){el.innerHTML="<span style='color:#A32D2D'>サーバー未起動（node cockpit-server.js）の可能性</span>";}
+};
+window.searchYT=async()=>{
+  const keyword=document.getElementById("ytkw").value.trim();
+  const el=document.getElementById("ytsearch");
+  if(!keyword){el.innerHTML="<span style='color:#A32D2D'>キーワードを入力</span>";return;}
+  el.innerHTML="⏳ 検索中…（1〜2分）";
+  try{
+    const d=await api("/api/cockpit/yt-search",{keyword,max:8});
+    if(!d.ok){el.innerHTML=`<span style='color:#A32D2D'>エラー: ${d.error||"失敗"}</span>`;return;}
+    el.innerHTML=d.results.map((r,i)=>`<div style="padding:6px 0;border-bottom:1px solid var(--line)">
+      ${i+1}. <b>${r.title}</b> <span class="pill ${r.intent>=10?'p-green':'p-gray'}">転換質${r.intent}%</span><br>
+      <span style="color:var(--muted);font-size:12px">登録${r.subs.toLocaleString()} ／ ${r.contentType} ／ <a class="link" href="${r.url}" target="_blank">開く</a></span></div>`).join("");
+  }catch(e){el.innerHTML="<span style='color:#A32D2D'>サーバー未起動の可能性</span>";}
+};
+
+let current="flow";
+function render(){
+  document.getElementById("nav").innerHTML = STEPS.map(s=>
+    `<button class="${s.id===current?'active':''}" onclick="go('${s.id}')">${s.t}</button>`).join("");
+  const s=STEPS.find(x=>x.id===current);
+  document.getElementById("main").innerHTML =
+    `<div class="step active"><h2>${s.t}</h2><div class="sub">${s.sub}</div>${RENDER[s.id]()}</div>`;
+  updateBar();
+}
+window.go=(id)=>{current=id;render();window.scrollTo(0,0);};
+initAuth();
+render();
+</script>
+</body>
+</html>
