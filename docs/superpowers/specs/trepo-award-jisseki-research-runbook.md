@@ -36,6 +36,28 @@ Layer 3 編集得点（主観）   スコアカードシートで編集4項目�
 
 > TikTok Creative Center と Googleトレンド急上昇は**無料・客観・Z世代の実トレンド**を直接拾えるので、候補生成の主軸に置く。
 
+### 1-2. TikTok取り込み（ハイブリッド方式）
+
+TikTokは「発見」と「定量化」で取得手段を分ける。
+
+| 役割 | 方法 | ツール |
+|---|---|---|
+| **発見（Layer 1）** | Creative Centerを週1で手動スイープ | 手動（下記SOP） |
+| **定量化（Layer 2）** | ハッシュタグ/キーワードの再生数・エンゲージを取得 | `node scripts/apify/fetch_tiktok.js` |
+
+> Creative Centerの「急上昇ハッシュタグ一覧」には安定した無料APIが無いため、発見は手動が最も堅い。
+> 数値化だけApifyで自動化する。
+
+**Creative Center 手動スイープ SOP（週1）:**
+1. https://ads.tiktok.com/business/creativecenter/ を開く（無料TikTokアカウントでログイン）
+2. 地域＝**日本**、期間＝**直近7日/30日**で絞る
+3. 次の3面を確認し、Trepo読者（Z世代女性）に刺さりそうな項目を拾う:
+   - **Trending Hashtags**（ジャンル横断の本丸）
+   - **Trending Songs**（楽曲発の商品・コラボの兆し）
+   - **Top Products / Trend Discovery**（提供地域で見られる場合）
+4. 拾った対象を候補プールDBに `流入経路 = 編集部リサーチ` で追加。ハッシュタグ名を `SNS_根拠` にメモ。
+5. 後で `fetch_tiktok.js` にそのハッシュタグを渡し、`SNS話題量_点` を数値化。
+
 ---
 
 ## 2. 候補ロングリストの作り方（Layer 1）
