@@ -9,7 +9,7 @@
  *     （別プロジェクトでも可。その場合フォームIDで紐づく）
  *  2. プロジェクトの設定 → スクリプト プロパティ に以下を登録（コードに直書きしない）:
  *       NOTION_TOKEN   … NotionインテグレーションのAPIトークン
- *       NOTION_DB_ID   … 候補プールDBのID（3822a9c9-20f7-818e-99f6-ccac7c7db02d）
+ *       NOTION_DB_ID   … 候補プールDBのID（3832a9c9-20f7-81ad-a21e-fee38dfd4b8c）※Trepo編集部配下
  *       FORM_ID        … 対象フォームのID（フォーム編集URLの /d/ と /edit の間）
  *  3. 関数 setupTrigger を1回実行（初回は権限承認）。これで自動連携が有効化される。
  *  4. テスト送信して、候補プールDBに行が増えることを確認。
