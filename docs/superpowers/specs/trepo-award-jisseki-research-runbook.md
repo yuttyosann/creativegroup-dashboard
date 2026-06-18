@@ -93,7 +93,7 @@ TikTokは「発見」と「定量化」で取得手段を分ける。
 | SNS話題量 | `node scripts/apify/fetch_instagram.js <ハッシュタグ/アカウント>` で投稿量・エンゲージ取得。または TikTok Creative Center で該当ハッシュタグの再生数を確認 | `SNS話題量_点` / `SNS_根拠` |
 | 検索の伸び | Google Trends に候補名を入力し、相対伸び率・急上昇を確認（Phase 2でpytrends自動化） | `検索の伸び_点` / `検索_根拠` |
 | インフル反響 | `node scripts/youtube/fetch_channel.js <ハンドル>` ＋ Apify IG で言及インフルの数・規模を確認 | `インフル反響_点` / `インフル_根拠` |
-| メディア掲載 | PR TIMES／Googleニュースで掲載件数を検索 | `メディア掲載_点` / `メディア_根拠` |
+| メディア掲載 | `python3 scripts/media/fetch_media.py "<候補名>"`（Google News＋PR TIMESの掲載件数→1〜5） | `メディア掲載_点` / `メディア_根拠` |
 | 売上実績 | §2で記録済みのランキング順位を採点に反映（実売は非公開のため代理） | `売上実績_点` / `売上_根拠` |
 
 ### 1〜5への正規化（データアンカー v0.1）
