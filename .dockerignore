@@ -1,6 +1,10 @@
 node_modules
+**/node_modules
 .env
+**/.env
 .git
 分析レポート
 docs
 *.md
+.playwright-mcp
+*.png

@@ -3,6 +3,7 @@ import express from "express";
 import { randomUUID } from "node:crypto";
 import { listCandidates, listSeeds, writeSignal, SIGNAL_FIELDS } from "./lib/notion.js";
 import { runEngine, ENGINES } from "./lib/engines.js";
+import { requireAuth, authEnabled } from "./lib/auth.js";
 
 // .env 読み込み（Node20.12+ / 24 の process.loadEnvFile）
 try { process.loadEnvFile?.(); } catch { /* .env が無くても可 */ }
@@ -13,21 +14,26 @@ app.use(express.static("public"));
 
 const jobs = new Map(); // id -> job
 
-app.get("/api/candidates", async (_req, res) => {
+// フロントのGoogleサインイン初期化用（公開: クライアントIDのみ返す。未設定ならログイン不要）
+app.get("/api/config", (_req, res) => {
+  res.json({ clientId: process.env.GOOGLE_OAUTH_CLIENT_ID || "", authEnabled: authEnabled() });
+});
+
+app.get("/api/candidates", requireAuth, async (_req, res) => {
   try { res.json(await listCandidates()); }
   catch (e) { res.status(500).json({ error: String(e.message) }); }
 });
 
-app.get("/api/seeds", async (_req, res) => {
+app.get("/api/seeds", requireAuth, async (_req, res) => {
   try { res.json(await listSeeds()); }
   catch (e) { res.status(500).json({ error: String(e.message) }); }
 });
 
-app.get("/api/signals", (_req, res) => {
+app.get("/api/signals", requireAuth, (_req, res) => {
   res.json(Object.entries(ENGINES).map(([key, e]) => ({ key, label: e.label })));
 });
 
-app.post("/api/jobs", async (req, res) => {
+app.post("/api/jobs", requireAuth, async (req, res) => {
   const { candidateIds = [], signals = [] } = req.body || {};
   if (!candidateIds.length || !signals.length) {
     return res.status(400).json({ error: "candidateIds と signals を指定してください" });
@@ -39,7 +45,7 @@ app.post("/api/jobs", async (req, res) => {
   runJob(job).catch((e) => { job.status = "error"; job.error = String(e.message); });
 });
 
-app.get("/api/jobs/:id", (req, res) => {
+app.get("/api/jobs/:id", requireAuth, (req, res) => {
   const job = jobs.get(req.params.id);
   if (!job) return res.status(404).json({ error: "not found" });
   res.json(job);

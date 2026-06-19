@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Trepoトレンド大賞 実績シグナル収集</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root { --bg:#0f1115; --card:#181b22; --line:#2a2f3a; --ink:#e8ebf0; --sub:#9aa3b2; --accent:#5b8cff; --ok:#43c59e; --warn:#ffb454; }
   * { box-sizing:border-box; }
@@ -32,9 +33,22 @@
   .note { font-size:12px; color:var(--sub); line-height:1.6; margin-top:10px; }
   .tools { display:flex; align-items:center; gap:12px; margin-top:8px; }
   a { color:var(--accent); }
+  #gate { position:fixed; inset:0; background:var(--bg); display:none; align-items:center; justify-content:center; z-index:50; }
+  #gate .box { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:32px 36px; text-align:center; }
+  #gate h2 { margin:0 0 6px; font-size:16px; }
+  #gate p { color:var(--sub); font-size:13px; margin:0 0 18px; }
+  #gerr { color:#ff7a7a; font-size:13px; margin-top:12px; min-height:18px; }
 </style>
 </head>
 <body>
+<div id="gate">
+  <div class="box">
+    <h2>📊 実績シグナル収集ツール</h2>
+    <p>Trepo編集部メンバーのGoogleアカウントでログインしてください。</p>
+    <div id="gbtn"></div>
+    <div id="gerr"></div>
+  </div>
+</div>
 <header>
   <h1>📊 Trepoトレンド大賞 実績シグナル収集</h1>
   <div class="sub">候補を選んで「取得」を押すと、裏で検索・SNS・メディアのデータを取得し、Notion候補プールDBに書き戻します。</div>
@@ -68,16 +82,45 @@
 <script>
 const $ = (s) => document.querySelector(s);
 let candidates = [], signals = [], selected = new Set();
+let ID_TOKEN = "";
+
+function apiFetch(url, opts = {}) {
+  const headers = Object.assign({}, opts.headers);
+  if (ID_TOKEN) headers["Authorization"] = "Bearer " + ID_TOKEN;
+  return fetch(url, Object.assign({}, opts, { headers }));
+}
+
+window.onGoogleCredential = (resp) => {
+  ID_TOKEN = resp.credential;
+  $("#gate").style.display = "none";
+  load();
+};
+
+async function init() {
+  let cfg = {};
+  try { cfg = await (await fetch("/api/config")).json(); } catch {}
+  if (cfg.authEnabled && cfg.clientId) {
+    $("#gate").style.display = "flex";
+    const render = () => {
+      if (!(window.google && google.accounts)) return setTimeout(render, 200);
+      google.accounts.id.initialize({ client_id: cfg.clientId, callback: window.onGoogleCredential });
+      google.accounts.id.renderButton(document.getElementById("gbtn"), { theme: "filled_blue", size: "large" });
+    };
+    render();
+  } else {
+    load(); // ローカル開発: ログイン不要
+  }
+}
 
 async function load() {
-  signals = await (await fetch("/api/signals")).json();
+  signals = await (await apiFetch("/api/signals")).json();
   $("#sigbar").innerHTML = signals.map(s =>
     `<label class="sig"><input type="checkbox" class="sigchk" value="${s.key}" checked>${s.label}</label>`).join("");
   await loadCandidates();
 }
 
 async function loadCandidates() {
-  const r = await fetch("/api/candidates");
+  const r = await apiFetch("/api/candidates");
   if (!r.ok) { $("#candWrap").innerHTML = `<div class="muted">読み込み失敗: ${(await r.json()).error}</div>`; return; }
   candidates = await r.json();
   renderCandidates();
@@ -113,7 +156,7 @@ $("#runBtn").onclick = async () => {
   if (!sigs.length) { alert("シグナルを1つ以上選んでください"); return; }
   $("#runBtn").disabled = true;
   setStatus("running", "ジョブを開始しています…");
-  const r = await fetch("/api/jobs", { method:"POST", headers:{"Content-Type":"application/json"},
+  const r = await apiFetch("/api/jobs", { method:"POST", headers:{"Content-Type":"application/json"},
     body: JSON.stringify({ candidateIds:[...selected], signals:sigs }) });
   const { jobId, error } = await r.json();
   if (error) { setStatus("error", error); $("#runBtn").disabled=false; return; }
@@ -122,7 +165,7 @@ $("#runBtn").onclick = async () => {
 
 function poll(jobId) {
   const iv = setInterval(async () => {
-    const job = await (await fetch("/api/jobs/"+jobId)).json();
+    const job = await (await apiFetch("/api/jobs/"+jobId)).json();
     $("#log").textContent = job.log.join("\n") || "（処理中…）";
     $("#log").scrollTop = $("#log").scrollHeight;
     if (job.status === "running") setStatus("running", "取得中…");
@@ -138,7 +181,7 @@ function setStatus(cls, text) {
   $("#dot").className = "dot " + cls;
   $("#statusText").textContent = text;
 }
-load();
+init();
 </script>
 </body>
 </html>
