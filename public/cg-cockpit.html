@@ -113,6 +113,7 @@ const STEPS = [
   {id:"prompts", t:"5. 診断プロンプト", sub:"インフルエンサー分析・マッチング診断をコピー"},
   {id:"record", t:"6. 記録する", sub:"提案ログDBに提案・採用・成果を貯める"},
   {id:"check", t:"7. チェックリスト", sub:"各案件で確認すること"},
+  {id:"manual", t:"8. マニュアル", sub:"各工程の目的・操作手順・注意点（詳細版）"},
 ];
 
 const PROMPT_PRODUCT = `以下の商品を、インフルエンサーマッチング診断のために分析してください。
@@ -173,11 +174,23 @@ window.save=(id,v)=>localStorage.setItem("cg_"+id,v);
 
 const RENDER = {
   flow(){
-    const steps=["インフルエンサーPRの発注","ヒアリング（ブランド・商品情報取得）","★ リスト作成（Astream＋診断ツール）",
-    "クライアント選定","選定者へアプローチ","実施者確定（提案ログDBに記録）","オリエンシート作成","商品体験",
-    "投稿下書き作成","下書き確認・添削（NG/薬機法）","修正","投稿ポスト","★ インサイト回収・成果集計（提案ログDB）"];
-    return `<div class="card">${steps.map((s,i)=>`<div class="flowstep ${s.includes('★')?'star':''}"><div class="num">${i+1}</div><div>${s.replace('★ ','')}</div></div>`).join("")}</div>
-    <div class="note">★が診断ツールの主戦場。STEP3でリストの質を上げ、STEP13で成果を貯めて精度を上げる。</div>`;
+    const steps=[
+      ["インフルエンサーPRの発注","ブランドから案件を受注。ゴール・予算・商材を確認する起点。"],
+      ["ヒアリング","タブ1で会社・商品・訴求・ターゲット・NGを取得。商品分析の入力になる。"],
+      ["★ リスト作成","タブ3でAstream＋YouTube検索から候補を集め、診断3層で絞る。"],
+      ["クライアント選定","候補リストをクライアントに提示し、起用候補を選んでもらう。"],
+      ["選定者へアプローチ","選ばれたインフルエンサーへ打診・条件交渉。"],
+      ["実施者確定","起用確定者を提案ログDBに記録（案件ID×名前で管理）。"],
+      ["オリエンシート作成","訴求・必須表現・NG・投稿要件をまとめた指示書を作る。"],
+      ["商品体験","インフルエンサーに商品を届け、実際に使ってもらう。"],
+      ["投稿下書き作成","本人が投稿原稿（構成・キャプション）を作成。"],
+      ["下書き確認・添削","NG表現・薬機法・訴求ズレをチェックして修正依頼。"],
+      ["修正","指摘反映。問題なければ投稿GOへ。"],
+      ["投稿ポスト","予定日に投稿を公開。"],
+      ["★ インサイト回収・成果集計","タブ6で再生/保存/購入/ROASを回収し提案ログDBに蓄積。次回精度に還元。"],
+    ];
+    return `<div class="card">${steps.map((s,i)=>`<div class="flowstep ${i===2||i===12?'star':''}"><div class="num">${i+1}</div><div><b>${s[0]}</b><br><span style="font-size:12px;color:var(--muted)">${s[1]}</span></div></div>`).join("")}</div>
+    <div class="note">★が診断ツールの主戦場。STEP3でリストの質を上げ、STEP13で成果を貯めて精度を上げる。詳しい手順は「8. マニュアル」タブ。</div>`;
   },
   hearing(){
     return `<div class="card"><h3>商談基本</h3>
@@ -213,11 +226,14 @@ const RENDER = {
       <div class="tier t2" style="margin-top:8px"><b>C 候補が既にいる</b><br><span>候補リストを Tier1.5転換質 ＋ Tier2フル診断</span></div>
     </div>
     <div class="card"><h3>🔎 YouTube自動検索（1から探す）</h3>
-      <pre>${copyBtn('node scripts/youtube/search_channels.js "乾燥肌 ファンデ レビュー" --max 12')}node scripts/youtube/search_channels.js "乾燥肌 ファンデ レビュー" --max 12</pre></div>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:8px">キーワードで候補チャンネルを検索し、転換質で粗くランク付けします。</p>
+      <div style="display:flex;gap:8px"><input id="srcytkw" placeholder="乾燥肌 ファンデ レビュー"><button class="btn" onclick="searchYTSource()">検索</button></div>
+      <div id="srcytresult" style="margin-top:10px;font-size:13px"></div></div>
     <div class="card"><h3>🤝 Astreamの役割</h3>
       <span class="pill p-blue">客層を取得</span><span class="pill p-blue">実在率(bot)</span><span class="pill p-blue">競合PR調査</span><span class="pill p-blue">類似アカウント</span>
       <p style="font-size:12.5px;color:var(--muted);margin-top:8px">Astream＝客層・競合を丸裸に／当社＝買う気と商品適合を見極める。CSVは ingest_csv.py でマスタDBに取込。</p>
-      <pre>${copyBtn('python3 scripts/astream/ingest_csv.py "Astream出力.csv"')}python3 scripts/astream/ingest_csv.py "Astream出力.csv"</pre></div>`;
+      <pre>${copyBtn('python3 scripts/astream/ingest_csv.py "Astream出力.csv"')}python3 scripts/astream/ingest_csv.py "Astream出力.csv"</pre>
+      <div style="margin-top:10px"><a href="https://astream.jp/" target="_blank" rel="noopener" class="btn" style="display:inline-block;text-decoration:none">Astreamにログイン →</a></div></div>`;
   },
   diagnose(){
     return `<div class="card"><h3>診断の3層</h3>
@@ -319,6 +335,22 @@ piii_xx_01"></textarea>
       return `<label class="chk"><input type="checkbox" ${c} onchange="toggleChk('${k}',this.checked)">${s}</label>`;
     }).join("")}
     <div class="progress"><div id="cbar" style="width:0%"></div></div></div>`;
+  },
+  manual(){
+    const m=[
+      ["m1","1. ヒアリング","会社・担当・商品URL・一番売りたいベネフィット・ターゲット肌質/悩み・予算/目標・NG訴求を取得する。","タブ1のフォームに入力→そのまま商品分析の入力に使える。","売りたいベネフィットとNG訴求は必ず言語化。曖昧なら後工程の判定がぶれる。"],
+      ["m2","2. 商品分析","商品の需要タイプ（カバー/ツヤ保湿/機能解決/情緒憧れ）と肌悩み・利用文脈を抽出。M02判定の基準を作る。","タブ2に商品名と提供情報（公式/レビュー/競合）を貼り[分析する]。","出力の『需要タイプ』『向くインフルエンサー像』を控える。EC低評価レビューも必ず入れると精度が上がる。"],
+      ["m3","3. 候補を探す","3パターン（ジャンル/ブランド/既存候補）×診断3層で候補リストを作る。","タブ3：YouTube検索で発掘／AstreamのCSVを取込（客層・実在率・PRエンゲージ）。","フォロワー数・ER/CPVは規模・効率であって成果ではない。美容系は低スクリーニングでも落とさずTier1.5へ。"],
+      ["m4","4. 診断する","Tier1スクリーニング→Tier1.5転換質→Tier2フル10軸。媒体で転換質の測り方が違う。","タブ4：YouTubeはコメント転換質（強）。IGはAstream PRエンゲージのプロキシ＋人間の目（コメントは虚栄が多い）。","採点は入力データのみ（ブラインド）。実売は最後の検証だけに使い、その場で配点を変えない。"],
+      ["m5","5. 診断（マッチング）","商品分析×インフルエンサー分析で10軸採点＋ROAS試算＋施策タイプ判定。","タブ5：商品分析とインフル分析の出力を貼り[診断する]。","M02需要・肌悩み適合（15点）が最重要。10点未満は非推奨。ROAS損益分岐を必ず試算。"],
+      ["m6","6. 記録する","全案件を1行=1インフルエンサーで提案ログDBに蓄積。人間の目利き×ツール診断×成果を紐づける。","タブ6：提案時/診断時/選定後/実施後の4段階で記録。","過去案件も『案件ID/ブランド/商品/名前/要望クリア/推薦理由/採用有無』だけで価値がある。"],
+      ["m7","7. チェックリスト","各案件で抜け漏れがないか確認。","タブ7：9項目をチェックして進捗バーで確認。","人間評価とツール評価の差は必ずメモ。サンプルが貯まれば配点キャリブレーションに使う。"],
+    ];
+    return `<div class="card"><h3>目次</h3>${m.map(x=>`<a href="#${x[0]}" style="display:inline-block;margin:2px 8px 2px 0;font-size:13px">${x[1]}</a>`).join("")}</div>
+    ${m.map(x=>`<div class="card" id="${x[0]}"><h3>${x[1]}</h3>
+      <p style="font-size:13px"><b>目的：</b>${x[2]}</p>
+      <p style="font-size:13px"><b>操作手順：</b>${x[3]}</p>
+      <p style="font-size:13px;color:var(--muted)"><b>注意点・判断基準：</b>${x[4]}</p></div>`).join("")}`;
   },
 };
 window.toggleChk=(k,v)=>{localStorage.setItem(k,v?"1":"0");updateBar();};
@@ -443,6 +475,23 @@ window.searchYT=async()=>{
       ${i+1}. <b>${r.title}</b> <span class="pill ${r.intent>=10?'p-green':'p-gray'}">転換質${r.intent}%</span><br>
       <span style="color:var(--muted);font-size:12px">登録${r.subs.toLocaleString()} ／ ${r.contentType} ／ <a class="link" href="${r.url}" target="_blank">開く</a></span></div>`).join("");
   }catch(e){el.innerHTML=`<span style='color:#A32D2D'>${e.message||"失敗"}</span>`;}
+};
+window.searchYTSource=async()=>{
+  const kw=(document.getElementById("srcytkw").value||"").trim();
+  const el=document.getElementById("srcytresult");
+  if(!kw){el.innerHTML="<span style='color:#A32D2D'>キーワードを入力してください</span>";return;}
+  el.innerHTML="検索中…（リロードしないでください）";
+  try{
+    const r=await api("/api/cockpit/yt-search",{keyword:kw,max:12});
+    if(r.ok&&r.results&&r.results.length){
+      el.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:12.5px">`
+        +`<tr><th style="text-align:left;border-bottom:1px solid var(--line)">チャンネル</th><th style="border-bottom:1px solid var(--line)">登録者</th><th style="border-bottom:1px solid var(--line)">転換質</th></tr>`
+        +r.results.map(x=>`<tr><td style="border-bottom:1px solid var(--line)">${escapeHtml(x.title||x.channelId||"")}</td>`
+        +`<td style="text-align:right;border-bottom:1px solid var(--line)">${(x.subs||0).toLocaleString()}</td>`
+        +`<td style="text-align:right;border-bottom:1px solid var(--line)">${x.intent==null?"—":x.intent+"%"}</td></tr>`).join("")
+        +`</table>`;
+    }else{ el.innerHTML="<span style='color:var(--muted)'>"+escapeHtml(r.error||"該当なし")+"</span>"; }
+  }catch(e){ el.innerHTML="<span style='color:#A32D2D'>"+escapeHtml(e.message)+"</span>"; }
 };
 
 window.runIGBatch=async()=>{
