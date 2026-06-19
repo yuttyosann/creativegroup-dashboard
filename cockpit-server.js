@@ -166,7 +166,7 @@ app.post('/api/cockpit/analyze', requireAuth, async (req, res) => {
     return res.status(400).json({ ok: false, error: e.message });
   }
   try {
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, timeout: 120000 });
     const msg = await client.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 4096,
