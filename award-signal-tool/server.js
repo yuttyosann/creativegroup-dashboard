@@ -1,0 +1,82 @@
+// Trepoトレンド大賞 実績シグナル収集ツール — Expressサーバー（非同期ジョブ）
+import express from "express";
+import { randomUUID } from "node:crypto";
+import { listCandidates, listSeeds, writeSignal, SIGNAL_FIELDS } from "./lib/notion.js";
+import { runEngine, ENGINES } from "./lib/engines.js";
+
+// .env 読み込み（Node20.12+ / 24 の process.loadEnvFile）
+try { process.loadEnvFile?.(); } catch { /* .env が無くても可 */ }
+
+const app = express();
+app.use(express.json());
+app.use(express.static("public"));
+
+const jobs = new Map(); // id -> job
+
+app.get("/api/candidates", async (_req, res) => {
+  try { res.json(await listCandidates()); }
+  catch (e) { res.status(500).json({ error: String(e.message) }); }
+});
+
+app.get("/api/seeds", async (_req, res) => {
+  try { res.json(await listSeeds()); }
+  catch (e) { res.status(500).json({ error: String(e.message) }); }
+});
+
+app.get("/api/signals", (_req, res) => {
+  res.json(Object.entries(ENGINES).map(([key, e]) => ({ key, label: e.label })));
+});
+
+app.post("/api/jobs", async (req, res) => {
+  const { candidateIds = [], signals = [] } = req.body || {};
+  if (!candidateIds.length || !signals.length) {
+    return res.status(400).json({ error: "candidateIds と signals を指定してください" });
+  }
+  const id = randomUUID();
+  const job = { id, status: "running", createdAt: Date.now(), signals, candidateIds, log: [], results: {}, error: null };
+  jobs.set(id, job);
+  res.json({ jobId: id });
+  runJob(job).catch((e) => { job.status = "error"; job.error = String(e.message); });
+});
+
+app.get("/api/jobs/:id", (req, res) => {
+  const job = jobs.get(req.params.id);
+  if (!job) return res.status(404).json({ error: "not found" });
+  res.json(job);
+});
+
+async function runJob(job) {
+  const log = (s) => { job.log.push(s.replace(/\n+$/, "")); };
+  const all = await listCandidates();
+  const targets = all.filter((c) => job.candidateIds.includes(c.id));
+  for (const c of targets) job.results[c.id] = { name: c.name, signals: {} };
+
+  for (const sig of job.signals) {
+    if (!ENGINES[sig]) { log(`⚠ 未知のシグナル: ${sig}`); continue; }
+    log(`=== ${ENGINES[sig].label} 取得開始（${targets.length}件）===`);
+    let out;
+    try {
+      out = await runEngine(sig, targets.map((c) => ({ id: c.id, name: c.name })), log);
+    } catch (e) {
+      log(`❌ ${ENGINES[sig].label} 失敗: ${e.message}`);
+      for (const c of targets) job.results[c.id].signals[sig] = { point: null, evidence: "取得失敗", wrote: false };
+      continue;
+    }
+    // Notion書き戻し（_点は空欄時のみ）
+    for (const c of targets) {
+      const r = out.find((x) => x.name === c.name) || { point: null, evidence: "データなし" };
+      let wrote = false;
+      try {
+        const w = await writeSignal(c.id, sig, r.point, r.evidence, c.points[sig]);
+        wrote = !!w.wrotePoint;
+      } catch (e) { log(`  書込失敗 ${c.name}: ${e.message}`); }
+      job.results[c.id].signals[sig] = { point: r.point, evidence: r.evidence, wrote };
+      log(`  ${c.name}: ${ENGINES[sig].label}=${r.point ?? "—"}（${wrote ? "点を書込" : "点は既存維持/空"}）`);
+    }
+  }
+  job.status = "done";
+  log("=== 完了 ===");
+}
+
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => console.log(`▶ award-signal-tool listening on http://localhost:${PORT}`));

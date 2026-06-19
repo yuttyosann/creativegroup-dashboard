@@ -1,0 +1,14 @@
+{
+  "name": "trepo-award-signal-tool",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Trepoトレンド大賞2026 実績シグナル収集ツール（候補をボタンで自動取得しNotionに書き戻す）",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

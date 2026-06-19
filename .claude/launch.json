@@ -5,7 +5,30 @@
       "name": "CreativeGroup Dashboard",
       "runtimeExecutable": "/Users/yuttyo/.nvm/versions/node/v24.14.0/bin/node",
       "runtimeArgs": ["server.js"],
-      "port": 3000
+      "port": 3000,
+      "autoPort": false
+    },
+    {
+      "name": "Cockpit Static",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8080", "--directory", "public"],
+      "port": 8080,
+      "autoPort": false
+    },
+    {
+      "name": "Cockpit Live",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["cockpit-server.js"],
+      "port": 8090,
+      "autoPort": false
+    },
+    {
+      "name": "Award Signal Tool",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["server.js"],
+      "cwd": "award-signal-tool",
+      "port": 4000,
+      "autoPort": false
     }
   ]
 }

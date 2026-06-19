@@ -46,6 +46,7 @@ const args = process.argv.slice(2);
 const SEARCH_MODE = args.includes("--search"); // キーワード検索（既定はハッシュタグ）
 const perTerm = (() => { const i = args.indexOf("--per"); return i>=0 && args[i+1] ? parseInt(args[i+1],10) : 50; })();
 const limit = (() => { const i = args.indexOf("--limit"); return i>=0 && args[i+1] ? parseInt(args[i+1],10) : 30; })();
+const outArg = (() => { const i = args.indexOf("--out"); return i>=0 && args[i+1] ? args[i+1] : null; })();
 
 let terms = [];
 const csvIdx = args.indexOf("--csv");
@@ -65,7 +66,7 @@ if (csvIdx >= 0 && args[csvIdx+1]) {
   // --per / --col の値が混ざらないよう、直前がオプションのものは除外
   terms = terms.filter((t, i) => {
     const prev = args[args.indexOf(t) - 1];
-    return prev !== "--per" && prev !== "--col" && prev !== "--limit";
+    return prev !== "--per" && prev !== "--col" && prev !== "--limit" && prev !== "--out";
   });
 }
 terms = terms.map(t => t.replace(/^#/, "").trim()).filter(Boolean);
@@ -143,10 +144,16 @@ function quintilePoint(value, sortedVals) {
   console.log(`${"=".repeat(64)}`);
   results.forEach((r,i)=> console.log(`${i+1}. ${SEARCH_MODE?"":"#"}${r.term}  話題量${r.point||"—"}点  (再生${(r.totalViews||0).toLocaleString()})`));
 
-  const outDir = path.join(__dirname, "../../分析レポート/tiktok_data");
-  fs.mkdirSync(outDir, { recursive: true });
-  const date = new Date().toISOString().slice(0,10);
-  const csvPath = path.join(outDir, `${date}_話題量.csv`);
+  let csvPath;
+  if (outArg) {
+    csvPath = outArg;
+    fs.mkdirSync(path.dirname(csvPath), { recursive: true });
+  } else {
+    const outDir = path.join(__dirname, "../../分析レポート/tiktok_data");
+    fs.mkdirSync(outDir, { recursive: true });
+    const date = new Date().toISOString().slice(0,10);
+    csvPath = path.join(outDir, `${date}_話題量.csv`);
+  }
   const head = "対象,種別,サンプル動画数,総再生数,平均再生数,総エンゲージ,エンゲージ率%,話題量_点(1-5)";
   const lines = results.map(r =>
     `${r.term},${SEARCH_MODE?"keyword":"hashtag"},${r.videos||0},${r.totalViews||0},${r.avgViews||0},${r.totalEng||0},${r.engRate==null?"":(r.engRate*100).toFixed(1)},${r.point||""}`);

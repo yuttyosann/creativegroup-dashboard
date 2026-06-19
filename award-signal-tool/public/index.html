@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Trepoトレンド大賞 実績シグナル収集</title>
+<style>
+  :root { --bg:#0f1115; --card:#181b22; --line:#2a2f3a; --ink:#e8ebf0; --sub:#9aa3b2; --accent:#5b8cff; --ok:#43c59e; --warn:#ffb454; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif; background:var(--bg); color:var(--ink); }
+  header { padding:20px 24px; border-bottom:1px solid var(--line); }
+  h1 { font-size:18px; margin:0; }
+  .sub { color:var(--sub); font-size:13px; margin-top:4px; }
+  main { display:grid; grid-template-columns:1.4fr 1fr; gap:16px; padding:16px 24px; align-items:start; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; }
+  .card h2 { font-size:14px; margin:0 0 12px; color:var(--sub); font-weight:600; letter-spacing:.02em; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th,td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); }
+  th { color:var(--sub); font-weight:500; }
+  td.pt { text-align:center; width:42px; color:var(--sub); }
+  td.pt.has { color:var(--ok); font-weight:700; }
+  .pill { font-size:11px; color:var(--sub); border:1px solid var(--line); border-radius:999px; padding:1px 8px; }
+  .sigbar { display:flex; gap:14px; flex-wrap:wrap; margin:4px 0 14px; }
+  label.sig { font-size:13px; display:flex; gap:6px; align-items:center; cursor:pointer; }
+  button { background:var(--accent); color:#fff; border:0; border-radius:9px; padding:10px 18px; font-size:14px; cursor:pointer; }
+  button:disabled { opacity:.5; cursor:not-allowed; }
+  .muted { color:var(--sub); font-size:12px; }
+  .status { font-size:13px; margin-bottom:8px; }
+  .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:middle; }
+  .running { background:var(--warn); } .done { background:var(--ok); } .error { background:#ff5a5a; } .idle { background:var(--sub); }
+  pre.log { background:#0b0d12; border:1px solid var(--line); border-radius:8px; padding:10px; font-size:12px; line-height:1.5; max-height:300px; overflow:auto; white-space:pre-wrap; color:#cdd3df; }
+  .note { font-size:12px; color:var(--sub); line-height:1.6; margin-top:10px; }
+  .tools { display:flex; align-items:center; gap:12px; margin-top:8px; }
+  a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>📊 Trepoトレンド大賞 実績シグナル収集</h1>
+  <div class="sub">候補を選んで「取得」を押すと、裏で検索・SNS・メディアのデータを取得し、Notion候補プールDBに書き戻します。</div>
+</header>
+<main>
+  <section class="card">
+    <h2>候補プール</h2>
+    <div id="candWrap"><div class="muted">読み込み中…</div></div>
+  </section>
+
+  <section class="card">
+    <h2>取得するシグナル</h2>
+    <div class="sigbar" id="sigbar"></div>
+    <div class="tools">
+      <button id="runBtn" disabled>選択した候補で取得</button>
+      <span id="selCount" class="muted">0件選択</span>
+    </div>
+
+    <h2 style="margin-top:18px;">ジョブ状況</h2>
+    <div class="status"><span id="dot" class="dot idle"></span><span id="statusText">待機中</span></div>
+    <pre class="log" id="log">（ここに進捗が表示されます）</pre>
+
+    <div class="note">
+      ※ <b>SNS話題量</b>はApify、<b>検索の伸び</b>はGoogle Trends、<b>メディア掲載</b>はGoogle News＋PR TIMESから自動取得します。<br>
+      ※ <b>インフル反響</b>・<b>売上実績</b>、および <b>TikTok Creative Center の急上昇チェック</b>は手動です（マニュアル参照）。<br>
+      ※ 点数は「空欄のときだけ」自動入力します（編集部が手入力した点は上書きしません）。
+    </div>
+  </section>
+</main>
+
+<script>
+const $ = (s) => document.querySelector(s);
+let candidates = [], signals = [], selected = new Set();
+
+async function load() {
+  signals = await (await fetch("/api/signals")).json();
+  $("#sigbar").innerHTML = signals.map(s =>
+    `<label class="sig"><input type="checkbox" class="sigchk" value="${s.key}" checked>${s.label}</label>`).join("");
+  await loadCandidates();
+}
+
+async function loadCandidates() {
+  const r = await fetch("/api/candidates");
+  if (!r.ok) { $("#candWrap").innerHTML = `<div class="muted">読み込み失敗: ${(await r.json()).error}</div>`; return; }
+  candidates = await r.json();
+  renderCandidates();
+}
+
+function renderCandidates() {
+  if (!candidates.length) { $("#candWrap").innerHTML = `<div class="muted">候補がありません。候補プールDBに候補を追加してください。</div>`; return; }
+  const rows = candidates.map(c => {
+    const pt = (v) => `<td class="pt ${v!=null?'has':''}">${v??'—'}</td>`;
+    return `<tr>
+      <td><input type="checkbox" class="candchk" value="${c.id}" ${selected.has(c.id)?'checked':''}></td>
+      <td>${esc(c.name)}<div class="muted">${esc(c.category||'')} <span class="pill">${esc(c.inflow||'')}</span></div></td>
+      ${pt(c.points.sns)}${pt(c.points.search)}${pt(c.points.media)}
+    </tr>`;
+  }).join("");
+  $("#candWrap").innerHTML = `<table>
+    <thead><tr><th></th><th>対象</th><th class="pt">SNS</th><th class="pt">検索</th><th class="pt">媒体</th></tr></thead>
+    <tbody>${rows}</tbody></table>`;
+  document.querySelectorAll(".candchk").forEach(cb => cb.onchange = () => {
+    cb.checked ? selected.add(cb.value) : selected.delete(cb.value);
+    updateSel();
+  });
+  updateSel();
+}
+function updateSel() {
+  $("#selCount").textContent = `${selected.size}件選択`;
+  $("#runBtn").disabled = selected.size === 0;
+}
+const esc = (s) => String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+
+$("#runBtn").onclick = async () => {
+  const sigs = [...document.querySelectorAll(".sigchk:checked")].map(c => c.value);
+  if (!sigs.length) { alert("シグナルを1つ以上選んでください"); return; }
+  $("#runBtn").disabled = true;
+  setStatus("running", "ジョブを開始しています…");
+  const r = await fetch("/api/jobs", { method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ candidateIds:[...selected], signals:sigs }) });
+  const { jobId, error } = await r.json();
+  if (error) { setStatus("error", error); $("#runBtn").disabled=false; return; }
+  poll(jobId);
+};
+
+function poll(jobId) {
+  const iv = setInterval(async () => {
+    const job = await (await fetch("/api/jobs/"+jobId)).json();
+    $("#log").textContent = job.log.join("\n") || "（処理中…）";
+    $("#log").scrollTop = $("#log").scrollHeight;
+    if (job.status === "running") setStatus("running", "取得中…");
+    else {
+      clearInterval(iv);
+      setStatus(job.status, job.status==="done" ? "完了しました" : ("エラー: "+(job.error||"")));
+      $("#runBtn").disabled = false;
+      loadCandidates(); // 書き戻した点を反映
+    }
+  }, 1500);
+}
+function setStatus(cls, text) {
+  $("#dot").className = "dot " + cls;
+  $("#statusText").textContent = text;
+}
+load();
+</script>
+</body>
+</html>
