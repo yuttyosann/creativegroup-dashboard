@@ -194,10 +194,17 @@ const RENDER = {
     <div class="note">記入内容は次の「商品分析プロンプト」にそのまま貼り付けて使えます。</div>`;
   },
   product(){
-    return `<div class="card"><h3>📦 商品分析プロンプト</h3>
-      <p style="font-size:12.5px;color:var(--muted);margin-bottom:8px">商品情報・レビューを貼り付けてClaudeへ。需要タイプと肌悩みを抽出＝M02の基準になる。</p>
-      <pre>${copyBtn(PROMPT_PRODUCT)}${PROMPT_PRODUCT}</pre></div>
-    <div class="note">出力の「需要タイプ」「肌悩み」「向くインフルエンサー像」を控えておく。</div>`;
+    return `<div class="card"><h3>📦 商品分析（Web完結）</h3>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:8px">商品情報・レビューを貼り付けて[分析する]。需要タイプと肌悩み（=M02の基準）を抽出します。</p>
+      ${field("pa_name","商品名・ブランド","株式会社〇〇 / 商品名")}
+      <label>提供情報（公式ページ/商品資料/ECレビュー/SNS反応/競合を貼り付け）</label>
+      <textarea id="pa_info" style="min-height:140px" placeholder="公式説明、ECレビューの抜粋、競合との違い 等"></textarea>
+      <div style="margin-top:8px"><button class="btn" id="pabtn" onclick="runProduct()">分析する</button></div>
+      <div class="note" style="margin-top:8px">⏱ 20〜60秒。完了までこのタブを<b>開いたまま</b>に。</div>
+      <div id="paresult" style="margin-top:10px;font-size:13px"></div></div>
+    <div class="note">出力の「需要タイプ」「肌悩み」「向くインフルエンサー像」を控えておく。
+      <details style="margin-top:6px"><summary style="cursor:pointer">従来のコピペ用プロンプトを見る</summary>
+      <pre>${copyBtn(PROMPT_PRODUCT)}${PROMPT_PRODUCT}</pre></details></div>`;
   },
   source(){
     return `<div class="card"><h3>候補を探す 3パターン</h3>
@@ -328,6 +335,29 @@ async function api(path,body){
 function parseTargets(text){
   return (text||"").split(/[\n,]+/).map(s=>s.trim()).filter(Boolean);
 }
+function escapeHtml(s){
+  return String(s||"").replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+}
+function renderAnalyzeResult(elId, text){
+  const el=document.getElementById(elId);
+  el.innerHTML=`${copyBtn(text)}<pre style="white-space:pre-wrap">${escapeHtml(text)}</pre>`;
+}
+
+window.runProduct=async()=>{
+  const productName=(document.getElementById("pa_name").value||"").trim();
+  const info=(document.getElementById("pa_info").value||"").trim();
+  const el=document.getElementById("paresult");
+  const btn=document.getElementById("pabtn");
+  if(!productName||!info){el.innerHTML="<span style='color:#A32D2D'>商品名と提供情報を入力してください</span>";return;}
+  btn.disabled=true; btn.textContent="分析中…";
+  el.innerHTML="分析中…（リロードしないでください）";
+  try{
+    const r=await api("/api/cockpit/analyze",{kind:"product",payload:{productName,info}});
+    if(r.ok){ renderAnalyzeResult("paresult", r.text); }
+    else{ el.innerHTML="<span style='color:#A32D2D'>"+escapeHtml(r.error||"分析に失敗しました")+"</span>"; }
+  }catch(e){ el.innerHTML="<span style='color:#A32D2D'>"+escapeHtml(e.message)+"</span>"; }
+  finally{ btn.disabled=false; btn.textContent="分析する"; }
+};
 
 window.runYTBatch=async()=>{
   const list=parseTargets(document.getElementById("ytin").value);
