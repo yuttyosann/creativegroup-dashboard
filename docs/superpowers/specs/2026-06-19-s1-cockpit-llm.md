@@ -65,9 +65,9 @@ buildAnalyzePrompt(kind, payload) -> { system, user }
 ```
 
 - `kind === "product"`：商品分析プロンプト（既存コピペ文面を内蔵）に payload を差し込む。
-  payload 例：`{ productName, brand, category, price, features, target }`
+  payload：`{ productName, info }`（productName=商品名・ブランド、info=公式/レビュー/競合などの提供情報を1つの自由記述で）。必須＝両方。
 - `kind === "diagnose"`：診断プロンプト（v0.6 のカテゴリ非依存版・既存コピペ文面）に
-  payload を差し込む。payload 例：`{ productContext, influencerData }`
+  payload を差し込む。payload：`{ productSummary, influencerSummary, conditions }`（conditionsは任意。未指定時は「（記載なし）」）。必須＝productSummary・influencerSummary。
 - 未知の `kind`：`throw new Error("unknown kind")`
 - payload の必須項目が欠ける場合：欠落項目名を含むエラーを投げる
 
