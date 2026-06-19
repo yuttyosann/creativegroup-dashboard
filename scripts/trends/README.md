@@ -9,11 +9,15 @@ Google Trendsは**ジャンルを問わずキーワード単位**で取れるた
 ## 1. セットアップ
 
 ```bash
-pip install pytrends pandas
+python3 -m pip install -r scripts/requirements.txt
 ```
 
-> pytrendsはGoogle Trendsの**非公式API**。レート制限・仕様変更で落ちることがある前提で使う
-> （短時間に叩きすぎない・失敗したら時間をおく）。
+> ⚠️ **urllib3 は v1系が必須**（`urllib3<2`）。v2だと pytrends が `method_whitelist` エラーで落ちる。
+> requirements.txt で固定済み。
+
+> pytrendsはGoogle Trendsの**非公式API**。**429（レート制限）**で落ちることが多い前提で使う
+> （短時間に叩きすぎない・失敗したら時間をおく・連続実行を避ける）。安定運用が必要なら
+> 時間を空けた再試行やプロキシ併用を検討する。
 
 ## 2. 使い方
 

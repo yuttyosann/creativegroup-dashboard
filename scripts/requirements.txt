@@ -1,0 +1,6 @@
+# Trepoトレンド大賞 実績シグナル取得スクリプトのPython依存
+# インストール: python3 -m pip install -r scripts/requirements.txt
+pytrends
+pandas
+# pytrends は urllib3 v2 と非互換（method_whitelist エラー）のため v1系に固定
+urllib3<2

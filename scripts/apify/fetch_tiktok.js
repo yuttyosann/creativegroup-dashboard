@@ -129,14 +129,14 @@ function quintilePoint(value, sortedVals) {
       results.push(r);
       console.log(`  ${SEARCH_MODE?"":"#"}${t}  再生${r.totalViews.toLocaleString()} / 動画${r.videos} / ENG率${r.engRate==null?"—":(r.engRate*100).toFixed(1)+"%"}`);
     } catch (e) {
-      results.push({ term: t, buzz: 0, note: e.response?.status || e.message });
+      results.push({ term: t, buzz: 0, failed: true, note: e.response?.status || e.message });
       console.log(`  ${SEARCH_MODE?"":"#"}${t}  取得失敗: ${e.response?.status || e.message}`);
     }
   }
 
-  // buzz のプール内5分位で suggested_point を付与
-  const sortedBuzz = results.map(r => r.buzz || 0).sort((a,b)=>a-b);
-  results.forEach(r => { r.point = quintilePoint(r.buzz || 0, sortedBuzz); });
+  // buzz のプール内5分位で suggested_point を付与（取得失敗は採点せず空欄=N/A）
+  const sortedBuzz = results.filter(r => !r.failed).map(r => r.buzz || 0).sort((a,b)=>a-b);
+  results.forEach(r => { r.point = r.failed ? "" : quintilePoint(r.buzz || 0, sortedBuzz); });
   results.sort((a,b) => (b.buzz||0) - (a.buzz||0));
 
   console.log(`\n${"=".repeat(64)}`);
