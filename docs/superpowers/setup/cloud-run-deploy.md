@@ -45,9 +45,26 @@
    ```
    gcloud run deploy cg-cockpit --source . --region asia-northeast1 \
      --allow-unauthenticated \
-     --set-env-vars YOUTUBE_API_KEY=＜キー＞,GOOGLE_OAUTH_CLIENT_ID=＜クライアントID＞,SHEET_ID=＜シートID＞,ALLOWED_ORIGIN=https://cg-app.jp,APIFY_TOKEN=＜任意＞
+     --set-env-vars YOUTUBE_API_KEY=＜キー＞,GOOGLE_OAUTH_CLIENT_ID=＜クライアントID＞,SHEET_ID=＜シートID＞,ALLOWED_ORIGIN=https://cg-app.jp,APIFY_TOKEN=＜任意＞,ANTHROPIC_API_KEY=＜キー＞
    ```
 3. 払い出されたURL（https://cg-cockpit-xxxx.a.run.app）を控える
+
+### ANTHROPIC_API_KEY（商品分析・診断のWeb完結に必須）
+
+商品分析タブ・診断タブの「分析する／診断する」はClaude（Sonnet 4.6）を呼ぶため、APIキーが必要。
+
+1. https://console.anthropic.com でAPIキーを発行（**運用者本人が実施**。キーは誰にも共有しない）
+2. 上記デプロイ時の `--set-env-vars` に含めるか、後から追加する場合：
+
+   ```
+   gcloud run services update cg-cockpit \
+     --region asia-northeast1 \
+     --update-env-vars ANTHROPIC_API_KEY=＜発行したキー＞
+   ```
+
+3. 使用モデルは `claude-sonnet-4-6`（コード側で固定）。1回あたり数円〜十数円。
+4. キーはサーバ側環境変数のみで保持し、`public/config.js` 等フロントには**絶対に置かない**。
+5. 未設定のままだと、分析/診断ボタンは「ANTHROPIC_API_KEY未設定…」と表示される（他機能は通常動作）。
 
 ## 5. Xserver にフロント配置
 1. public/cg-cockpit.html と public/config.js をXserverにアップロード
