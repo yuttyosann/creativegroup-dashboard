@@ -283,8 +283,20 @@ piii_xx_01"></textarea>
     </div>`;
   },
   prompts(){
-    return `<div class="card"><h3>👤 インフルエンサー分析プロンプト</h3><pre>${copyBtn(PROMPT_INFLU)}${PROMPT_INFLU}</pre></div>
-    <div class="card"><h3>🎯 マッチング診断プロンプト</h3><pre>${copyBtn(PROMPT_MATCH)}${PROMPT_MATCH}</pre></div>`;
+    return `<div class="card"><h3>🎯 マッチング診断（Web完結）</h3>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:8px">商品分析の出力とインフルエンサー分析の出力を貼り付けて[診断する]。10軸採点＋ROAS試算まで返します。</p>
+      <label>商品分析サマリー（タブ2の出力を貼り付け）</label>
+      <textarea id="dg_product" style="min-height:110px" placeholder="需要タイプ・肌悩み・向くインフルエンサー像 等"></textarea>
+      <label>インフルエンサー分析サマリー（下のプロンプトで分析した結果を貼り付け）</label>
+      <textarea id="dg_influ" style="min-height:110px" placeholder="ジャンル・投稿スタイル・購買意向コメント率・施策タイプ 等"></textarea>
+      ${field("dg_cond","施策条件（任意）","タイアップ費/成果報酬率/想定単価/起用媒体")}
+      <div style="margin-top:8px"><button class="btn" id="dgbtn" onclick="runDiagnose()">診断する</button></div>
+      <div class="note" style="margin-top:8px">⏱ 20〜60秒。完了までこのタブを<b>開いたまま</b>に。</div>
+      <div id="dgresult" style="margin-top:10px;font-size:13px"></div></div>
+    <div class="card"><h3>👤 インフルエンサー分析プロンプト（コピペ）</h3>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:8px">インフルエンサーの客観分析はこのプロンプトで実施し、出力を上の「インフルエンサー分析サマリー」に貼ってください。</p>
+      <pre>${copyBtn(PROMPT_INFLU)}${PROMPT_INFLU}</pre></div>
+    <div class="note">マッチング診断の旧コピペ版：<details style="margin-top:6px"><summary style="cursor:pointer">従来のコピペ用プロンプトを見る</summary><pre>${copyBtn(PROMPT_MATCH)}${PROMPT_MATCH}</pre></details></div>`;
   },
   record(){
     return `<div class="card"><h3>提案ログDBに記録</h3>
@@ -357,6 +369,23 @@ window.runProduct=async()=>{
     else{ el.innerHTML="<span style='color:#A32D2D'>"+escapeHtml(r.error||"分析に失敗しました")+"</span>"; }
   }catch(e){ el.innerHTML="<span style='color:#A32D2D'>"+escapeHtml(e.message)+"</span>"; }
   finally{ btn.disabled=false; btn.textContent="分析する"; }
+};
+
+window.runDiagnose=async()=>{
+  const productSummary=(document.getElementById("dg_product").value||"").trim();
+  const influencerSummary=(document.getElementById("dg_influ").value||"").trim();
+  const conditions=(document.getElementById("dg_cond").value||"").trim();
+  const el=document.getElementById("dgresult");
+  const btn=document.getElementById("dgbtn");
+  if(!productSummary||!influencerSummary){el.innerHTML="<span style='color:#A32D2D'>商品分析とインフルエンサー分析の両方を入力してください</span>";return;}
+  btn.disabled=true; btn.textContent="診断中…";
+  el.innerHTML="診断中…（リロードしないでください）";
+  try{
+    const r=await api("/api/cockpit/analyze",{kind:"diagnose",payload:{productSummary,influencerSummary,conditions}});
+    if(r.ok){ renderAnalyzeResult("dgresult", r.text); }
+    else{ el.innerHTML="<span style='color:#A32D2D'>"+escapeHtml(r.error||"診断に失敗しました")+"</span>"; }
+  }catch(e){ el.innerHTML="<span style='color:#A32D2D'>"+escapeHtml(e.message)+"</span>"; }
+  finally{ btn.disabled=false; btn.textContent="診断する"; }
 };
 
 window.runYTBatch=async()=>{
