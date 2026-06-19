@@ -33,6 +33,8 @@ const { verifyIdToken } = require('./lib/google-auth');
 const { isAllowed } = require('./lib/authz');
 const { appendRow, readAllowlist } = require('./lib/sheets');
 const { toDiagnosisRow } = require('./lib/diagnosis-store');
+const { buildAnalyzePrompt } = require('./lib/analyze-prompt');
+const Anthropic = require('@anthropic-ai/sdk');
 const SHEET_ID = process.env.SHEET_ID;
 
 // 認証ミドルウェア：Authorization: Bearer <idToken> を検証＋許可リスト照合
@@ -149,6 +151,33 @@ app.post('/api/cockpit/astream-ingest', requireAuth, (req, res) => {
   const csv = (req.body || {}).csv;
   if (!csv) return res.status(400).json({ ok: false, error: 'CSVをアップロードしてください' });
   runPythonCsv('scripts/astream/ingest_csv.py', csv, res);
+});
+
+// 商品分析 / マッチング診断（Claude Sonnet 4.6 でWeb完結）
+app.post('/api/cockpit/analyze', requireAuth, async (req, res) => {
+  const { kind, payload } = req.body || {};
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return res.status(400).json({ ok: false, error: 'ANTHROPIC_API_KEY未設定（Cloud Runの環境変数に追加してください）' });
+  }
+  let prompt;
+  try {
+    prompt = buildAnalyzePrompt(kind, payload);
+  } catch (e) {
+    return res.status(400).json({ ok: false, error: e.message });
+  }
+  try {
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const msg = await client.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 4096,
+      system: prompt.system,
+      messages: [{ role: 'user', content: prompt.user }],
+    });
+    const text = (msg.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('\n');
+    res.json({ ok: true, text });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: String((e && e.message) || e).slice(0, 500) });
+  }
 });
 
 app.get('/', (req, res) => res.redirect('/cg-cockpit.html'));
