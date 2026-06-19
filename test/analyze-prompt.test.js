@@ -1,5 +1,5 @@
 'use strict';
-const test = require('node:test');
+const { test } = require('node:test');
 const assert = require('node:assert');
 const { buildAnalyzePrompt } = require('../lib/analyze-prompt');
 
@@ -32,4 +32,13 @@ test('unknown kind はエラー', () => {
 test('必須項目欠落は項目名つきでエラー', () => {
   assert.throws(() => buildAnalyzePrompt('product', { productName: 'x' }), /info/);
   assert.throws(() => buildAnalyzePrompt('diagnose', { productSummary: 'x' }), /influencerSummary/);
+});
+
+test('diagnose: 施策条件を指定するとプロンプトに反映される', () => {
+  const { user } = buildAnalyzePrompt('diagnose', {
+    productSummary: 'A',
+    influencerSummary: 'B',
+    conditions: 'タイアップ費30万・成果報酬10%',
+  });
+  assert.match(user, /タイアップ費30万・成果報酬10%/);
 });
