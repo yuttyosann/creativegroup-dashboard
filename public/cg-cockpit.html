@@ -232,16 +232,43 @@ python3 scripts/astream/ig_conversion_proxy.py "AstreamのCSV"</pre>
 node scripts/apify/fetch_instagram.js &lt;user&gt; --pr-only --pr-posts 10</pre>
       <div class="note">IGはこの3つを組み合わせる：①プロキシ（定量）②人間の推薦理由・タグ（定性）③Tier2商品適合。</div>
     </div>
-    <div class="card"><h3>🟢 ライブ実行（YouTube）</h3>
-      <p style="font-size:12.5px;color:var(--muted);margin-bottom:8px">cockpit-server.js 起動時のみ動作。ブラウザから直接スキャンします。</p>
-      <label>チャンネルID（UC…）or @ハンドル</label>
-      <div style="display:flex;gap:8px"><input id="ytin" placeholder="UCGUhj0lwUUkhPr_KyXss_BQ"><button class="btn" onclick="runYT()">診断</button></div>
-      <label style="margin-top:8px"><input type="checkbox" id="ytpr" style="width:auto"> PR投稿のみで測る</label>
+    <div class="card"><h3>🟢 ライブ実行（YouTube・複数同時OK）</h3>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:8px">ブラウザから直接診断します。チャンネルID（UC…）or @ハンドルを<b>1行に1つ</b>入力（複数可）。</p>
+      <label>チャンネルID / @ハンドル（改行・カンマ区切りで複数）</label>
+      <textarea id="ytin" style="min-height:80px" placeholder="UCGUhj0lwUUkhPr_KyXss_BQ
+@sachi-sachi-channel
+UCmebkBkedJmmsDG77EzxQcQ"></textarea>
+      <div style="display:flex;align-items:center;gap:14px;margin-top:8px;flex-wrap:wrap">
+        <button class="btn" id="ytbtn" onclick="runYTBatch()">一括診断</button>
+        <label style="margin:0"><input type="checkbox" id="ytpr" style="width:auto"> PR投稿のみで測る</label>
+      </div>
+      <div class="note" style="margin-top:8px">⏱ 1件あたり30〜60秒かかります。完了までこのタブを<b>開いたまま</b>に（リロードすると中断されます。中断してもスプレッドシートには結果が残ります）。</div>
       <div id="ytresult" style="margin-top:10px;font-size:13px"></div>
       <hr style="border:none;border-top:1px solid var(--line);margin:14px 0">
       <label>キーワードで候補を探す</label>
       <div style="display:flex;gap:8px"><input id="ytkw" placeholder="乾燥肌 ファンデ レビュー"><button class="btn" onclick="searchYT()">検索</button></div>
       <div id="ytsearch" style="margin-top:10px;font-size:13px"></div>
+    </div>
+    <div class="card"><h3>🟣 ライブ実行（Instagram・複数同時OK）</h3>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:8px">Apify経由でIG投稿のコメント購買意向を測定。ユーザー名（@は任意）を<b>1行に1つ</b>。<b>1件あたり費用が発生</b>します。</p>
+      <label>Instagramユーザー名（改行・カンマ区切りで複数）</label>
+      <textarea id="igin" style="min-height:64px" placeholder="nene___pi
+piii_xx_01"></textarea>
+      <div style="display:flex;align-items:center;gap:14px;margin-top:8px;flex-wrap:wrap">
+        <button class="btn" id="igbtn" onclick="runIGBatch()">一括診断（Apify）</button>
+        <label style="margin:0"><input type="checkbox" id="igpr" style="width:auto"> PR投稿のみで測る</label>
+      </div>
+      <div class="note" style="margin-top:8px">⚠️ IGコメントは虚栄が多くノイズ大。Astream PRエンゲージのプロキシ（下）と併用推奨。要APIFY_TOKEN。</div>
+      <div id="igresult" style="margin-top:10px;font-size:13px"></div>
+    </div>
+    <div class="card"><h3>📑 Astream CSV → IG転換質プロキシ / マスタ取込</h3>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:8px">AstreamのCSVをアップロードし、ブラウザ上で算出します（追加費用なし）。</p>
+      <input type="file" id="ascsv" accept=".csv">
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <button class="btn" onclick="runIgProxy()">IG転換質プロキシを算出</button>
+        <button class="btn" style="background:var(--purple)" onclick="runAstreamIngest()">マスタDB取込用に整形</button>
+      </div>
+      <div id="ascsvresult" style="margin-top:10px;font-size:13px"></div>
     </div>
     <div class="card"><h3>📊 10軸（Tier2フル診断・100点）</h3>
       ${AXES.map(a=>`<div class="axis"><span>${a[0]}</span><span class="pt">${a[1]}点</span></div>`).join("")}
@@ -282,47 +309,159 @@ function updateBar(){
 }
 
 async function api(path,body){
-  const r=await fetch(API_BASE+path,{
-    method:"POST",
-    headers:{"Content-Type":"application/json","Authorization":"Bearer "+ID_TOKEN},
-    body:JSON.stringify(body)
-  });
-  if(r.status===401){ showLogin("再ログインしてください"); }
-  if(r.status===403){ showLogin("このアカウントは許可リストにありません"); }
-  return r.json();
+  let r;
+  try{
+    r=await fetch(API_BASE+path,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+ID_TOKEN},
+      body:JSON.stringify(body)
+    });
+  }catch(e){
+    throw new Error("通信エラー（リロードせず再実行してください）");
+  }
+  if(r.status===401){ showLogin("再ログインしてください"); throw new Error("未ログイン"); }
+  if(r.status===403){ showLogin("このアカウントは許可リストにありません"); throw new Error("許可リスト外"); }
+  try{ return await r.json(); }
+  catch(e){ throw new Error("応答の解析に失敗（HTTP "+r.status+"）"); }
 }
-window.runYT=async()=>{
-  const input=document.getElementById("ytin").value.trim();
+
+function parseTargets(text){
+  return (text||"").split(/[\n,]+/).map(s=>s.trim()).filter(Boolean);
+}
+
+window.runYTBatch=async()=>{
+  const list=parseTargets(document.getElementById("ytin").value);
   const prOnly=document.getElementById("ytpr").checked;
   const el=document.getElementById("ytresult");
-  if(!input){el.innerHTML="<span style='color:#A32D2D'>IDを入力してください</span>";return;}
-  el.innerHTML="⏳ 実行中…（30〜60秒）";
-  try{
-    const d=await api("/api/cockpit/youtube",{input,prOnly});
-    if(!d.ok){el.innerHTML=`<span style='color:#A32D2D'>エラー: ${d.error||"失敗"}</span>`;return;}
-    const badge=d.purchaseIntentRate>=15?"p-green":d.purchaseIntentRate>=5?"p-orange":"p-gray";
-    el.innerHTML=`<div class="card" style="margin:0;background:#F7FAFD">
-      <b>${d.title}</b><br>
-      登録者 ${d.subscribers.toLocaleString()} ／ 平均ER ${d.avgER}%<br>
-      <span class="pill ${badge}">転換質 ${d.purchaseIntentRate}%</span>
-      <span style="color:var(--muted);font-size:12px">（${prOnly?"PR投稿":"人気投稿"}・${d.commentsAnalyzed}コメント）</span>
-      ${d.sampleComments&&d.sampleComments.length?`<div style="margin-top:6px;font-size:11.5px;color:var(--muted)">例：${d.sampleComments.slice(0,3).map(c=>c.slice(0,40)).join(" ／ ")}</div>`:""}
-    </div>`;
-  }catch(e){el.innerHTML="<span style='color:#A32D2D'>サーバー未起動（node cockpit-server.js）の可能性</span>";}
+  const btn=document.getElementById("ytbtn");
+  if(!list.length){el.innerHTML="<span style='color:#A32D2D'>チャンネルID/ハンドルを入力してください</span>";return;}
+  btn.disabled=true; btn.textContent="実行中…";
+  el.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:12.5px">
+    <thead><tr style="border-bottom:1px solid var(--line)">
+      <th style="text-align:left;padding:6px 4px;width:34%">対象</th>
+      <th style="text-align:left;padding:6px 4px">状態 / 結果</th></tr></thead>
+    <tbody id="ytrows"></tbody></table>`;
+  const tb=document.getElementById("ytrows");
+  list.forEach((c,i)=>{
+    const tr=document.createElement("tr");
+    tr.style.borderBottom="1px solid var(--line)";
+    tr.innerHTML=`<td style="padding:6px 4px;word-break:break-all">${c}</td><td id="ytcell${i}" style="padding:6px 4px;color:var(--muted)">待機中</td>`;
+    tb.appendChild(tr);
+  });
+  let done=0;
+  for(let i=0;i<list.length;i++){
+    const cell=document.getElementById("ytcell"+i);
+    cell.innerHTML="⏳ 実行中…（30〜60秒）"; cell.style.color="";
+    try{
+      const d=await api("/api/cockpit/youtube",{input:list[i],prOnly});
+      if(!d||!d.ok){ cell.innerHTML=`<span style="color:#A32D2D">エラー: ${(d&&d.error)||"失敗"}</span>`; }
+      else{
+        const badge=d.purchaseIntentRate>=15?"p-green":d.purchaseIntentRate>=5?"p-orange":"p-gray";
+        cell.innerHTML=`<b>${d.title}</b> <span class="pill ${badge}">転換質${d.purchaseIntentRate}%</span><br>
+          <span style="color:var(--muted);font-size:11.5px">登録${(d.subscribers||0).toLocaleString()} ／ ER${d.avgER}% ／ ${prOnly?"PR投稿":"人気投稿"}・${d.commentsAnalyzed}コメント</span>`;
+        done++;
+      }
+    }catch(e){
+      cell.innerHTML=`<span style="color:#A32D2D">${e.message||"失敗"}</span>`;
+    }
+  }
+  btn.disabled=false; btn.textContent="一括診断";
+  const note=document.createElement("div");
+  note.className="note"; note.style.marginTop="10px";
+  note.innerHTML=`✅ 完了：${done}/${list.length}件 成功。結果はスプレッドシート「診断ログ」にも保存されています。`;
+  el.appendChild(note);
 };
+
 window.searchYT=async()=>{
   const keyword=document.getElementById("ytkw").value.trim();
   const el=document.getElementById("ytsearch");
   if(!keyword){el.innerHTML="<span style='color:#A32D2D'>キーワードを入力</span>";return;}
-  el.innerHTML="⏳ 検索中…（1〜2分）";
+  el.innerHTML="⏳ 検索中…（1〜2分）。リロードせずお待ちください。";
   try{
     const d=await api("/api/cockpit/yt-search",{keyword,max:8});
     if(!d.ok){el.innerHTML=`<span style='color:#A32D2D'>エラー: ${d.error||"失敗"}</span>`;return;}
     el.innerHTML=d.results.map((r,i)=>`<div style="padding:6px 0;border-bottom:1px solid var(--line)">
       ${i+1}. <b>${r.title}</b> <span class="pill ${r.intent>=10?'p-green':'p-gray'}">転換質${r.intent}%</span><br>
       <span style="color:var(--muted);font-size:12px">登録${r.subs.toLocaleString()} ／ ${r.contentType} ／ <a class="link" href="${r.url}" target="_blank">開く</a></span></div>`).join("");
-  }catch(e){el.innerHTML="<span style='color:#A32D2D'>サーバー未起動の可能性</span>";}
+  }catch(e){el.innerHTML=`<span style='color:#A32D2D'>${e.message||"失敗"}</span>`;}
 };
+
+window.runIGBatch=async()=>{
+  const list=parseTargets(document.getElementById("igin").value).map(s=>s.replace(/^@/,""));
+  const prOnly=document.getElementById("igpr").checked;
+  const el=document.getElementById("igresult");
+  const btn=document.getElementById("igbtn");
+  if(!list.length){el.innerHTML="<span style='color:#A32D2D'>ユーザー名を入力してください</span>";return;}
+  btn.disabled=true; btn.textContent="実行中…";
+  el.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:12.5px">
+    <thead><tr style="border-bottom:1px solid var(--line)">
+      <th style="text-align:left;padding:6px 4px;width:34%">対象</th>
+      <th style="text-align:left;padding:6px 4px">状態 / 結果</th></tr></thead>
+    <tbody id="igrows"></tbody></table>`;
+  const tb=document.getElementById("igrows");
+  list.forEach((c,i)=>{
+    const tr=document.createElement("tr");
+    tr.style.borderBottom="1px solid var(--line)";
+    tr.innerHTML=`<td style="padding:6px 4px;word-break:break-all">@${c}</td><td id="igcell${i}" style="padding:6px 4px;color:var(--muted)">待機中</td>`;
+    tb.appendChild(tr);
+  });
+  for(let i=0;i<list.length;i++){
+    const cell=document.getElementById("igcell"+i);
+    cell.innerHTML="⏳ 実行中…（30〜60秒）"; cell.style.color="";
+    try{
+      const d=await api("/api/cockpit/instagram",{input:list[i],prOnly});
+      const r=d&&d.results&&d.results[0];
+      if(!d||!d.ok||!r){ cell.innerHTML=`<span style="color:#A32D2D">エラー: ${(d&&d.error)||"失敗"}</span>`; }
+      else if(r.intent==null){ cell.innerHTML=`<span style="color:var(--muted)">取得不可（非公開/コメント無し）</span>`; }
+      else{
+        const badge=r.intent>=15?"p-green":r.intent>=5?"p-orange":"p-gray";
+        cell.innerHTML=`<span class="pill ${badge}">転換質${r.intent}%</span>
+          <span style="color:var(--muted);font-size:11.5px">（${prOnly?"PR投稿":"上位投稿"}・${r.commentsAnalyzed}コメント）</span>`;
+      }
+    }catch(e){ cell.innerHTML=`<span style="color:#A32D2D">${e.message||"失敗"}</span>`; }
+  }
+  btn.disabled=false; btn.textContent="一括診断（Apify）";
+};
+
+function readCsvFile(){
+  const f=document.getElementById("ascsv").files[0];
+  if(!f) return Promise.reject(new Error("CSVファイルを選択してください"));
+  return new Promise((resolve,reject)=>{
+    const rd=new FileReader();
+    rd.onload=()=>resolve(rd.result);
+    rd.onerror=()=>reject(new Error("ファイル読込に失敗"));
+    rd.readAsText(f);
+  });
+}
+
+async function runCsvTool(path, render){
+  const el=document.getElementById("ascsvresult");
+  el.innerHTML="⏳ 処理中…";
+  try{
+    const csv=await readCsvFile();
+    const d=await api(path,{csv});
+    if(!d.ok){el.innerHTML=`<span style='color:#A32D2D'>エラー: ${d.error||"失敗"}</span>`;return;}
+    el.innerHTML=render(d.rows||[]);
+  }catch(e){el.innerHTML=`<span style='color:#A32D2D'>${e.message||"失敗"}</span>`;}
+}
+
+window.runIgProxy=()=>runCsvTool("/api/cockpit/ig-proxy", rows=>{
+  if(!rows.length) return "対象なし";
+  const head=`<div style="font-size:12px;color:var(--muted);margin-bottom:6px">IG転換質プロキシ（上位${Math.min(rows.length,20)}件・v0.1仮説）</div>`;
+  const body=rows.slice(0,20).map((r,i)=>`<div style="padding:5px 0;border-bottom:1px solid var(--line);font-size:12.5px">
+    ${i+1}. <b>@${r["アカウント名"]}</b> <span class="pill ${r["プロキシ点"]>=60?'p-green':r["プロキシ点"]>=45?'p-orange':'p-gray'}">${r["プロキシ点"]}点 ${r["判定"]}</span>
+    <span style="color:var(--muted);font-size:11.5px">PRエンゲ${r["PRエンゲージ%"]||"—"} 実在${r["実在率%"]}%</span></div>`).join("");
+  return head+body;
+});
+
+window.runAstreamIngest=()=>runCsvTool("/api/cockpit/astream-ingest", rows=>{
+  if(!rows.length) return "対象なし";
+  const head=`<div style="font-size:12px;color:var(--muted);margin-bottom:6px">マスタDB取込（上位${Math.min(rows.length,20)}件・暫定スコア順）。下記をマスタDBに転記</div>`;
+  const body=rows.slice(0,20).map((r,i)=>`<div style="padding:5px 0;border-bottom:1px solid var(--line);font-size:12.5px">
+    ${i+1}. <b>@${r["インフルエンサー"]}</b> <span class="pill p-purple">暫定${r["暫定スコア(客層+実在+PR/45)"]}/45</span>
+    <span style="color:var(--muted);font-size:11.5px">${(r["フォロワー"]||0).toLocaleString()}人 女性${r["女性%"]} 実在${r["実在率%"]} ${r["ジャンル推定"]}</span></div>`).join("");
+  return head+body;
+});
 
 let current="flow";
 function render(){

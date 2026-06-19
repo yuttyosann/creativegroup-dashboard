@@ -53,7 +53,7 @@ async function requireAuth(req, res, next) {
   }
 }
 
-app.use(express.json({ limit: '2mb' }));
+app.use(express.json({ limit: '12mb' }));  // CSVアップロード対応
 app.use(express.static(path.join(__dirname, 'public')));
 
 // スクリプトを実行し @@JSON@@ マーカー行を抽出して返す
@@ -107,6 +107,48 @@ app.post('/api/cockpit/yt-search', requireAuth, (req, res) => {
   const { keyword, max } = req.body || {};
   if (!keyword) return res.status(400).json({ ok: false, error: 'キーワードを入力してください' });
   runScript('scripts/youtube/search_channels.js', [keyword, '--json', '--max', String(max || 8)], res);
+});
+
+// Instagram 診断（Apify）— 1ユーザーずつ（フロントで複数ループ）
+app.post('/api/cockpit/instagram', requireAuth, (req, res) => {
+  const u = String((req.body || {}).input || '').trim().replace(/^@/, '');
+  const prOnly = (req.body || {}).prOnly;
+  if (!u) return res.status(400).json({ ok: false, error: 'ユーザー名を入力してください' });
+  if (!process.env.APIFY_TOKEN) return res.status(400).json({ ok: false, error: 'APIFY_TOKEN未設定（Cloud Runの環境変数に追加してください）' });
+  const a = [u, '--json'];
+  if (prOnly) a.push('--pr-only', '--pr-posts', '10');
+  runScript('scripts/apify/fetch_instagram.js', a, res);
+});
+
+// CSVテキストを一時ファイルに書いてPythonスクリプトを実行し @@JSON@@ を返す
+function runPythonCsv(scriptRel, csvText, res) {
+  const fs = require('fs');
+  const os = require('os');
+  const tmp = path.join(os.tmpdir(), `cg_${Date.now()}_${Math.random().toString(36).slice(2)}.csv`);
+  try { fs.writeFileSync(tmp, csvText, 'utf-8'); }
+  catch (e) { return res.status(500).json({ ok: false, error: '一時ファイル作成に失敗' }); }
+  const script = path.join(__dirname, scriptRel);
+  execFile('python3', [script, tmp, '--json'], { cwd: __dirname, timeout: 120000, maxBuffer: 20 * 1024 * 1024 },
+    (err, stdout, stderr) => {
+      try { fs.unlinkSync(tmp); } catch (e) {}
+      const marker = (stdout || '').split('\n').find((l) => l.startsWith('@@JSON@@'));
+      if (marker) { try { return res.json(JSON.parse(marker.slice(8))); } catch (e) {} }
+      res.status(500).json({ ok: false, error: (stderr || (err && err.message) || '実行に失敗しました').slice(0, 400) });
+    });
+}
+
+// Astream CSV → IG転換質プロキシ
+app.post('/api/cockpit/ig-proxy', requireAuth, (req, res) => {
+  const csv = (req.body || {}).csv;
+  if (!csv) return res.status(400).json({ ok: false, error: 'CSVをアップロードしてください' });
+  runPythonCsv('scripts/astream/ig_conversion_proxy.py', csv, res);
+});
+
+// Astream CSV → マスタDB取込用に整形
+app.post('/api/cockpit/astream-ingest', requireAuth, (req, res) => {
+  const csv = (req.body || {}).csv;
+  if (!csv) return res.status(400).json({ ok: false, error: 'CSVをアップロードしてください' });
+  runPythonCsv('scripts/astream/ingest_csv.py', csv, res);
 });
 
 app.get('/', (req, res) => res.redirect('/cg-cockpit.html'));
