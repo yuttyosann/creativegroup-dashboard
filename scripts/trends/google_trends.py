@@ -42,9 +42,17 @@ def default_timeframe():
     return f"{dt.date.today().year}-01-01 {today_str()}"
 
 
+UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+      "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
+
 def make_client(geo):
     # hl=ja-JP, tz=540(JST)。Google Trends 日本向け。
-    return TrendReq(hl="ja-JP", tz=540, geo=geo, timeout=(10, 25), retries=2, backoff_factor=0.5)
+    # デフォルトUAは429でブロックされやすいため、実ブラウザ風UAを付与しリトライも強める。
+    return TrendReq(
+        hl="ja-JP", tz=540, geo=geo, timeout=(10, 25),
+        retries=3, backoff_factor=1.0,
+        requests_args={"headers": {"User-Agent": UA}},
+    )
 
 
 def ensure_out(path, mode):
@@ -129,51 +137,43 @@ def cmd_score(args):
     anchor = args.anchor  # バッチ間の比較基準（任意）
 
     results = []
-    # pytrends は1リクエスト最大5語。anchor を各バッチに入れてスケール正規化する。
-    batch_size = 4 if anchor else 5
-    for i in range(0, len(cands), batch_size):
-        batch = cands[i:i + batch_size]
-        kw = batch + ([anchor] if anchor else [])
-        try:
-            py.build_payload(kw, timeframe=tf, geo=args.geo)
-            iot = py.interest_over_time()
-        except Exception as e:
-            print(f"[warn] batch {batch} 失敗: {e}", file=sys.stderr)
-            for b in batch:
-                results.append({"keyword": b, "mean_interest": "", "rising_ratio": "",
-                                "is_breakout": "", "suggested_point": "", "note": "取得失敗"})
-            time.sleep(2)
-            continue
-
-        anchor_mean = None
-        if anchor and anchor in iot.columns:
-            anchor_mean, _ = slope_metrics(iot[anchor])
-
-        # rising 関連クエリで breakout 判定
-        try:
-            rq = py.related_queries()
-        except Exception:
-            rq = {}
-
-        for b in batch:
-            if b not in iot.columns:
-                results.append({"keyword": b, "mean_interest": "", "rising_ratio": "",
-                                "is_breakout": "", "suggested_point": "", "note": "データなし"})
-                continue
-            mean_i, rising = slope_metrics(iot[b])
-            # anchor でスケール（バッチ間比較可能に）
-            if anchor_mean and anchor_mean > 0:
-                mean_i = round(mean_i / anchor_mean * 100, 2)
-            breakout = ""
+    # 「検索の伸び」は rising_ratio（直近 vs 前半の伸び率）で測れる＝キーワード単体で完結する。
+    # 複数キーワードの比較(multiline)リクエストは重く429を誘発するため、
+    # 1キーワードずつ軽いリクエストで取得し、間隔(--sleep)を空けてレート制限を回避する。
+    for idx, kw in enumerate(cands):
+        if idx > 0:
+            time.sleep(args.sleep)
+        iot = None
+        for attempt in range(2):  # 429時はクールダウン後に1回だけ再試行
             try:
-                rising_df = (rq.get(b) or {}).get("rising")
+                py.build_payload([kw], timeframe=tf, geo=args.geo)
+                iot = py.interest_over_time()
+                break
+            except Exception as e:
+                if attempt == 0:
+                    time.sleep(args.sleep * 3)
+                    continue
+                print(f"[warn] {kw} 失敗: {e}", file=sys.stderr)
+        if iot is None:
+            results.append({"keyword": kw, "mean_interest": "", "rising_ratio": "",
+                            "is_breakout": "", "suggested_point": "", "note": "取得失敗"})
+            continue
+        if iot.empty or kw not in iot.columns:
+            results.append({"keyword": kw, "mean_interest": "", "rising_ratio": "",
+                            "is_breakout": "", "suggested_point": "", "note": "データなし"})
+            continue
+        mean_i, rising = slope_metrics(iot[kw])
+        breakout = ""
+        if args.breakout:
+            try:
+                rq = py.related_queries()
+                rising_df = (rq.get(kw) or {}).get("rising")
                 if rising_df is not None and "value" in rising_df:
                     breakout = "yes" if (rising_df["value"].astype(str) == "Breakout").any() else ""
             except Exception:
                 pass
-            results.append({"keyword": b, "mean_interest": mean_i, "rising_ratio": rising,
-                            "is_breakout": breakout, "suggested_point": "", "note": ""})
-        time.sleep(2)  # レート制限回避
+        results.append({"keyword": kw, "mean_interest": mean_i, "rising_ratio": rising,
+                        "is_breakout": breakout, "suggested_point": "", "note": ""})
 
     # rising_ratio のプール内5分位で suggested_point を付与
     valid = sorted([r["rising_ratio"] for r in results if isinstance(r["rising_ratio"], (int, float))])
@@ -207,7 +207,9 @@ def main():
     ps.add_argument("--col", default=None, help="CSVの候補名列（既定: 先頭列）")
     ps.add_argument("--geo", default="JP")
     ps.add_argument("--timeframe", default=None)
-    ps.add_argument("--anchor", default=None, help="バッチ間比較の基準語")
+    ps.add_argument("--anchor", default=None, help="（互換用・未使用）")
+    ps.add_argument("--sleep", type=float, default=8.0, help="キーワード間の待機秒（429回避。既定8）")
+    ps.add_argument("--breakout", action="store_true", help="関連クエリでbreakout判定（リクエスト増・429リスク上昇）")
     ps.add_argument("--out", default=None)
     ps.set_defaults(func=cmd_score)
 

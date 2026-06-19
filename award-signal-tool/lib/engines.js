@@ -14,7 +14,7 @@ export const ENGINES = {
     label: "検索の伸び",
     build: (inCsv, outCsv) => ["python3", [
       "scripts/trends/google_trends.py", "score",
-      "--csv", inCsv, "--col", "対象名", "--anchor", "iPhone", "--out", outCsv,
+      "--csv", inCsv, "--col", "対象名", "--out", outCsv,
     ]],
     nameCol: "keyword",
     pointCol: "suggested_point",
