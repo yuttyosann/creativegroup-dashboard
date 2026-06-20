@@ -1,6 +1,6 @@
 // public/config.js
-// デプロイ時にCG側が値を設定する
+// API_BASE and GOOGLE_CLIENT_ID are public front-end values (no secrets here).
 window.CG_CONFIG = {
-  API_BASE: "",              // 例: https://cockpit-xxxx.a.run.app
-  GOOGLE_CLIENT_ID: "",      // OAuthクライアントID（…apps.googleusercontent.com）
+  API_BASE: "https://cg-cockpit-620587423995.asia-northeast1.run.app",
+  GOOGLE_CLIENT_ID: "620587423995-neigsphju2dfu775abm0urcvrq0ukv7a.apps.googleusercontent.com",
 };
