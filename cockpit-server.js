@@ -204,7 +204,7 @@ app.post('/api/cockpit/brands', requireAuth, async (req, res) => {
     res.json({ ok: true, brand_id: id });
   } catch (e) {
     const bad = /必須項目/.test(e.message);
-    res.status(bad ? 400 : 500).json({ ok: false, error: e.message });
+    res.status(bad ? 400 : 500).json({ ok: false, error: String(e.message || e).slice(0, 300) });
   }
 });
 
@@ -225,7 +225,7 @@ app.post('/api/cockpit/products', requireAuth, async (req, res) => {
     res.json({ ok: true, product_id: id });
   } catch (e) {
     const bad = /必須項目/.test(e.message);
-    res.status(bad ? 400 : 500).json({ ok: false, error: e.message });
+    res.status(bad ? 400 : 500).json({ ok: false, error: String(e.message || e).slice(0, 300) });
   }
 });
 
@@ -247,7 +247,7 @@ app.post('/api/cockpit/cases', requireAuth, async (req, res) => {
     res.json({ ok: true, case_id: id });
   } catch (e) {
     const bad = /必須項目|不正なステータス/.test(e.message);
-    res.status(bad ? 400 : 500).json({ ok: false, error: e.message });
+    res.status(bad ? 400 : 500).json({ ok: false, error: String(e.message || e).slice(0, 300) });
   }
 });
 app.patch('/api/cockpit/cases', requireAuth, async (req, res) => {
@@ -257,14 +257,16 @@ app.patch('/api/cockpit/cases', requireAuth, async (req, res) => {
     const rows = await readRows(SHEET_ID, '案件');
     const existing = rows.slice(1).map(crm.parseCase).find((c) => c.case_id === case_id);
     if (!existing) return res.status(404).json({ ok: false, error: '案件が見つかりません: ' + case_id });
-    const merged = { ...existing, ...req.body };
+    const PATCHABLE = ['brand_id', 'product_id', 'name', 'status', 'season', 'budget', 'goal', 'note'];
+    const patch = Object.fromEntries(Object.entries(req.body).filter(([k]) => PATCHABLE.includes(k)));
+    const merged = { ...existing, ...patch };
     crm.validateCase(merged);
     const row = crm.toCaseRow(merged, case_id, new Date(), existing.created);
     await updateRowById(SHEET_ID, '案件', 0, case_id, row);
     res.json({ ok: true, case_id });
   } catch (e) {
     const bad = /必須項目|不正なステータス/.test(e.message);
-    res.status(bad ? 400 : 500).json({ ok: false, error: e.message });
+    res.status(bad ? 400 : 500).json({ ok: false, error: String(e.message || e).slice(0, 300) });
   }
 });
 
