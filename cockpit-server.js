@@ -31,11 +31,19 @@ app.use(cors);
 
 const { verifyIdToken } = require('./lib/google-auth');
 const { isAllowed } = require('./lib/authz');
-const { appendRow, readAllowlist } = require('./lib/sheets');
+const { appendRow, readAllowlist, readRows, updateRowById } = require('./lib/sheets');
 const { toDiagnosisRow } = require('./lib/diagnosis-store');
+const crm = require('./lib/crm-store');
+const { nextId } = require('./lib/id-gen');
 const { buildAnalyzePrompt } = require('./lib/analyze-prompt');
 const Anthropic = require('@anthropic-ai/sdk');
 const SHEET_ID = process.env.SHEET_ID;
+
+// 指定タブの既存ID（A列）一覧を返す（採番用）
+async function existingIds(tabName) {
+  const rows = await readRows(SHEET_ID, tabName);
+  return rows.slice(1).map((r) => (r[0] || '')).filter(Boolean);
+}
 
 // 認証ミドルウェア：Authorization: Bearer <idToken> を検証＋許可リスト照合
 async function requireAuth(req, res, next) {
@@ -97,9 +105,10 @@ app.post('/api/cockpit/youtube', requireAuth, (req, res) => {
   if (!input) return res.status(400).json({ ok: false, error: 'チャンネルID/ハンドルを入力してください' });
   const a = [input, '--json', '--videos', '20', '--comments', '50'];
   if (prOnly) a.push('--pr-only', '--pr-posts', '10');
+  const caseId = String((req.body || {}).caseId || '');
   runScriptThen('scripts/youtube/fetch_channel.js', a, res, async (data) => {
     if (SHEET_ID && data.ok) {
-      try { await appendRow(SHEET_ID, '診断ログ', toDiagnosisRow(data, req.user)); } catch (e) {}
+      try { await appendRow(SHEET_ID, '診断ログ', toDiagnosisRow(data, req.user, new Date(), caseId)); } catch (e) {}
     }
   });
 });
@@ -177,6 +186,85 @@ app.post('/api/cockpit/analyze', requireAuth, async (req, res) => {
     res.json({ ok: true, text });
   } catch (e) {
     res.status(500).json({ ok: false, error: String((e && e.message) || e).slice(0, 500) });
+  }
+});
+
+// --- ブランド ---
+app.get('/api/cockpit/brands', requireAuth, async (req, res) => {
+  try {
+    const rows = await readRows(SHEET_ID, 'ブランド');
+    res.json({ ok: true, brands: rows.slice(1).map(crm.parseBrand) });
+  } catch (e) { res.status(500).json({ ok: false, error: String(e.message || e).slice(0, 300) }); }
+});
+app.post('/api/cockpit/brands', requireAuth, async (req, res) => {
+  try {
+    crm.validateBrand(req.body || {});
+    const id = nextId('B', await existingIds('ブランド'));
+    await appendRow(SHEET_ID, 'ブランド', crm.toBrandRow(req.body, id));
+    res.json({ ok: true, brand_id: id });
+  } catch (e) {
+    const bad = /必須項目/.test(e.message);
+    res.status(bad ? 400 : 500).json({ ok: false, error: e.message });
+  }
+});
+
+// --- 商品 ---
+app.get('/api/cockpit/products', requireAuth, async (req, res) => {
+  try {
+    const rows = await readRows(SHEET_ID, '商品');
+    let products = rows.slice(1).map(crm.parseProduct);
+    if (req.query.brand_id) products = products.filter((p) => p.brand_id === req.query.brand_id);
+    res.json({ ok: true, products });
+  } catch (e) { res.status(500).json({ ok: false, error: String(e.message || e).slice(0, 300) }); }
+});
+app.post('/api/cockpit/products', requireAuth, async (req, res) => {
+  try {
+    crm.validateProduct(req.body || {});
+    const id = nextId('P', await existingIds('商品'));
+    await appendRow(SHEET_ID, '商品', crm.toProductRow(req.body, id));
+    res.json({ ok: true, product_id: id });
+  } catch (e) {
+    const bad = /必須項目/.test(e.message);
+    res.status(bad ? 400 : 500).json({ ok: false, error: e.message });
+  }
+});
+
+// --- 案件 ---
+app.get('/api/cockpit/cases', requireAuth, async (req, res) => {
+  try {
+    const rows = await readRows(SHEET_ID, '案件');
+    let cases = rows.slice(1).map(crm.parseCase);
+    if (req.query.brand_id) cases = cases.filter((c) => c.brand_id === req.query.brand_id);
+    if (req.query.status) cases = cases.filter((c) => c.status === req.query.status);
+    res.json({ ok: true, cases });
+  } catch (e) { res.status(500).json({ ok: false, error: String(e.message || e).slice(0, 300) }); }
+});
+app.post('/api/cockpit/cases', requireAuth, async (req, res) => {
+  try {
+    crm.validateCase(req.body || {});
+    const id = nextId('C', await existingIds('案件'));
+    await appendRow(SHEET_ID, '案件', crm.toCaseRow(req.body, id));
+    res.json({ ok: true, case_id: id });
+  } catch (e) {
+    const bad = /必須項目|不正なステータス/.test(e.message);
+    res.status(bad ? 400 : 500).json({ ok: false, error: e.message });
+  }
+});
+app.patch('/api/cockpit/cases', requireAuth, async (req, res) => {
+  try {
+    const { case_id } = req.body || {};
+    if (!case_id) return res.status(400).json({ ok: false, error: '必須項目が不足しています: case_id' });
+    const rows = await readRows(SHEET_ID, '案件');
+    const existing = rows.slice(1).map(crm.parseCase).find((c) => c.case_id === case_id);
+    if (!existing) return res.status(404).json({ ok: false, error: '案件が見つかりません: ' + case_id });
+    const merged = { ...existing, ...req.body };
+    crm.validateCase(merged);
+    const row = crm.toCaseRow(merged, case_id, new Date(), existing.created);
+    await updateRowById(SHEET_ID, '案件', 0, case_id, row);
+    res.json({ ok: true, case_id });
+  } catch (e) {
+    const bad = /必須項目|不正なステータス/.test(e.message);
+    res.status(bad ? 400 : 500).json({ ok: false, error: e.message });
   }
 });
 
