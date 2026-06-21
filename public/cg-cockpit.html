@@ -712,7 +712,10 @@ window.loadCases=async()=>{
   }catch(e){ el.innerHTML="<span style='color:#A32D2D'>"+escapeHtml(e.message)+"</span>"; }
 };
 window.updateCaseStatus=async(case_id,status)=>{
-  try{ await apiPatch("/api/cockpit/cases",{case_id,status}); }catch(e){}
+  try{
+    const r=await apiPatch("/api/cockpit/cases",{case_id,status});
+    if(r&&r.ok===false){ alert("ステータス更新に失敗: "+(r.error||"")); await loadCases(); return; }
+  }catch(e){ alert("ステータス更新に失敗: "+e.message); await loadCases(); return; }
   await renderCaseBar();
 };
 
