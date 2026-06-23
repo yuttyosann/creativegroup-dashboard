@@ -1,0 +1,12 @@
+# Cloud Build へのアップロードから除外（.dockerignore 相当＋機密）
+.git
+.gitignore
+node_modules/
+**/node_modules/
+.env
+**/.env
+分析レポート/
+.playwright-mcp/
+*.png
+.worktrees/
+.claude/
