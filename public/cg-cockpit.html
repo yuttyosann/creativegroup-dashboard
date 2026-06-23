@@ -111,6 +111,7 @@ const STEPS = [
   {id:"case", t:"案件", sub:"ブランド→商品→案件を登録し、現在の案件にセット"},
   {id:"product", t:"2. 商品分析", sub:"需要タイプ・肌悩み・訴求を抽出するプロンプト"},
   {id:"source", t:"3. 候補を探す", sub:"3パターン × 診断3層で候補リストを作る"},
+  {id:"idb", t:"候補DB", sub:"採点済みインフルエンサーを貯めてフィルター検索"},
   {id:"diagnose", t:"4. 診断する", sub:"スクリーニング／転換質（PR投稿のみ）／フル10軸"},
   {id:"prompts", t:"5. 診断プロンプト", sub:"インフルエンサー分析・マッチング診断をコピー"},
   {id:"record", t:"6. 記録する", sub:"提案ログDBに提案・採用・成果を貯める"},
@@ -270,6 +271,39 @@ const RENDER = {
       <p style="font-size:12.5px;color:var(--muted);margin-top:8px">Astream＝客層・競合を丸裸に／当社＝買う気と商品適合を見極める。CSVは ingest_csv.py でマスタDBに取込。</p>
       <pre>${copyBtn('python3 scripts/astream/ingest_csv.py "Astream出力.csv"')}python3 scripts/astream/ingest_csv.py "Astream出力.csv"</pre>
       <div style="margin-top:10px"><a href="https://astream.jp/signin-cover" target="_blank" rel="noopener" class="btn" style="display:inline-block;text-decoration:none">Astreamにログイン →</a></div></div>`;
+  },
+  idb(){
+    const media=['YouTube','Instagram','TikTok','X'];
+    return `<div class="card"><h3>🔎 候補をフィルター検索</h3>
+      <div class="row">
+        <div><label>媒体</label><select id="f_media"><option value="">すべて</option>${media.map(m=>`<option>${m}</option>`).join("")}</select></div>
+        <div><label>ジャンル（含む）</label><input id="f_genre" placeholder="美容 等"></div>
+      </div>
+      <div class="row">
+        <div><label>フォロワー下限</label><input id="f_fmin" type="number" placeholder="0"></div>
+        <div><label>フォロワー上限</label><input id="f_fmax" type="number" placeholder="上限なし"></div>
+      </div>
+      <div class="row">
+        <div><label>転換質%下限</label><input id="f_cv" type="number" placeholder="0"></div>
+        <div><label>スクリーニング下限</label><input id="f_scr" type="number" placeholder="0"></div>
+      </div>
+      <div class="row">
+        <div><label>女性%下限</label><input id="f_fem" type="number" placeholder="0"></div>
+        <div><label>フリーワード（名前・メモ）</label><input id="f_q" placeholder="キーワード"></div>
+      </div>
+      <div style="margin-top:8px"><button class="btn" onclick="applyIdbFilter()">検索</button>
+        <button class="btn" style="background:var(--purple)" onclick="loadIdb()">再読込</button></div>
+      <div id="idb_count" style="margin-top:8px;font-size:12px;color:var(--muted)"></div>
+      <div id="idb_list" style="margin-top:6px;font-size:12.5px">読み込み中…</div></div>
+
+    <div class="card"><h3>＋ 手動で候補を追加</h3>
+      <div class="row">${field("ia_account","アカウント名","@は不要")}<div><label>媒体</label><select id="ia_media">${media.map(m=>`<option>${m}</option>`).join("")}</select></div></div>
+      <div class="row">${field("ia_genre","ジャンル","美容 等")}${field("ia_followers","フォロワー","数値")}</div>
+      <div class="row">${field("ia_conversion","転換質%","数値")}${field("ia_screening","スクリーニング","数値")}</div>
+      ${field("ia_note","適性メモ・向く商品","","ta")}
+      ${field("ia_url","URL","")}
+      <button class="btn" onclick="addInfluencer()">DBに追加</button>
+      <div id="ia_msg" style="margin-top:6px;font-size:12.5px"></div></div>`;
   },
   diagnose(){
     return `<div class="card"><h3>診断の3層</h3>
@@ -641,6 +675,74 @@ async function renderCaseBar(){
 }
 window.setActiveCase=(v)=>{ ACTIVE_CASE=v||""; localStorage.setItem("cg_active_case",ACTIVE_CASE); };
 
+let IDB_ALL = [];
+function num(v){ const n=parseFloat(String(v).replace(/[^0-9.\-]/g,"")); return isNaN(n)?0:n; }
+async function loadIdb(){
+  const el=document.getElementById("idb_list"); if(!el) return;
+  el.innerHTML="読み込み中…";
+  try{
+    const r=await apiGet("/api/cockpit/influencers");
+    IDB_ALL = (r.ok && r.influencers) ? r.influencers : [];
+    applyIdbFilter();
+  }catch(e){ el.innerHTML="<span style='color:#A32D2D'>"+escapeHtml(e.message)+"</span>"; }
+}
+window.applyIdbFilter=()=>{
+  const el=document.getElementById("idb_list"); if(!el) return;
+  const g=(document.getElementById("f_media").value||"");
+  const genre=(document.getElementById("f_genre").value||"").trim();
+  const fmin=document.getElementById("f_fmin").value, fmax=document.getElementById("f_fmax").value;
+  const cv=document.getElementById("f_cv").value, scr=document.getElementById("f_scr").value, fem=document.getElementById("f_fem").value;
+  const q=(document.getElementById("f_q").value||"").trim().toLowerCase();
+  let rows=IDB_ALL.filter(x=>{
+    if(g && x.media!==g) return false;
+    if(genre && !(x.genre||"").includes(genre)) return false;
+    if(fmin!=="" && num(x.followers)<num(fmin)) return false;
+    if(fmax!=="" && num(x.followers)>num(fmax)) return false;
+    if(cv!=="" && num(x.conversion)<num(cv)) return false;
+    if(scr!=="" && num(x.screening)<num(scr)) return false;
+    if(fem!=="" && num(x.female)<num(fem)) return false;
+    if(q && !((x.account||"").toLowerCase().includes(q) || (x.note||"").toLowerCase().includes(q) || (x.result||"").toLowerCase().includes(q))) return false;
+    return true;
+  });
+  rows.sort((a,b)=>num(b.conversion)-num(a.conversion));
+  document.getElementById("idb_count").textContent=`${rows.length}件 / 全${IDB_ALL.length}件`;
+  if(!rows.length){ el.innerHTML="<span style='color:var(--muted)'>該当なし</span>"; return; }
+  el.innerHTML=rows.map(x=>`<div style="padding:6px 0;border-bottom:1px solid var(--line)">
+    <b>${escapeHtml(x.account)}</b> <span class="pill p-gray">${escapeHtml(x.media)}</span>
+    ${x.conversion?`<span class="pill ${num(x.conversion)>=15?'p-green':num(x.conversion)>=5?'p-orange':'p-gray'}">転換質${escapeHtml(x.conversion)}%</span>`:""}
+    <span style="color:var(--muted);font-size:11.5px">${escapeHtml(x.genre||"")} ／ フォロワー${(num(x.followers)||0).toLocaleString()} ／ 女性${escapeHtml(x.female||"-")} ／ スクリーニング${escapeHtml(x.screening||"-")}</span>
+    ${x.note?`<br><span style="font-size:11.5px">${escapeHtml(x.note)}</span>`:""}
+    ${x.result?`<br><span style="font-size:11.5px;color:#1E7A46">実績: ${escapeHtml(x.result)}</span>`:""}
+    ${x.url?` <a class="link" href="${escapeHtml(x.url)}" target="_blank">開く</a>`:""}</div>`).join("");
+};
+// 候補をDBにupsert登録（YouTube/Astream結果・手動から共用）
+window.registerCand=async(payload, btn)=>{
+  if(btn){ btn.disabled=true; btn.textContent="登録中…"; }
+  try{
+    const r=await api("/api/cockpit/influencers",payload);
+    if(r.ok){ if(btn){ btn.textContent=(r.updated?"更新済 ":"登録済 ")+r.inf_id; } return true; }
+    if(btn){ btn.disabled=false; btn.textContent="DBに登録"; }
+    alert("登録に失敗: "+(r.error||"")); return false;
+  }catch(e){ if(btn){ btn.disabled=false; btn.textContent="DBに登録"; } alert("登録に失敗: "+e.message); return false; }
+};
+window.addInfluencer=async()=>{
+  const msg=document.getElementById("ia_msg");
+  const payload={
+    account:(document.getElementById("ia_account").value||"").trim().replace(/^@/,""),
+    media:document.getElementById("ia_media").value,
+    genre:(document.getElementById("ia_genre").value||"").trim(),
+    followers:(document.getElementById("ia_followers").value||"").trim(),
+    conversion:(document.getElementById("ia_conversion").value||"").trim(),
+    screening:(document.getElementById("ia_screening").value||"").trim(),
+    note:(document.getElementById("ia_note").value||"").trim(),
+    url:(document.getElementById("ia_url").value||"").trim(),
+  };
+  if(!payload.account){ msg.innerHTML="<span style='color:#A32D2D'>アカウント名を入力してください</span>"; return; }
+  const ok=await registerCand(payload, null);
+  if(ok){ msg.innerHTML="✅ 追加しました"; await loadIdb(); }
+  else { msg.innerHTML="<span style='color:#A32D2D'>追加に失敗しました</span>"; }
+};
+
 async function fillBrandSelect(){
   const sel=document.getElementById("cs_brand"); if(!sel) return;
   try{ const r=await apiGet("/api/cockpit/brands"); if(r.ok){
@@ -730,6 +832,7 @@ function render(){
 }
 window.go=(id)=>{current=id;render();window.scrollTo(0,0);
   if(id==="case"){ fillBrandSelect(); loadCases(); }
+  if(id==="idb"){ loadIdb(); }
 };
 initAuth();
 render();
