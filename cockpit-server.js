@@ -35,6 +35,7 @@ const { appendRow, readAllowlist, readRows, updateRowById } = require('./lib/she
 const { toDiagnosisRow } = require('./lib/diagnosis-store');
 const crm = require('./lib/crm-store');
 const { nextId } = require('./lib/id-gen');
+const inf = require('./lib/influencer-store');
 const { buildAnalyzePrompt } = require('./lib/analyze-prompt');
 const Anthropic = require('@anthropic-ai/sdk');
 const SHEET_ID = process.env.SHEET_ID;
@@ -266,6 +267,37 @@ app.patch('/api/cockpit/cases', requireAuth, async (req, res) => {
     res.json({ ok: true, case_id });
   } catch (e) {
     const bad = /必須項目|不正なステータス/.test(e.message);
+    res.status(bad ? 400 : 500).json({ ok: false, error: String(e.message || e).slice(0, 300) });
+  }
+});
+
+// --- インフルエンサーDB ---
+app.get('/api/cockpit/influencers', requireAuth, async (req, res) => {
+  try {
+    const rows = await readRows(SHEET_ID, 'インフルエンサーDB');
+    res.json({ ok: true, influencers: rows.slice(1).map(inf.parseInfluencer) });
+  } catch (e) { res.status(500).json({ ok: false, error: String(e.message || e).slice(0, 300) }); }
+});
+app.post('/api/cockpit/influencers', requireAuth, async (req, res) => {
+  try {
+    const body = req.body || {};
+    inf.validateInfluencer(body);
+    const account = String(body.account || '').trim().replace(/^@/, '');
+    const media = String(body.media || '').trim();
+    const rows = await readRows(SHEET_ID, 'インフルエンサーDB');
+    const parsed = rows.slice(1).map(inf.parseInfluencer);
+    const incoming = { ...body, account, media, registrant: req.user.email };
+    const existing = parsed.find((x) => x.media === media && (x.account || '').toLowerCase() === account.toLowerCase());
+    if (existing) {
+      const merged = inf.mergeInfluencer(existing, incoming);
+      await updateRowById(SHEET_ID, 'インフルエンサーDB', 0, existing.inf_id, inf.toInfluencerRow(merged, existing.inf_id));
+      return res.json({ ok: true, inf_id: existing.inf_id, updated: true });
+    }
+    const id = nextId('I', parsed.map((x) => x.inf_id).filter(Boolean));
+    await appendRow(SHEET_ID, 'インフルエンサーDB', inf.toInfluencerRow(incoming, id));
+    res.json({ ok: true, inf_id: id, updated: false });
+  } catch (e) {
+    const bad = /必須項目|媒体/.test(e.message);
     res.status(bad ? 400 : 500).json({ ok: false, error: String(e.message || e).slice(0, 300) });
   }
 });
