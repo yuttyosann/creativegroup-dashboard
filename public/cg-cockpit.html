@@ -467,7 +467,7 @@ function parseTargets(text){
   return (text||"").split(/[\n,]+/).map(s=>s.trim()).filter(Boolean);
 }
 function escapeHtml(s){
-  return String(s||"").replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  return String(s||"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 function renderAnalyzeResult(elId, text){
   const el=document.getElementById(elId);
