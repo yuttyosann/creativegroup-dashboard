@@ -537,6 +537,10 @@ window.runYTBatch=async()=>{
         const badge=d.purchaseIntentRate>=15?"p-green":d.purchaseIntentRate>=5?"p-orange":"p-gray";
         cell.innerHTML=`<b>${d.title}</b> <span class="pill ${badge}">転換質${d.purchaseIntentRate}%</span><br>
           <span style="color:var(--muted);font-size:11.5px">登録${(d.subscribers||0).toLocaleString()} ／ ER${d.avgER}% ／ ${prOnly?"PR投稿":"人気投稿"}・${d.commentsAnalyzed}コメント</span>`;
+        const rb=document.createElement("button");
+        rb.className="btn"; rb.style.cssText="margin-top:6px;padding:2px 8px;font-size:11.5px"; rb.textContent="DBに登録";
+        rb.onclick=()=>registerCand({account:d.title, media:"YouTube", followers:d.subscribers, conversion:d.purchaseIntentRate, contentType:(prOnly?"レビュー型":"")}, rb);
+        cell.appendChild(document.createElement("br")); cell.appendChild(rb);
         done++;
       }
     }catch(e){
@@ -651,10 +655,20 @@ window.runIgProxy=()=>runCsvTool("/api/cockpit/ig-proxy", rows=>{
 
 window.runAstreamIngest=()=>runCsvTool("/api/cockpit/astream-ingest", rows=>{
   if(!rows.length) return "対象なし";
-  const head=`<div style="font-size:12px;color:var(--muted);margin-bottom:6px">マスタDB取込（上位${Math.min(rows.length,20)}件・暫定スコア順）。下記をマスタDBに転記</div>`;
-  const body=rows.slice(0,20).map((r,i)=>`<div style="padding:5px 0;border-bottom:1px solid var(--line);font-size:12.5px">
-    ${i+1}. <b>@${r["インフルエンサー"]}</b> <span class="pill p-purple">暫定${r["暫定スコア(客層+実在+PR/45)"]}/45</span>
-    <span style="color:var(--muted);font-size:11.5px">${(r["フォロワー"]||0).toLocaleString()}人 女性${r["女性%"]} 実在${r["実在率%"]} ${r["ジャンル推定"]}</span></div>`).join("");
+  window.__asCand={};
+  const head=`<div style="font-size:12px;color:var(--muted);margin-bottom:6px">マスタDB取込（上位${Math.min(rows.length,20)}件・暫定スコア順）。各行を候補DBに登録できます</div>`;
+  const body=rows.slice(0,20).map((r,i)=>{
+    window.__asCand[i]={
+      account:String(r["インフルエンサー"]||"").replace(/^@/,""), media:"Instagram",
+      genre:r["ジャンル推定"]||"", followers:r["フォロワー"]||"", female:r["女性%"]||"",
+      coreAge:r["中核年齢25-44%"]||"", realRate:r["実在率%"]||"", prEngage:r["PRエンゲージ%"]||"",
+      screening:r["暫定スコア(客層+実在+PR/45)"]||"", url:r["URL"]||""
+    };
+    return `<div style="padding:5px 0;border-bottom:1px solid var(--line);font-size:12.5px">
+      ${i+1}. <b>@${escapeHtml(String(r["インフルエンサー"]||""))}</b> <span class="pill p-purple">暫定${escapeHtml(String(r["暫定スコア(客層+実在+PR/45)"]||""))}/45</span>
+      <span style="color:var(--muted);font-size:11.5px">${(num(r["フォロワー"])||0).toLocaleString()}人 女性${escapeHtml(String(r["女性%"]||""))} 実在${escapeHtml(String(r["実在率%"]||""))} ${escapeHtml(String(r["ジャンル推定"]||""))}</span>
+      <button class="btn" style="margin-left:6px;padding:1px 7px;font-size:11px" onclick="registerCand(window.__asCand[${i}],this)">DBに登録</button></div>`;
+  }).join("");
   return head+body;
 });
 
