@@ -1,6 +1,8 @@
 // Trepoトレンド大賞 実績シグナル収集ツール — Expressサーバー（非同期ジョブ）
 import express from "express";
 import { randomUUID } from "node:crypto";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { listCandidates, listSeeds, writeSignal, SIGNAL_FIELDS } from "./lib/notion.js";
 import { runEngine, ENGINES } from "./lib/engines.js";
 import { requireAuth, authEnabled } from "./lib/auth.js";
@@ -8,9 +10,11 @@ import { requireAuth, authEnabled } from "./lib/auth.js";
 // .env 読み込み（Node20.12+ / 24 の process.loadEnvFile）
 try { process.loadEnvFile?.(); } catch { /* .env が無くても可 */ }
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.use(express.json());
-app.use(express.static("public"));
+// 静的配信は実行ディレクトリに依存しないよう絶対パスで（コンテナのCWD=/app対策）
+app.use(express.static(path.join(__dirname, "public")));
 
 const jobs = new Map(); // id -> job
 
