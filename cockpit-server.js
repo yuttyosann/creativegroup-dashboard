@@ -36,6 +36,7 @@ const { toDiagnosisRow } = require('./lib/diagnosis-store');
 const crm = require('./lib/crm-store');
 const { nextId } = require('./lib/id-gen');
 const inf = require('./lib/influencer-store');
+const rst = require('./lib/result-store');
 const { buildAnalyzePrompt } = require('./lib/analyze-prompt');
 const Anthropic = require('@anthropic-ai/sdk');
 const SHEET_ID = process.env.SHEET_ID;
@@ -298,6 +299,76 @@ app.post('/api/cockpit/influencers', requireAuth, async (req, res) => {
     res.json({ ok: true, inf_id: id, updated: false });
   } catch (e) {
     const bad = /必須項目|媒体/.test(e.message);
+    res.status(bad ? 400 : 500).json({ ok: false, error: String(e.message || e).slice(0, 300) });
+  }
+});
+
+// --- 実績 ---
+// 案件で診断したインフルを診断ログから列挙（診断ログ列: [案件ID,日付,実行者,媒体,チャンネル名,...]）
+app.get('/api/cockpit/case-influencers', requireAuth, async (req, res) => {
+  try {
+    const caseId = String(req.query.case_id || '');
+    if (!caseId) return res.json({ ok: true, influencers: [] });
+    const rows = await readRows(SHEET_ID, '診断ログ');
+    const seen = new Set(); const out = [];
+    rows.slice(1).forEach((r) => {
+      if ((r[0] || '') !== caseId) return;
+      const account = (r[4] || '').trim(); const media = (r[3] || '').trim();
+      const key = media + '|' + account.toLowerCase();
+      if (account && !seen.has(key)) { seen.add(key); out.push({ account, media }); }
+    });
+    res.json({ ok: true, influencers: out });
+  } catch (e) { res.status(500).json({ ok: false, error: String(e.message || e).slice(0, 300) }); }
+});
+app.get('/api/cockpit/results', requireAuth, async (req, res) => {
+  try {
+    const caseId = String(req.query.case_id || '');
+    const rows = await readRows(SHEET_ID, '実績');
+    let results = rows.slice(1).map(rst.parseResult);
+    if (caseId) results = results.filter((x) => x.case_id === caseId);
+    res.json({ ok: true, results });
+  } catch (e) { res.status(500).json({ ok: false, error: String(e.message || e).slice(0, 300) }); }
+});
+app.post('/api/cockpit/results', requireAuth, async (req, res) => {
+  try {
+    const body = req.body || {};
+    rst.validateResult(body);
+    const caseId = String(body.case_id || '').trim();
+    const account = String(body.account || '').trim().replace(/^@/, '');
+    const media = String(body.media || '').trim();
+    const incoming = { ...body, case_id: caseId, account, media, registrant: req.user.email };
+    const rows = await readRows(SHEET_ID, '実績');
+    const parsed = rows.slice(1).map(rst.parseResult);
+    const existing = parsed.find((x) => x.case_id === caseId && (x.account || '').toLowerCase() === account.toLowerCase());
+    let resultId;
+    if (existing) {
+      resultId = existing.result_id;
+      await updateRowById(SHEET_ID, '実績', 0, resultId, rst.toResultRow(incoming, resultId));
+    } else {
+      resultId = nextId('R', parsed.map((x) => x.result_id).filter(Boolean));
+      await appendRow(SHEET_ID, '実績', rst.toResultRow(incoming, resultId));
+    }
+    const comp = rst.computeResult({ sales: body.sales, fee: body.fee, rewardRate: body.rewardRate });
+    let reflected = false;
+    try {
+      const caseLabel = String(body.caseLabel || '').trim();
+      const line = rst.buildSummaryLine(caseLabel, comp.roas, comp.profit);
+      const irows = await readRows(SHEET_ID, 'インフルエンサーDB');
+      const iparsed = irows.slice(1).map(inf.parseInfluencer);
+      const iex = iparsed.find((x) => x.media === media && (x.account || '').toLowerCase() === account.toLowerCase());
+      const mergedSummary = rst.mergeSummaryLine(iex ? iex.result : '', caseId, line);
+      if (iex) {
+        const m = inf.mergeInfluencer(iex, { account, media, result: mergedSummary });
+        await updateRowById(SHEET_ID, 'インフルエンサーDB', 0, iex.inf_id, inf.toInfluencerRow(m, iex.inf_id));
+      } else {
+        const iid = nextId('I', iparsed.map((x) => x.inf_id).filter(Boolean));
+        await appendRow(SHEET_ID, 'インフルエンサーDB', inf.toInfluencerRow({ account, media, result: mergedSummary, registrant: req.user.email }, iid));
+      }
+      reflected = true;
+    } catch (e) { reflected = false; }
+    res.json({ ok: true, result_id: resultId, roas: comp.roas, updated: !!existing, reflected });
+  } catch (e) {
+    const bad = /必須項目/.test(e.message);
     res.status(bad ? 400 : 500).json({ ok: false, error: String(e.message || e).slice(0, 300) });
   }
 });
