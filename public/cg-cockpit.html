@@ -115,6 +115,7 @@ const STEPS = [
   {id:"diagnose", t:"4. 診断する", sub:"スクリーニング／転換質（PR投稿のみ）／フル10軸"},
   {id:"prompts", t:"5. 診断プロンプト", sub:"インフルエンサー分析・マッチング診断をコピー"},
   {id:"record", t:"6. 記録する", sub:"提案ログDBに提案・採用・成果を貯める"},
+  {id:"result", t:"実績", sub:"案件完了後の実績(ROAS)を入力し候補DBに反映"},
   {id:"check", t:"7. チェックリスト", sub:"各案件で確認すること"},
   {id:"manual", t:"8. マニュアル", sub:"各工程の目的・操作手順・注意点（詳細版）"},
 ];
@@ -395,6 +396,14 @@ piii_xx_01"></textarea>
       </div>
     </div>
     <div class="note">GASの buildProposalLog で生成。過去案件も「案件ID/ブランド/商品/名前/要望クリア/推薦理由/採用有無」だけでも価値あり。</div>`;
+  },
+  result(){
+    return `<div class="card"><h3>📈 案件実績の入力</h3>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:8px">案件を選ぶと、その案件で診断したインフルが自動で並びます。実績を入力して保存すると候補DBの実績サマリーに反映されます。</p>
+      <label>案件を選択</label>
+      <select id="rs_case" onchange="onResultCaseChange()"><option value="">―</option></select>
+      <div id="rs_rows" style="margin-top:10px;font-size:12.5px"></div>
+      <div style="margin-top:8px"><button class="btn" onclick="addResultRow()">＋ インフルを手動追加</button></div></div>`;
   },
   check(){
     const items=["ヒアリングシートで商品情報を取得した","商品分析で需要タイプ・肌悩みを抽出した","候補を3パターンのいずれかで抽出した",
@@ -690,6 +699,68 @@ async function renderCaseBar(){
 window.setActiveCase=(v)=>{ ACTIVE_CASE=v||""; localStorage.setItem("cg_active_case",ACTIVE_CASE); };
 
 let IDB_ALL = [];
+let RS_CASES=[];
+window.__rsN=0;
+async function loadResultCases(){
+  const sel=document.getElementById("rs_case"); if(!sel) return;
+  try{ const r=await apiGet("/api/cockpit/cases"); RS_CASES=(r.ok&&r.cases)?r.cases:[];
+    sel.innerHTML='<option value="">―</option>'+RS_CASES.map(c=>`<option value="${c.case_id}">${escapeHtml(c.case_id+" "+c.name)}</option>`).join("");
+  }catch(e){}
+}
+function rsCaseLabel(){ const c=RS_CASES.find(x=>x.case_id===document.getElementById("rs_case").value); return c?(c.name||c.season||c.case_id):""; }
+function rsNum(v){ const n=parseFloat(String(v).replace(/[^0-9.\-]/g,"")); return isNaN(n)?0:n; }
+function addResultRowSeed(inf, ex){
+  const el=document.getElementById("rs_rows");
+  const i=window.__rsN++;
+  const med=['YouTube','Instagram','TikTok','X'];
+  const v=(k)=> (ex&&ex[k]!=null)?ex[k]:"";
+  const div=document.createElement("div");
+  div.className="card"; div.style.padding="8px"; div.style.marginTop="6px";
+  div.innerHTML=`<div class="row"><div><label>アカウント名</label><input id="rs_acc${i}" value="${escapeHtml(inf.account||"")}"></div>
+      <div><label>媒体</label><select id="rs_med${i}">${med.map(m=>`<option ${m===inf.media?"selected":""}>${m}</option>`).join("")}</select></div></div>
+    <div class="row"><div><label>売上</label><input id="rs_sales${i}" type="number" value="${escapeHtml(String(v('sales')))}" oninput="rsPreview(${i})"></div>
+      <div><label>タイアップ費</label><input id="rs_fee${i}" type="number" value="${escapeHtml(String(v('fee')))}" oninput="rsPreview(${i})"></div></div>
+    <div class="row"><div><label>成果報酬率%</label><input id="rs_rew${i}" type="number" value="${escapeHtml(String(v('rewardRate')))}" oninput="rsPreview(${i})"></div>
+      <div><label>実売数</label><input id="rs_units${i}" type="number" value="${escapeHtml(String(v('units')))}"></div></div>
+    <div class="row"><div><label>実施日</label><input id="rs_date${i}" value="${escapeHtml(String(v('date')))}" placeholder="2026-06"></div>
+      <div><label>ROAS（自動）</label><input id="rs_roas${i}" readonly value="${v('roas')?v('roas')+'%':''}"></div></div>
+    <button class="btn" onclick="saveResult(${i})">保存</button> <span id="rs_msg${i}" style="font-size:12px"></span>`;
+  el.appendChild(div);
+}
+window.onResultCaseChange=async()=>{
+  const cid=document.getElementById("rs_case").value;
+  const el=document.getElementById("rs_rows");
+  window.__rsN=0; el.innerHTML="";
+  if(!cid) return;
+  el.innerHTML="読み込み中…";
+  let infls=[], results=[];
+  try{ const a=await apiGet("/api/cockpit/case-influencers?case_id="+encodeURIComponent(cid)); if(a.ok) infls=a.influencers||[]; }catch(e){}
+  try{ const b=await apiGet("/api/cockpit/results?case_id="+encodeURIComponent(cid)); if(b.ok) results=b.results||[]; }catch(e){}
+  el.innerHTML="";
+  const seen=new Set();
+  infls.forEach(x=>{ const ex=results.find(r=>r.media===x.media && (r.account||"").toLowerCase()===(x.account||"").toLowerCase()); addResultRowSeed(x, ex||null); seen.add(x.media+"|"+(x.account||"").toLowerCase()); });
+  results.forEach(r=>{ const k=r.media+"|"+(r.account||"").toLowerCase(); if(!seen.has(k)){ addResultRowSeed({account:r.account,media:r.media}, r); seen.add(k);} });
+  if(!el.children.length) el.innerHTML="<span style='color:var(--muted)'>診断ログに該当インフルがありません。下の「手動追加」で入力できます。</span>";
+};
+window.addResultRow=()=>{ if(!document.getElementById("rs_case").value){ alert("先に案件を選択してください"); return; } if(document.getElementById("rs_rows").querySelector("span")) document.getElementById("rs_rows").innerHTML=""; addResultRowSeed({account:"",media:"Instagram"}, null); };
+window.rsPreview=(i)=>{
+  const s=rsNum(document.getElementById("rs_sales"+i).value), f=rsNum(document.getElementById("rs_fee"+i).value), r=rsNum(document.getElementById("rs_rew"+i).value);
+  const tc=f+s*(r/100); const roas=tc>0?Math.round(s/tc*100):0;
+  document.getElementById("rs_roas"+i).value=roas+"%";
+};
+window.saveResult=async(i)=>{
+  const msg=document.getElementById("rs_msg"+i);
+  const account=(document.getElementById("rs_acc"+i).value||"").trim().replace(/^@/,"");
+  if(!account){ msg.innerHTML="<span style='color:#A32D2D'>アカウント名を入力してください</span>"; return; }
+  const payload={ case_id:document.getElementById("rs_case").value, caseLabel:rsCaseLabel(), account,
+    media:document.getElementById("rs_med"+i).value, date:document.getElementById("rs_date"+i).value,
+    units:document.getElementById("rs_units"+i).value, sales:document.getElementById("rs_sales"+i).value,
+    fee:document.getElementById("rs_fee"+i).value, rewardRate:document.getElementById("rs_rew"+i).value };
+  try{ const r=await api("/api/cockpit/results",payload);
+    if(r.ok){ document.getElementById("rs_roas"+i).value=r.roas+"%"; msg.innerHTML=`<span style='color:#1E7A46'>✅ 保存 ROAS${r.roas}% ${r.reflected?"（候補DB反映）":"（候補DB未登録のため新規作成）"}</span>`; }
+    else msg.innerHTML="<span style='color:#A32D2D'>"+escapeHtml(r.error||"保存失敗")+"</span>";
+  }catch(e){ msg.innerHTML="<span style='color:#A32D2D'>"+escapeHtml(e.message)+"</span>"; }
+};
 function num(v){ const n=parseFloat(String(v).replace(/[^0-9.\-]/g,"")); return isNaN(n)?0:n; }
 async function loadIdb(){
   const el=document.getElementById("idb_list"); if(!el) return;
@@ -847,6 +918,7 @@ function render(){
 window.go=(id)=>{current=id;render();window.scrollTo(0,0);
   if(id==="case"){ fillBrandSelect(); loadCases(); }
   if(id==="idb"){ loadIdb(); }
+  if(id==="result"){ loadResultCases(); }
 };
 initAuth();
 render();
