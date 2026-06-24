@@ -707,7 +707,7 @@ async function loadResultCases(){
     sel.innerHTML='<option value="">―</option>'+RS_CASES.map(c=>`<option value="${c.case_id}">${escapeHtml(c.case_id+" "+c.name)}</option>`).join("");
   }catch(e){}
 }
-function rsCaseLabel(){ const c=RS_CASES.find(x=>x.case_id===document.getElementById("rs_case").value); return c?(c.name||c.season||c.case_id):""; }
+function rsCaseLabel(){ const c=RS_CASES.find(x=>x.case_id===document.getElementById("rs_case").value); return c?(c.name||c.season||""):""; }
 function rsNum(v){ const n=parseFloat(String(v).replace(/[^0-9.\-]/g,"")); return isNaN(n)?0:n; }
 function addResultRowSeed(inf, ex){
   const el=document.getElementById("rs_rows");
@@ -757,7 +757,7 @@ window.saveResult=async(i)=>{
     units:document.getElementById("rs_units"+i).value, sales:document.getElementById("rs_sales"+i).value,
     fee:document.getElementById("rs_fee"+i).value, rewardRate:document.getElementById("rs_rew"+i).value };
   try{ const r=await api("/api/cockpit/results",payload);
-    if(r.ok){ document.getElementById("rs_roas"+i).value=r.roas+"%"; msg.innerHTML=`<span style='color:#1E7A46'>✅ 保存 ROAS${r.roas}% ${r.reflected?"（候補DB反映）":"（候補DB未登録のため新規作成）"}</span>`; }
+    if(r.ok){ document.getElementById("rs_roas"+i).value=r.roas+"%"; msg.innerHTML=`<span style='color:#1E7A46'>✅ 保存 ROAS${r.roas}% ${r.reflected?"（候補DB反映）":"<span style='color:#A32D2D'>（候補DB反映に失敗）</span>"}</span>`; }
     else msg.innerHTML="<span style='color:#A32D2D'>"+escapeHtml(r.error||"保存失敗")+"</span>";
   }catch(e){ msg.innerHTML="<span style='color:#A32D2D'>"+escapeHtml(e.message)+"</span>"; }
 };
