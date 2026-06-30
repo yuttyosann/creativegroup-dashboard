@@ -85,3 +85,31 @@ test('grade: 閾値（80◎/60○/40△/それ未満×）', () => {
   assert.strictEqual(grade(40), '△');
   assert.strictEqual(grade(39), '×');
 });
+
+test('受け入れ例「乾燥でゆらいだ日の駆け込み」: 広告確定・◎・80以上', () => {
+  const r = computeAppealScore({
+    workshop: { mentions: 8, brandUnaware: true },
+    review: { intentRate: 0.62 },
+    ad: { ctr: 2.1, demoClarity: 0.9 },
+  });
+  assert.strictEqual(r.stage, '広告確定');
+  assert.ok(r.score >= 80, `期待:>=80 実際:${r.score}`);
+  assert.strictEqual(r.grade, '◎');
+});
+
+test('受け入れ例「パケが可愛い」: 言及最多でも虚栄控除で×・40未満', () => {
+  const r = computeAppealScore({
+    workshop: { mentions: 11, brandUnaware: false },
+    review: { intentRate: 0.12 },
+    ad: { ctr: 0.6 },
+  });
+  assert.ok(r.breakdown.vanity < 0, '虚栄控除が発動するべき');
+  assert.ok(r.score < 40, `期待:<40 実際:${r.score}`);
+  assert.strictEqual(r.grade, '×');
+});
+
+test('未確定の訴求（勉強会のみ）は暫定で低スコアに留まる（虚栄を防ぐ）', () => {
+  const r = computeAppealScore({ workshop: { mentions: 8, brandUnaware: true } });
+  assert.strictEqual(r.stage, '暫定');
+  assert.ok(r.score < 40, `未確定なので低いはず 実際:${r.score}`);
+});
