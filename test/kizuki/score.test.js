@@ -44,3 +44,23 @@ test('demoScore: デモグラ明確度1.0で満点10', () => {
 test('collabScore: 適合100かつ実売ありで満点10', () => {
   assert.strictEqual(collabScore({ fitScore: 100, sales: 50 }), 10);
 });
+
+const { vanityPenalty } = require('../../lib/kizuki/score');
+
+test('vanityPenalty: 言及多い(11)がCTR低い(0.6%)で減点される', () => {
+  const p = vanityPenalty({ workshop: { mentions: 11 }, ad: { ctr: 0.6 } });
+  assert.ok(p < 0, '減点されるべき');
+  assert.strictEqual(p, -5); // (0.4-0.3)/0.4*20 = 5
+});
+
+test('vanityPenalty: 広告未測定なら控除しない（まだ判定不能）', () => {
+  assert.strictEqual(vanityPenalty({ workshop: { mentions: 11 } }), 0);
+});
+
+test('vanityPenalty: 言及が少なければ控除しない', () => {
+  assert.strictEqual(vanityPenalty({ workshop: { mentions: 3 }, ad: { ctr: 0.2 } }), 0);
+});
+
+test('vanityPenalty: CTRが十分高ければ控除しない', () => {
+  assert.strictEqual(vanityPenalty({ workshop: { mentions: 11 }, ad: { ctr: 2.1 } }), 0);
+});
