@@ -6,6 +6,11 @@
  *   node scripts/instagram/analyze.js                       # 当日のCSVを自動検出
  *   node scripts/instagram/analyze.js --date 2026-06-30     # 日付指定CSV
  *   node scripts/instagram/analyze.js --min-reach 100       # 低リーチ除外しきい値
+ *   node scripts/instagram/analyze.js --min-age-hours 24    # 48時間→24時間に変更
+ *   node scripts/instagram/analyze.js --keep-fresh          # 48時間未満も含める
+ *   node scripts/instagram/analyze.js --keep-ads            # 広告/キャンペーン投稿も含める
+ *
+ * 既定では「48時間未満・広告(is_boosted)・キャンペーン/プレゼント投稿」を除外する。
  *
  * 【出力】分析レポート/instagram_data/<日付>_分析レポート.md ＋ <日付>_scatter.csv
  */
@@ -13,11 +18,14 @@
 
 const fs = require('fs');
 const path = require('path');
-const { computeFeatures, runCorrelations, topBottomCompare, carouselBreakdown } = require('../../lib/ig-analyze');
+const { computeFeaturesWithStats, runCorrelations, topBottomCompare, carouselBreakdown } = require('../../lib/ig-analyze');
 
 const args = process.argv.slice(2);
 const dateArg = (() => { const i = args.indexOf('--date'); return i >= 0 ? args[i + 1] : new Date().toISOString().slice(0, 10); })();
 const minReach = (() => { const i = args.indexOf('--min-reach'); return i >= 0 && args[i + 1] ? parseInt(args[i + 1], 10) : 0; })();
+const keepFresh = args.includes('--keep-fresh');
+const keepAds = args.includes('--keep-ads');
+const minAgeHours = (() => { const i = args.indexOf('--min-age-hours'); return i >= 0 && args[i + 1] ? parseInt(args[i + 1], 10) : 48; })();
 
 const dataDir = path.join(__dirname, '../../分析レポート/instagram_data');
 
@@ -74,9 +82,14 @@ const fmt = (v) => (v == null ? 'N/A' : (typeof v === 'number' ? (Math.abs(v) < 
 function main() {
   const media = loadCsv(`${dateArg}_media_raw.csv`);
   const insights = loadCsv(`${dateArg}_insights_raw.csv`);
-  const features = computeFeatures(media, insights, { minReach });
+  const { features, excluded } = computeFeaturesWithStats(media, insights, {
+    minReach,
+    minAgeHours: keepFresh ? 0 : minAgeHours,
+    excludeBoosted: !keepAds,
+    excludeCampaign: !keepAds,
+  });
   if (!features.length) {
-    console.error('❌ 有効な特徴量が0件です（reach欠損やminReach除外を確認）。');
+    console.error('❌ 有効な特徴量が0件です（除外条件: 48時間未満/広告/キャンペーン/minReach/reach欠損 を確認）。');
     process.exit(1);
   }
 
@@ -89,7 +102,13 @@ function main() {
   L.push(`# Instagram 投稿分析レポート（${dateArg}）`);
   L.push('');
   L.push('## 1. 全体サマリー');
-  L.push(`- 分析対象投稿: ${features.length}件（reach欠損・minReach<${minReach}を除外）`);
+  L.push(`- 分析対象投稿: ${features.length}件`);
+  L.push('- 除外内訳:');
+  L.push(`    - 投稿${minAgeHours}時間未満: ${excluded.tooFresh}件${keepFresh ? '（--keep-freshのため除外無効）' : ''}`);
+  L.push(`    - 広告(is_boosted): ${excluded.boosted}件${keepAds ? '（--keep-adsのため除外無効）' : ''}`);
+  L.push(`    - キャンペーン/プレゼント: ${excluded.campaign}件${keepAds ? '（--keep-adsのため除外無効）' : ''}`);
+  L.push(`    - 低リーチ(minReach<${minReach}): ${excluded.lowReach}件`);
+  L.push(`    - reach欠損: ${excluded.missingReach}件 / Insights取得不可: ${excluded.noInsights}件`);
   L.push('');
   L.push('## 2. 相関（Pearson / Spearman）');
   L.push('| x | y | n | Pearson | Spearman |');
@@ -117,7 +136,9 @@ function main() {
   L.push('## 5. 注意点');
   L.push('- 相関は因果ではない。傾向把握として読むこと。');
   L.push('- サンプル数が少ない枚数・群は結論を強く言い切らず仮説として扱う。');
-  L.push('- 広告配信・キャンペーン投稿は通常投稿と性質が異なるため、別解釈が必要（MVPでは未分離）。');
+  L.push('- 広告(is_boosted)・キャンペーン/プレゼント投稿・投稿48時間未満は既定で除外済み（上記サマリー参照）。');
+  L.push('- 広告フラグ(is_boosted)は手動マーク前提。media_rawで未マークの広告は混在しうる。');
+  L.push('- キャンペーン判定はcaptionキーワードによるヒューリスティックのため、取りこぼし・誤除外がありうる。');
   L.push('- Insights指標は反映遅延・保持期間・広告由来の扱いに制約がある。');
   L.push('');
   L.push('## 6. 次アクション（手動 → Claude）');

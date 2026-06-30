@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS `cg-project-491303.cg_analytics.ig_media_raw` (
   carousel_count       INT64,            -- カルーセル枚数（非カルーセルは1）
   is_carousel          BOOL,
   children_media_types STRING,           -- 子メディア種別のカンマ連結
+  is_boosted           BOOL,             -- 広告配信フラグ（手動マーク。既定false）
   loaded_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
 )
 PARTITION BY date
@@ -47,7 +48,7 @@ CREATE OR REPLACE VIEW `cg-project-491303.cg_analytics.ig_media_features` AS
 SELECT
   m.media_id,
   m.date, m.weekday, m.hour, m.permalink, m.media_type, m.media_product_type,
-  m.carousel_count, m.is_carousel,
+  m.carousel_count, m.is_carousel, m.is_boosted,
   m.like_count, m.comments_count,
   i.reach, i.saved, i.shares, i.total_interactions, i.profile_visits, i.follows, i.views,
   LN(IFNULL(i.reach, 0) + 1)                                            AS reach_log,

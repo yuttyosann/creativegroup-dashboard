@@ -120,7 +120,7 @@ async function main() {
   const outDir = path.join(__dirname, '../../分析レポート/instagram_data');
   fs.mkdirSync(outDir, { recursive: true });
   const day = new Date().toISOString().slice(0, 10);
-  const mediaCols = ['media_id', 'timestamp', 'date', 'weekday', 'hour', 'permalink', 'caption', 'media_type', 'media_product_type', 'like_count', 'comments_count', 'children_count', 'carousel_count', 'is_carousel', 'children_media_types'];
+  const mediaCols = ['media_id', 'timestamp', 'date', 'weekday', 'hour', 'permalink', 'caption', 'media_type', 'media_product_type', 'like_count', 'comments_count', 'children_count', 'carousel_count', 'is_carousel', 'children_media_types', 'is_boosted'];
   const insightCols = ['media_id', 'fetched_at', 'reach', 'saved', 'shares', 'total_interactions', 'profile_visits', 'follows', 'views', 'insight_error'];
   fs.writeFileSync(path.join(outDir, `${day}_media_raw.csv`), toCsv(mediaRows, mediaCols));
   fs.writeFileSync(path.join(outDir, `${day}_insights_raw.csv`), toCsv(insightRows, insightCols));

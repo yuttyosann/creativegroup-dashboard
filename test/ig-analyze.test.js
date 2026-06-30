@@ -1,7 +1,7 @@
 'use strict';
 const { test } = require('node:test');
 const assert = require('node:assert');
-const { computeFeatures, runCorrelations, topBottomCompare } = require('../lib/ig-analyze');
+const { computeFeatures, computeFeaturesWithStats, runCorrelations, topBottomCompare } = require('../lib/ig-analyze');
 
 // media行 + insights行のフィクスチャ（最小）
 const media = [
@@ -53,4 +53,76 @@ test('topBottomCompare: 上位/下位群の中央値とURLを返す', () => {
   assert.ok('carousel_count' in cmp.top.medians);
   assert.ok('engagement_rate' in cmp.top.medians);
   assert.ok(Array.isArray(cmp.top.permalinks));
+});
+
+// ---- 分析フィルタ（48時間未満 / 広告 / キャンペーン）----
+
+const NOW = Date.parse('2026-06-30T12:00:00Z');
+const baseMedia = (over) => Object.assign(
+  { media_id: 'x', carousel_count: 3, comments_count: 1, like_count: 5, permalink: 'https://insta/x' },
+  over,
+);
+const baseInsight = (over) => Object.assign({ media_id: 'x', reach: 500, saved: 10, shares: 2, total_interactions: 30 }, over);
+
+test('48時間未満の投稿は除外（timestampあり）', () => {
+  const m = [
+    baseMedia({ media_id: 'fresh', timestamp: '2026-06-30T00:00:00Z' }), // 12時間前 → 除外
+    baseMedia({ media_id: 'old', timestamp: '2026-06-25T00:00:00Z' }),   // 5日前 → 残す
+  ];
+  const i = [baseInsight({ media_id: 'fresh' }), baseInsight({ media_id: 'old' })];
+  const { features, excluded } = computeFeaturesWithStats(m, i, { now: NOW });
+  assert.deepStrictEqual(features.map((f) => f.media_id), ['old']);
+  assert.strictEqual(excluded.tooFresh, 1);
+});
+
+test('--keep-fresh相当: minAgeHours=0なら48時間未満も残す', () => {
+  const m = [baseMedia({ media_id: 'fresh', timestamp: '2026-06-30T00:00:00Z' })];
+  const i = [baseInsight({ media_id: 'fresh' })];
+  const { features } = computeFeaturesWithStats(m, i, { now: NOW, minAgeHours: 0 });
+  assert.strictEqual(features.length, 1);
+});
+
+test('timestampが無い投稿は48時間判定では除外しない', () => {
+  const m = [baseMedia({ media_id: 'x' })]; // timestampなし
+  const i = [baseInsight({})];
+  const { features, excluded } = computeFeaturesWithStats(m, i, { now: NOW });
+  assert.strictEqual(features.length, 1);
+  assert.strictEqual(excluded.tooFresh, 0);
+});
+
+test('is_boosted=true（広告）は除外', () => {
+  const m = [baseMedia({ media_id: 'ad', is_boosted: true }), baseMedia({ media_id: 'norm', is_boosted: false })];
+  const i = [baseInsight({ media_id: 'ad' }), baseInsight({ media_id: 'norm' })];
+  const { features, excluded } = computeFeaturesWithStats(m, i, { now: NOW });
+  assert.deepStrictEqual(features.map((f) => f.media_id), ['norm']);
+  assert.strictEqual(excluded.boosted, 1);
+});
+
+test('キャンペーン/プレゼント投稿はcaptionで除外', () => {
+  const m = [
+    baseMedia({ media_id: 'camp', caption: '【プレゼントキャンペーン】フォローで応募！' }),
+    baseMedia({ media_id: 'plain', caption: '新作コスメの成分解説です #スキンケア' }),
+  ];
+  const i = [baseInsight({ media_id: 'camp' }), baseInsight({ media_id: 'plain' })];
+  const { features, excluded } = computeFeaturesWithStats(m, i, { now: NOW });
+  assert.deepStrictEqual(features.map((f) => f.media_id), ['plain']);
+  assert.strictEqual(excluded.campaign, 1);
+});
+
+test('--keep-ads相当: 除外オフなら広告・キャンペーンも残す', () => {
+  const m = [
+    baseMedia({ media_id: 'ad', is_boosted: true }),
+    baseMedia({ media_id: 'camp', caption: 'プレゼント企画' }),
+  ];
+  const i = [baseInsight({ media_id: 'ad' }), baseInsight({ media_id: 'camp' })];
+  const { features } = computeFeaturesWithStats(m, i, { now: NOW, excludeBoosted: false, excludeCampaign: false });
+  assert.strictEqual(features.length, 2);
+});
+
+test('computeFeatures は computeFeaturesWithStats の features と一致', () => {
+  const m = [baseMedia({ media_id: 'x', timestamp: '2026-06-25T00:00:00Z' })];
+  const i = [baseInsight({})];
+  const a = computeFeatures(m, i, { now: NOW });
+  const b = computeFeaturesWithStats(m, i, { now: NOW }).features;
+  assert.deepStrictEqual(a, b);
 });

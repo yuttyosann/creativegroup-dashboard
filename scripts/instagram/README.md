@@ -61,7 +61,19 @@ node scripts/instagram/fetch_insights.js --limit 300
 npm run ig:analyze
 # 低リーチ投稿を除外
 node scripts/instagram/analyze.js --min-reach 100
+# 48時間未満の除外をやめる / 時間を変更
+node scripts/instagram/analyze.js --keep-fresh
+node scripts/instagram/analyze.js --min-age-hours 24
+# 広告・キャンペーン投稿も含める
+node scripts/instagram/analyze.js --keep-ads
 ```
+
+### 分析時の既定フィルタ
+`analyze.js` は既定で以下を除外する（除外件数はレポート冒頭に表示）:
+- **投稿48時間未満**（指標が安定しないため。`timestamp` で判定 → `--keep-fresh` / `--min-age-hours` で調整）
+- **広告投稿**（`is_boosted=true`。Graph APIで確実に取れないため、`media_raw` CSVの `is_boosted` 列を手動で `true` にしてマークする → `--keep-ads` で含める）
+- **キャンペーン/プレゼント投稿**（caption のキーワード検出。ヒューリスティックのため取りこぼし・誤除外あり → `--keep-ads` で含める）
+- reach欠損 / `--min-reach` 未満
 
 出力先: `分析レポート/instagram_data/`
 - `<日付>_media_raw.csv` / `<日付>_insights_raw.csv` … 取得生データ

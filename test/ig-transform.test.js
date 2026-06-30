@@ -49,6 +49,7 @@ test('buildMediaRow: APIメディアを行オブジェクトへ整形', () => {
   assert.strictEqual(row.children_media_types, 'IMAGE,IMAGE');
   assert.strictEqual(row.date, '2026-06-30');
   assert.strictEqual(row.hour, 12);
+  assert.strictEqual(row.is_boosted, false); // 広告フラグは既定false（手動マーク用）
 });
 
 test('parseInsights: name/values 配列を指標オブジェクトへ', () => {
