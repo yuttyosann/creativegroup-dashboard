@@ -1,7 +1,11 @@
 'use strict';
 const { test } = require('node:test');
 const assert = require('node:assert');
-const { computeAppealScore, WEIGHTS } = require('../../lib/kizuki/score');
+const {
+  computeAppealScore, WEIGHTS,
+  workshopScore, reviewScore, adScore, demoScore, collabScore,
+  vanityPenalty, confidenceStage, grade,
+} = require('../../lib/kizuki/score');
 
 test('WEIGHTS: 配点合計は100（虚栄控除を除く）', () => {
   const sum = WEIGHTS.workshop + WEIGHTS.review + WEIGHTS.ad + WEIGHTS.demo + WEIGHTS.collab;
@@ -14,8 +18,6 @@ test('computeAppealScore: 空シグナルは score 0・暫定・×', () => {
   assert.strictEqual(r.stage, '暫定');
   assert.strictEqual(r.grade, '×');
 });
-
-const { workshopScore, reviewScore, adScore, demoScore, collabScore } = require('../../lib/kizuki/score');
 
 test('workshopScore: 言及8＋ブランド未認知で満点15', () => {
   assert.strictEqual(workshopScore({ mentions: 8, brandUnaware: true }), 15);
@@ -45,12 +47,18 @@ test('collabScore: 適合100かつ実売ありで満点10', () => {
   assert.strictEqual(collabScore({ fitScore: 100, sales: 50 }), 10);
 });
 
-const { vanityPenalty } = require('../../lib/kizuki/score');
+test('collabScore: 実売のみ(適合なし)でも小スコア2（実売は証拠）', () => {
+  assert.strictEqual(collabScore({ sales: 50 }), 2); // 0.2 * 10
+});
 
 test('vanityPenalty: 言及多い(11)がCTR低い(0.6%)で減点される', () => {
   const p = vanityPenalty({ workshop: { mentions: 11 }, ad: { ctr: 0.6 } });
   assert.ok(p < 0, '減点されるべき');
   assert.strictEqual(p, -5); // (0.4-0.3)/0.4*20 = 5
+});
+
+test('vanityPenalty: 言及が満点上限ちょうど(8)では控除しない（境界）', () => {
+  assert.strictEqual(vanityPenalty({ workshop: { mentions: 8 }, ad: { ctr: 0.3 } }), 0);
 });
 
 test('vanityPenalty: 広告未測定なら控除しない（まだ判定不能）', () => {
@@ -64,8 +72,6 @@ test('vanityPenalty: 言及が少なければ控除しない', () => {
 test('vanityPenalty: CTRが十分高ければ控除しない', () => {
   assert.strictEqual(vanityPenalty({ workshop: { mentions: 11 }, ad: { ctr: 2.1 } }), 0);
 });
-
-const { confidenceStage, grade } = require('../../lib/kizuki/score');
 
 test('confidenceStage: 広告データありで広告確定', () => {
   assert.strictEqual(confidenceStage({ ad: { ctr: 1.0 } }), '広告確定');
