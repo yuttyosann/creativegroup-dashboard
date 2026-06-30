@@ -83,7 +83,7 @@ function _kzLedger(ss) {
   sh.getRange(4, 7, 60, 1).setDataValidation(KZ_DV(['候補', 'モニター', '広告検証', '勝ち', '見送り']));
   sh.getRange(4, 8, 60, 1).setDataValidation(KZ_DV(['暫定', 'レビュー反映', '広告確定']));
   sh.getRange(4, 10, 60, 1).setDataValidation(KZ_DV(['◎', '○', '△', '×']));
-  sh.getRange(3, 9).setNote('lib/kizuki/score.js の computeAppealScore で算出（100点満点＋虚栄控除）。Phase1は手入力/サンプル。Phase2でコックピットが自動反映。');
+  sh.getRange(3, 9).setNote('lib/kizuki/score.js の computeAppealScore で算出（100点満点＋虚栄控除）。\nPhase1は手入力。サンプル値(87/64/28)は説明用でエンジン出力とは独立（例: w002は表示64○だがレビューのみだとエンジンは×）。\n★Phase2でコックピットがエンジン値で自動上書きする。Phase2開始前に手入力サンプル行は削除すること。');
   sh.getRange(3, 3).setNote('word_id が全シグナルシートを串刺しする連携キー。');
 }
 
@@ -123,6 +123,7 @@ function _kzAd(ss) {
   sh.getRange(4, 4, 60, 1).setNumberFormat('0.0%');
   sh.getRange(4, 8, 60, 1).setNumberFormat('#,##0');
   sh.getRange(3, 7).setNote('刺さる層が立っているか 0..1。後工程のインフル選定精度に直結。');
+  sh.getRange(3, 3).setNote('★Phase2連携メモ：CTR%/CVR%は"2.1%"のテキストで保存。getValues()では文字列で返るため parseFloat(v.replace("%","")) で数値化してから score.js の ad.ctr/ad.cvr に渡すこと。ROAS・デモグラ明確度・配信額は数値そのまま。');
 }
 
 // ④コラボ実績
