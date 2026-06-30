@@ -64,3 +64,24 @@ test('vanityPenalty: 言及が少なければ控除しない', () => {
 test('vanityPenalty: CTRが十分高ければ控除しない', () => {
   assert.strictEqual(vanityPenalty({ workshop: { mentions: 11 }, ad: { ctr: 2.1 } }), 0);
 });
+
+const { confidenceStage, grade } = require('../../lib/kizuki/score');
+
+test('confidenceStage: 広告データありで広告確定', () => {
+  assert.strictEqual(confidenceStage({ ad: { ctr: 1.0 } }), '広告確定');
+});
+
+test('confidenceStage: レビューのみでレビュー反映', () => {
+  assert.strictEqual(confidenceStage({ review: { intentRate: 0.5 } }), 'レビュー反映');
+});
+
+test('confidenceStage: 勉強会のみで暫定', () => {
+  assert.strictEqual(confidenceStage({ workshop: { mentions: 5 } }), '暫定');
+});
+
+test('grade: 閾値（80◎/60○/40△/それ未満×）', () => {
+  assert.strictEqual(grade(80), '◎');
+  assert.strictEqual(grade(60), '○');
+  assert.strictEqual(grade(40), '△');
+  assert.strictEqual(grade(39), '×');
+});
