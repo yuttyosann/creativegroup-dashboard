@@ -37,17 +37,18 @@
   - SSH接続情報を控える: ホスト名（例 `svXXXX.xserver.jp`）／ユーザー名（サーバーID）／ポート `10022`
 
 - [ ] **Step 3: `stg.pamun.jp` サブドメインを作成**
-  - Xserverパネル →「サブドメイン設定」→ `stg.pamun.jp` を追加
-  - 生成されるドキュメントルート（通常 `/home/<serverID>/pamun.jp/public_html/stg/`）を控える
+  - Xserverパネル →「サブドメイン設定」→ `stg.pamun.jp` を追加＋無料SSLを有効化
+  - ⚠️ Xserverはサブドメインのフォルダ名を**フルのサブドメイン名**で作る。ドキュメントルートは `/home/<serverID>/pamun.jp/public_html/stg.pamun.jp/`（`stg/` ではない）
   - 本番LPのドキュメントルートは `/home/<serverID>/pamun.jp/public_html/monitor/`（CIが自動作成するので手動作成不要）
+  - **本環境の実測値（2026-07-09確認済）**: serverID=`buzzreach` / host=`sv5149.xserver.jp` / stg=`/home/buzzreach/pamun.jp/public_html/stg.pamun.jp/` / prod=`/home/buzzreach/pamun.jp/public_html/monitor/`
 
 - [ ] **Step 4: GitHub リポジトリに Secrets を登録**（Settings → Secrets and variables → Actions）
   - `SSH_PRIVATE_KEY`: `~/.ssh/pamun_lp_ci` の中身（秘密鍵）
   - `SSH_HOST`: Xserverホスト名（例 `svXXXX.xserver.jp`）
   - `SSH_USER`: XserverサーバーID
   - `SSH_PORT`: `10022`
-  - `REMOTE_STG_PATH`: `/home/<serverID>/pamun.jp/public_html/stg/`
-  - `REMOTE_PROD_PATH`: `/home/<serverID>/pamun.jp/public_html/monitor/`
+  - `REMOTE_STG_PATH`: `/home/buzzreach/pamun.jp/public_html/stg.pamun.jp/`
+  - `REMOTE_PROD_PATH`: `/home/buzzreach/pamun.jp/public_html/monitor/`
 
 - [ ] **Step 5: 完了確認**
   - ローカルから `ssh -p 10022 <serverID>@<host> -i ~/.ssh/pamun_lp_ci "pwd"` が成功することを確認
