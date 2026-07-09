@@ -537,10 +537,11 @@ test('asset URLs honor the base path', () => {
 ```json
 {
   "scripts": {
-    "test": "node --test test/"
+    "test": "node --test test/*.test.mjs"
   }
 }
 ```
+> 注: `node --test test/`（ディレクトリ指定）はNode24でトップレベル失敗するため、glob指定 `test/*.test.mjs` を使う（実装時に確認済）。
 
 - [ ] **Step 3: staging想定（base=/）でテストが通ることを確認**
 
