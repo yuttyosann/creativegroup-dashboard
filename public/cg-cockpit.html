@@ -116,6 +116,7 @@ const STEPS = [
   {id:"prompts", t:"5. 診断プロンプト", sub:"インフルエンサー分析・マッチング診断をコピー"},
   {id:"record", t:"6. 記録する", sub:"提案ログDBに提案・採用・成果を貯める"},
   {id:"result", t:"実績", sub:"案件完了後の実績(ROAS)を入力し候補DBに反映"},
+  {id:"kizuki", t:"気づきワード", sub:"勉強会→広告の訴求を台帳でスコア化し、勝ち訴求を診断へ渡す"},
   {id:"check", t:"7. チェックリスト", sub:"各案件で確認すること"},
   {id:"manual", t:"8. マニュアル", sub:"各工程の目的・操作手順・注意点（詳細版）"},
 ];
@@ -404,6 +405,16 @@ piii_xx_01"></textarea>
       <select id="rs_case" onchange="onResultCaseChange()"><option value="">―</option></select>
       <div id="rs_rows" style="margin-top:10px;font-size:12.5px"></div>
       <div style="margin-top:8px"><button class="btn" onclick="addResultRow()">＋ インフルを手動追加</button></div></div>`;
+  },
+  kizuki(){
+    return `<div class="card"><h3>🧩 気づきワード台帳</h3>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn" onclick="kzLoad()">読み込み</button>
+        <button class="btn" onclick="kzRecalc()">スコア再計算（台帳へ書き戻し）</button>
+        <span style="color:var(--muted)">現在の案件：<b id="kzCase">-</b></span>
+      </div>
+      <div id="kzList" style="margin-top:10px;color:var(--muted)">「読み込み」を押してください。</div>
+    </div>`;
   },
   check(){
     const items=["ヒアリングシートで商品情報を取得した","商品分析で需要タイプ・肌悩みを抽出した","候補を3パターンのいずれかで抽出した",
@@ -904,6 +915,45 @@ window.updateCaseStatus=async(case_id,status)=>{
     if(r&&r.ok===false){ alert("ステータス更新に失敗: "+(r.error||"")); await loadCases(); return; }
   }catch(e){ alert("ステータス更新に失敗: "+e.message); await loadCases(); return; }
   await renderCaseBar();
+};
+
+function kzGrade(g){ return {'◎':'#16a34a','○':'#ca8a04','△':'#b45309','×':'#dc2626'}[g] || '#64748b'; }
+
+window.kzLoad = async ()=>{
+  const cid = (typeof caseId==="function") ? caseId() : "";
+  document.getElementById("kzCase").textContent = cid || "（未設定＝全件）";
+  const box = document.getElementById("kzList"); box.textContent = "読み込み中…";
+  const r = await apiGet("/api/cockpit/kizuki/words" + (cid?("?case_id="+encodeURIComponent(cid)):""));
+  if(!r || !r.ok){ box.textContent = "取得に失敗しました。"; return; }
+  if(!r.words.length){ box.textContent = "気づきワードがありません。"; return; }
+  box.innerHTML = r.words.map(w=>{
+    const c = w.computed || {};
+    return `<div class="card">
+      <div><b>${w.word||w.wordId}</b> <span class="muted">[${w.axis||""}]</span></div>
+      <div>再計算：<b style="color:${kzGrade(c.grade)}">${c.score} ${c.grade}</b>
+        <span class="muted">/ ${c.stage||""}（保存値：${(w.saved&&w.saved.score)||"-"} ${(w.saved&&w.saved.grade)||""}）</span></div>
+      <div class="muted">勝ちデモグラ：${w.demographics||"—"}</div>
+      <button class="btn" onclick="kzToDiagnosis('${w.wordId}')">この訴求で診断入力を作る</button>
+      <pre class="kzOut" id="kzOut-${w.wordId}" style="display:none"></pre>
+    </div>`;
+  }).join("");
+};
+
+window.kzRecalc = async ()=>{
+  const cid = (typeof caseId==="function") ? caseId() : "";
+  if(!confirm("台帳の訴求スコア/判定/確度ステージを再計算して上書きします。よろしいですか？")) return;
+  const r = await api("/api/cockpit/kizuki/recalc", cid?{case_id:cid}:{});
+  alert(r && r.ok ? (r.updated+"件のワードを更新しました。") : "再計算に失敗しました。");
+  if(r && r.ok) window.kzLoad();
+};
+
+window.kzToDiagnosis = async (wordId)=>{
+  const r = await api("/api/cockpit/kizuki/to-diagnosis", {word_id:wordId});
+  const pre = document.getElementById("kzOut-"+wordId);
+  if(!r || !r.ok){ pre.style.display="block"; pre.textContent="生成に失敗しました。"; return; }
+  pre.style.display="block";
+  pre.textContent = "▼ 商品サマリー（M01/M02の根拠）\n" + r.productSummary + "\n\n▼ 条件（M04客層）\n" + r.conditions
+    + "\n\n※「5. 診断プロンプト」タブの入力に貼り付けて使ってください。";
 };
 
 let current="flow";
