@@ -99,3 +99,17 @@ test('buildWordRows: caseId でフィルタ（不一致は除外）', () => {
   };
   assert.strictEqual(buildWordRows(tabs, 'C-AVENE').length, 0);
 });
+
+const { buildLedgerScoreUpdate } = require('../../lib/kizuki/ledger-store');
+
+test('buildLedgerScoreUpdate: 確度/スコア/判定/最終更新のみ更新し他列は保持', () => {
+  const row = ['C-AVENE','AV01','w1','乾燥…','使用シーン','勉強会','勝ち','暫定',10,'×','メモ','2026/06/30'];
+  const out = buildLedgerScoreUpdate(row, { score: 89, grade: '◎', stage: '広告確定' }, new Date('2026-07-09T00:00:00Z'));
+  assert.strictEqual(out[7], '広告確定'); // stage
+  assert.strictEqual(out[8], 89);        // score
+  assert.strictEqual(out[9], '◎');        // grade
+  assert.strictEqual(out[11], '2026-07-09'); // updated
+  assert.strictEqual(out[3], '乾燥…');    // 保持
+  assert.strictEqual(out[10], 'メモ');     // 保持
+  assert.notStrictEqual(out, row);        // 非破壊（新配列）
+});
