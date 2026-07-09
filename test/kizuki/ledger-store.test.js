@@ -44,7 +44,28 @@ test('parseCollabRow: 適合と実売', () => {
     { wordId: 'w001', fitScore: 87, sales: 320 });
 });
 
-const { aggregateSignals, buildWordRows } = require('../../lib/kizuki/ledger-store');
+const { aggregateSignals, buildWordRows, winningDemographics } = require('../../lib/kizuki/ledger-store');
+
+test('winningDemographics: CTR最大の行のデモグラを返す（M04客層の決定）', () => {
+  const ad = [
+    { wordId: 'w1', ctr: 1.0, demographics: '20代' },
+    { wordId: 'w1', ctr: 2.5, demographics: '30代/敏感肌' },
+    { wordId: 'w2', ctr: 9.0, demographics: '別ワード' },
+  ];
+  assert.strictEqual(winningDemographics('w1', ad), '30代/敏感肌');
+});
+
+test('winningDemographics: デモグラ空の行は除外', () => {
+  const ad = [
+    { wordId: 'w1', ctr: 5.0, demographics: '' },
+    { wordId: 'w1', ctr: 1.0, demographics: '40代' },
+  ];
+  assert.strictEqual(winningDemographics('w1', ad), '40代');
+});
+
+test('winningDemographics: 該当ad行が無ければ空文字', () => {
+  assert.strictEqual(winningDemographics('w9', [{ wordId: 'w1', ctr: 3.0, demographics: '30代' }]), '');
+});
 
 test('aggregateSignals: 言及は合算・広告は平均・明確度は最大・未認知はor', () => {
   const parsed = {
