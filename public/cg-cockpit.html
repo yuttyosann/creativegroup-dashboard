@@ -929,10 +929,10 @@ window.kzLoad = async ()=>{
   box.innerHTML = r.words.map(w=>{
     const c = w.computed || {};
     return `<div class="card">
-      <div><b>${w.word||w.wordId}</b> <span class="muted">[${w.axis||""}]</span></div>
+      <div><b>${w.word||w.wordId}</b> <span style="color:var(--muted)">[${w.axis||""}]</span></div>
       <div>再計算：<b style="color:${kzGrade(c.grade)}">${c.score} ${c.grade}</b>
-        <span class="muted">/ ${c.stage||""}（保存値：${(w.saved&&w.saved.score)||"-"} ${(w.saved&&w.saved.grade)||""}）</span></div>
-      <div class="muted">勝ちデモグラ：${w.demographics||"—"}</div>
+        <span style="color:var(--muted)">/ ${c.stage||""}（保存値：${(w.saved&&w.saved.score)||"-"} ${(w.saved&&w.saved.grade)||""}）</span></div>
+      <div style="color:var(--muted)">勝ちデモグラ：${w.demographics||"—"}</div>
       <button class="btn" onclick="kzToDiagnosis('${w.wordId}')">この訴求で診断入力を作る</button>
       <pre class="kzOut" id="kzOut-${w.wordId}" style="display:none"></pre>
     </div>`;
