@@ -23,7 +23,7 @@ test('buildAdSignalRow: Phase2広告シグナル列順で行を生成（デモ�
   assert.deepStrictEqual(row, ['w1', 'cr-1', '2.1%', '85.7%', '2.3', '30代/女性', '', 200000]);
 });
 
-test('buildAdSignalRow: imp0/clicks0/cost0 は該当セルを空に', () => {
+test('buildAdSignalRow: imp0/clicks0でCTR/CVR/ROASは空・配信額(cost)0は0のまま保持', () => {
   const row = buildAdSignalRow(
     { creative_id: 'cr-2', impressions: 0, clicks: 0, conversions: 0, cost: 0, revenue: 0, demographics: '' },
     'w2');
