@@ -5,54 +5,175 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Trepoトレンド大賞 実績シグナル収集</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Yomogi&family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#0f1115; --card:#181b22; --line:#2a2f3a; --ink:#e8ebf0; --sub:#9aa3b2; --accent:#5b8cff; --ok:#43c59e; --warn:#ffb454; }
+  :root {
+    --card:#ffffff; --line:#ffe0ec; --line2:#ffd0e0;
+    --ink:#6b4f5b; --sub:#c093a6;
+    --pink:#ff7fa8; --pink2:#ffa9c9; --coral:#ff8f9c;
+    --mint:#57cfae; --lav:#b49cf0; --sun:#ffc36b;
+    --grad:linear-gradient(135deg,#ffa9c9 0%,#ff7fa8 100%);
+    --soft:0 12px 30px rgba(255,138,178,.20);
+    --soft-sm:0 6px 16px rgba(255,138,178,.16);
+    --round:22px;
+  }
   * { box-sizing:border-box; }
-  body { margin:0; font-family:-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif; background:var(--bg); color:var(--ink); }
-  header { padding:20px 24px; border-bottom:1px solid var(--line); }
-  h1 { font-size:18px; margin:0; }
-  .sub { color:var(--sub); font-size:13px; margin-top:4px; }
-  main { display:grid; grid-template-columns:1.4fr 1fr; gap:16px; padding:16px 24px; align-items:start; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; }
-  .card h2 { font-size:14px; margin:0 0 12px; color:var(--sub); font-weight:600; letter-spacing:.02em; }
-  table { width:100%; border-collapse:collapse; font-size:13px; }
-  th,td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); }
-  th { color:var(--sub); font-weight:500; }
-  td.pt { text-align:center; width:42px; color:var(--sub); }
-  td.pt.has { color:var(--ok); font-weight:700; }
-  .pill { font-size:11px; color:var(--sub); border:1px solid var(--line); border-radius:999px; padding:1px 8px; }
-  .sigbar { display:flex; gap:14px; flex-wrap:wrap; margin:4px 0 14px; }
-  label.sig { font-size:13px; display:flex; gap:6px; align-items:center; cursor:pointer; }
-  button { background:var(--accent); color:#fff; border:0; border-radius:9px; padding:10px 18px; font-size:14px; cursor:pointer; }
-  button:disabled { opacity:.5; cursor:not-allowed; }
-  .muted { color:var(--sub); font-size:12px; }
-  .status { font-size:13px; margin-bottom:8px; }
-  .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:middle; }
-  .running { background:var(--warn); } .done { background:var(--ok); } .error { background:#ff5a5a; } .idle { background:var(--sub); }
-  pre.log { background:#0b0d12; border:1px solid var(--line); border-radius:8px; padding:10px; font-size:12px; line-height:1.5; max-height:300px; overflow:auto; white-space:pre-wrap; color:#cdd3df; }
-  .note { font-size:12px; color:var(--sub); line-height:1.6; margin-top:10px; }
-  .tools { display:flex; align-items:center; gap:12px; margin-top:8px; }
-  a { color:var(--accent); }
-  #gate { position:fixed; inset:0; background:var(--bg); display:none; align-items:center; justify-content:center; z-index:50; }
-  #gate .box { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:32px 36px; text-align:center; }
-  #gate h2 { margin:0 0 6px; font-size:16px; }
-  #gate p { color:var(--sub); font-size:13px; margin:0 0 18px; }
-  #gerr { color:#ff7a7a; font-size:13px; margin-top:12px; min-height:18px; }
+  body {
+    margin:0; color:var(--ink);
+    font-family:"M PLUS Rounded 1c",-apple-system,"Hiragino Maru Gothic ProN",sans-serif;
+    background:
+      radial-gradient(circle at 12% 8%, #fff0f6 0, transparent 42%),
+      radial-gradient(circle at 88% 4%, #e9fbf4 0, transparent 38%),
+      radial-gradient(circle at 92% 96%, #fff4e8 0, transparent 40%),
+      linear-gradient(165deg,#fff8f4 0%,#ffeef6 100%);
+    background-attachment:fixed;
+    min-height:100vh;
+  }
+  /* ふんわりドット模様 */
+  body::before {
+    content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:radial-gradient(rgba(255,150,190,.14) 1.4px, transparent 1.6px);
+    background-size:22px 22px;
+  }
+  header, main { position:relative; z-index:1; }
+
+  header {
+    text-align:center; padding:34px 20px 22px;
+  }
+  header .badge-emoji { font-size:30px; filter:drop-shadow(0 4px 6px rgba(255,140,175,.4)); }
+  h1 {
+    font-family:"Yomogi",cursive; font-weight:700;
+    font-size:30px; margin:6px 0 2px; color:var(--pink);
+    letter-spacing:.02em;
+  }
+  h1 .spark { display:inline-block; animation:twinkle 2.4s ease-in-out infinite; }
+  h1 .spark:nth-child(3){ animation-delay:1.2s; }
+  @keyframes twinkle { 0%,100%{opacity:1;transform:scale(1) rotate(0)} 50%{opacity:.55;transform:scale(.8) rotate(12deg)} }
+  header .sub { color:var(--sub); font-size:13.5px; margin-top:6px; font-weight:500; }
+
+  main {
+    display:grid; grid-template-columns:1.35fr 1fr; gap:20px;
+    padding:8px 26px 46px; max-width:1180px; margin:0 auto; align-items:start;
+  }
+  @media (max-width:820px){ main{ grid-template-columns:1fr; } }
+
+  .card {
+    background:var(--card); border:2px solid var(--line);
+    border-radius:var(--round); padding:20px 20px 22px; box-shadow:var(--soft);
+    animation:rise .6s cubic-bezier(.2,.8,.2,1) both;
+  }
+  .card:nth-child(2){ animation-delay:.1s; }
+  @keyframes rise { from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none} }
+  .card h2 {
+    font-size:15px; margin:0 0 14px; color:var(--pink); font-weight:800;
+    display:flex; align-items:center; gap:7px;
+  }
+  .card h2::before { content:"🎀"; font-size:15px; }
+  .card h2.sig::before { content:"🌷"; }
+  .card h2.job::before { content:"⏳"; }
+
+  table { width:100%; border-collapse:separate; border-spacing:0 7px; font-size:13.5px; }
+  th { text-align:left; padding:0 10px 4px; color:var(--sub); font-weight:700; font-size:12px; }
+  th.pt, td.pt { text-align:center; width:46px; }
+  tbody tr { background:#fff6fa; box-shadow:var(--soft-sm); }
+  tbody tr:hover { background:#fff0f6; }
+  td { padding:11px 10px; border:none; }
+  td:first-child { border-radius:14px 0 0 14px; width:34px; text-align:center; }
+  td:last-child { border-radius:0 14px 14px 0; }
+  .name { font-weight:700; }
+  .muted { color:var(--sub); font-size:11.5px; font-weight:500; }
+  .pill {
+    font-size:10.5px; color:#c76b93; background:#ffe6f0; border:1px solid var(--line2);
+    border-radius:999px; padding:1px 9px; font-weight:700;
+  }
+  /* 得点バッジ（丸くて可愛い） */
+  .badge {
+    display:inline-flex; align-items:center; justify-content:center;
+    width:30px; height:30px; border-radius:50%; font-weight:800; font-size:14px;
+    background:#fdf0f5; color:#d9b3c4; border:2px dashed #ffd4e4;
+  }
+  .badge.has { color:#fff; border:none; box-shadow:0 4px 10px rgba(255,130,170,.35); }
+  td.pt:nth-of-type(3) .badge.has { background:var(--pink); }     /* SNS */
+  td.pt:nth-of-type(4) .badge.has { background:var(--mint); }     /* 検索 */
+  td.pt:nth-of-type(5) .badge.has { background:var(--lav); }      /* 媒体 */
+
+  /* シグナル選択（トグルピル） */
+  .sigbar { display:flex; gap:10px; flex-wrap:wrap; margin:2px 0 16px; }
+  label.sig {
+    font-size:13px; font-weight:700; display:inline-flex; gap:7px; align-items:center;
+    cursor:pointer; padding:8px 14px; border-radius:999px;
+    background:#fff4f9; border:2px solid var(--line); color:var(--sub); transition:.18s;
+  }
+  label.sig input { accent-color:var(--pink); width:15px; height:15px; }
+  label.sig:has(input:checked){ background:#ffe9f2; border-color:var(--pink2); color:#d24d7e; }
+  label.sig:hover{ transform:translateY(-1px); }
+
+  .tools { display:flex; align-items:center; gap:14px; margin-top:6px; }
+  button {
+    font-family:inherit; background:var(--grad); color:#fff; border:0;
+    border-radius:999px; padding:13px 26px; font-size:15px; font-weight:800;
+    cursor:pointer; box-shadow:0 8px 20px rgba(255,127,168,.42); transition:.18s;
+  }
+  button::before { content:"🍓 "; }
+  button:hover:not(:disabled){ transform:translateY(-2px) scale(1.02); }
+  button:active:not(:disabled){ transform:translateY(0) scale(.98); }
+  button:disabled { background:#f3d9e4; color:#fff; box-shadow:none; cursor:not-allowed; }
+  #selCount { color:var(--sub); font-size:12.5px; font-weight:700; }
+
+  .status { font-size:13.5px; margin:2px 0 10px; font-weight:700; }
+  .dot { display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:7px; vertical-align:middle; box-shadow:0 0 0 4px rgba(0,0,0,.03); }
+  .idle{ background:#e6c7d5; } .running{ background:var(--sun); animation:pulse 1s infinite; }
+  .done{ background:var(--mint); } .error{ background:#ff6f8b; }
+  @keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  pre.log {
+    background:#fff8fb; border:2px solid var(--line); border-radius:16px; padding:12px 14px;
+    font-size:12px; line-height:1.65; max-height:300px; overflow:auto; white-space:pre-wrap;
+    color:#8a6a78; font-family:"M PLUS Rounded 1c",monospace; margin:0;
+  }
+  .note { font-size:12px; color:var(--sub); line-height:1.75; margin-top:14px; font-weight:500;
+    background:#fff6fa; border-radius:14px; padding:12px 14px; border:1px dashed var(--line2); }
+  .note b { color:#d24d7e; }
+  a { color:var(--pink); }
+
+  /* ログインゲート */
+  #gate {
+    position:fixed; inset:0; z-index:50; display:none; align-items:center; justify-content:center;
+    background:
+      radial-gradient(circle at 20% 20%, #fff0f6 0, transparent 45%),
+      linear-gradient(165deg,#fff8f4,#ffe6f1);
+  }
+  #gate .box {
+    background:#fff; border:2px solid var(--line); border-radius:28px;
+    padding:40px 44px; text-align:center; box-shadow:var(--soft); max-width:360px;
+    animation:rise .5s ease both;
+  }
+  #gate .emoji { font-size:46px; }
+  #gate h2 { font-family:"Yomogi",cursive; color:var(--pink); margin:8px 0 4px; font-size:22px; }
+  #gate p { color:var(--sub); font-size:13px; margin:0 0 20px; font-weight:500; line-height:1.7; }
+  #gbtn { display:flex; justify-content:center; }
+  #gerr { color:#ff6f8b; font-size:12.5px; margin-top:14px; min-height:18px; font-weight:700; }
 </style>
 </head>
 <body>
 <div id="gate">
   <div class="box">
-    <h2>📊 実績シグナル収集ツール</h2>
-    <p>Trepo編集部メンバーのGoogleアカウントでログインしてください。</p>
+    <div class="emoji">🎀✨</div>
+    <h2>Trepoトレンド大賞</h2>
+    <p>編集部メンバーのGoogleアカウントで<br>ログインしてね</p>
     <div id="gbtn"></div>
     <div id="gerr"></div>
   </div>
 </div>
+
 <header>
-  <h1>📊 Trepoトレンド大賞 実績シグナル収集</h1>
-  <div class="sub">候補を選んで「取得」を押すと、裏で検索・SNS・メディアのデータを取得し、Notion候補プールDBに書き戻します。</div>
+  <div class="badge-emoji">🎀</div>
+  <h1><span class="spark">✨</span> トレンド大賞 実績シグナル収集 <span class="spark">✨</span></h1>
+  <div class="sub">候補を選んで「取得」を押すと、検索・SNS・メディアのデータを集めてNotionに反映するよ 🩷</div>
 </header>
+
 <main>
   <section class="card">
     <h2>候補プール</h2>
@@ -60,21 +181,21 @@
   </section>
 
   <section class="card">
-    <h2>取得するシグナル</h2>
+    <h2 class="sig">取得するシグナル</h2>
     <div class="sigbar" id="sigbar"></div>
     <div class="tools">
       <button id="runBtn" disabled>選択した候補で取得</button>
-      <span id="selCount" class="muted">0件選択</span>
+      <span id="selCount">0件選択</span>
     </div>
 
-    <h2 style="margin-top:18px;">ジョブ状況</h2>
+    <h2 class="job" style="margin-top:22px;">ジョブ状況</h2>
     <div class="status"><span id="dot" class="dot idle"></span><span id="statusText">待機中</span></div>
     <pre class="log" id="log">（ここに進捗が表示されます）</pre>
 
     <div class="note">
       ※ <b>SNS話題量</b>はApify、<b>検索の伸び</b>はGoogle Trends、<b>メディア掲載</b>はGoogle News＋PR TIMESから自動取得します。<br>
-      ※ <b>インフル反響</b>・<b>売上実績</b>、および <b>TikTok Creative Center の急上昇チェック</b>は手動です（マニュアル参照）。<br>
-      ※ 点数は「空欄のときだけ」自動入力します（編集部が手入力した点は上書きしません）。
+      ※ <b>インフル反響</b>・<b>売上実績</b>、および <b>TikTok Creative Center の急上昇チェック</b>は手動です。<br>
+      ※ 点数は「空欄のときだけ」自動入力します（手入力した点は上書きしません）。
     </div>
   </section>
 </main>
@@ -104,7 +225,7 @@ async function init() {
     const render = () => {
       if (!(window.google && google.accounts)) return setTimeout(render, 200);
       google.accounts.id.initialize({ client_id: cfg.clientId, callback: window.onGoogleCredential });
-      google.accounts.id.renderButton(document.getElementById("gbtn"), { theme: "filled_blue", size: "large" });
+      google.accounts.id.renderButton(document.getElementById("gbtn"), { theme: "filled_blue", size: "large", shape: "pill" });
     };
     render();
   } else {
@@ -127,12 +248,12 @@ async function loadCandidates() {
 }
 
 function renderCandidates() {
-  if (!candidates.length) { $("#candWrap").innerHTML = `<div class="muted">候補がありません。候補プールDBに候補を追加してください。</div>`; return; }
+  if (!candidates.length) { $("#candWrap").innerHTML = `<div class="muted">候補がありません。候補プールDBに候補を追加してください🌱</div>`; return; }
   const rows = candidates.map(c => {
-    const pt = (v) => `<td class="pt ${v!=null?'has':''}">${v??'—'}</td>`;
+    const pt = (v) => `<td class="pt"><span class="badge ${v!=null?'has':''}">${v??'·'}</span></td>`;
     return `<tr>
       <td><input type="checkbox" class="candchk" value="${c.id}" ${selected.has(c.id)?'checked':''}></td>
-      <td>${esc(c.name)}<div class="muted">${esc(c.category||'')} <span class="pill">${esc(c.inflow||'')}</span></div></td>
+      <td><span class="name">${esc(c.name)}</span><div class="muted">${esc(c.category||'')} <span class="pill">${esc(c.inflow||'')}</span></div></td>
       ${pt(c.points.sns)}${pt(c.points.search)}${pt(c.points.media)}
     </tr>`;
   }).join("");
@@ -171,7 +292,7 @@ function poll(jobId) {
     if (job.status === "running") setStatus("running", "取得中…");
     else {
       clearInterval(iv);
-      setStatus(job.status, job.status==="done" ? "完了しました" : ("エラー: "+(job.error||"")));
+      setStatus(job.status, job.status==="done" ? "完了しました 🎉" : ("エラー: "+(job.error||"")));
       $("#runBtn").disabled = false;
       loadCandidates(); // 書き戻した点を反映
     }
