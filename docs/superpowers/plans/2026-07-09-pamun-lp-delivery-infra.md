@@ -50,7 +50,11 @@
   - `REMOTE_STG_PATH`: `/home/buzzreach/pamun.jp/public_html/stg.pamun.jp/`
   - `REMOTE_PROD_PATH`: `/home/buzzreach/pamun.jp/public_html/monitor/`
 
-- [ ] **Step 5: 完了確認**
+- [ ] **Step 5: Xserver「SSH国外アクセス制限」をOFFにする**（★実装時に必須と判明）
+  - Xserverパネル →「SSH設定」→「国外アクセス制限」→ **OFF**
+  - 理由: 初期状態ONだとGitHub Actions（米国IP）からのSSHが即切断される（`Connection closed by <ip>`）。公式も国外サーバー利用時はOFF必須と明記。認証は公開鍵のみなので安全性は保たれる。
+
+- [ ] **Step 6: 完了確認**
   - ローカルから `ssh -p 10022 <serverID>@<host> -i ~/.ssh/pamun_lp_ci "pwd"` が成功することを確認
 
 ---
@@ -624,12 +628,11 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
 
       - name: Deploy via rsync
         run: |
           rsync -avz --delete \
-            -e "ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_ed25519" \
+            -e "ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/dev/null" \
             dist/ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:"${{ steps.target.outputs.remote_path }}"
 
