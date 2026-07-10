@@ -23,10 +23,10 @@ Google Ads API
    │ ① 日次fetch（creative粒度: imp/clicks/CV/cost/revenue/デモグラ）
    ▼
 BigQuery  cg_analytics.ad_creative_daily   ← 生KPIの置き場（source of truth）
-   │ ② JOIN  広告マッピング（creative_id ↔ word_id, Sheet・人が管理）
+   │ ② JOIN  広告マッピング（creative_id ↔ word_id, Sheet・人が管理＝自動管理の許可リスト）
    ▼
 ad-ingest：word_id対応づけ→広告シグナル行を生成（CTR%/CVR%整形・勝ちデモグラ・配信額）
-   │ ③ 「広告シグナル」タブ（Sheet）を洗い替え（冪等）
+   │ ③ 「広告シグナル」タブ（Sheet）を creative_id で upsert（マッピング済みのみ・手入力行は不可侵）
    ▼
 recalc：ledger-store で全シグナル集約→computeAppealScore→台帳の訴求スコア/判定/確度を書戻し
    ▼
@@ -42,7 +42,7 @@ recalc：ledger-store で全シグナル集約→computeAppealScore→台帳の�
 | `bigquery/ad_creative_daily.sql`（新規） | BQテーブルDDL（creative日次KPIの置き場。日付パーティション） | — |
 | `scripts/google-ads/fetch_creatives.js`（新規） | Google Ads API から creative 日次KPIを取得→BQへ書込。認証は `.env`（developer token / OAuth refresh token / login-customer-id / customer-id） | 起動スモーク／`--dry-run`（外部API） |
 | **`lib/kizuki/ad-ingest.js`（新規・純粋・要テスト）** | BQ行＋マッピング行 → 広告シグナル行（word_id対応・CTR/CVR%整形・ROAS・勝ちデモグラ・配信額）を生成 | `node:test` |
-| `scripts/kizuki/recalc_job.js`（新規） | バッチ本体：BQ+マッピング読取 → `ad-ingest` で広告シグナルタブ洗い替え → `ledger-store` でスコア再計算し台帳へ書戻し | 起動スモーク（内部は単体テストで担保） |
+| `scripts/kizuki/recalc_job.js`（新規） | バッチ本体：BQ+マッピング読取 → `ad-ingest` で広告シグナルタブを creative_id upsert → `ledger-store` でスコア再計算し台帳へ書戻し | 起動スモーク（内部は単体テストで担保） |
 | Cloud Scheduler 設定（`docs` に gcloud 手順） | ①〜③ を日次（例 AM4）トリガー | — |
 | `.env.example` 追記 | Google Ads 認証・BQ project/dataset・SHEET_ID | — |
 
@@ -80,9 +80,9 @@ recalc：ledger-store で全シグナル集約→computeAppealScore→台帳の�
 1. BQ `ad_creative_daily` を creative 粒度で集計取得（直近ウィンドウ or 累計）。
 2. Sheet「広告マッピング」を `readRows` で取得。
 3. `ad-ingest.buildAdSignalRows(bqRows, mappingRows)` → 広告シグナル行。
-4. Sheet「広告シグナル」の**自動生成データ行を洗い替え**（ヘッダー保持・データ行を全置換）。→ Google Ads 分の手入力は不要に。
+4. Sheet「広告シグナル」を **creative_id で upsert**：マッピング表に載っている creative_id の行のみ、`(word_id, creative_id)` で既存行を更新（無ければ追加）。**マッピングに無い行（別媒体・手補正などの手入力）は一切触らない＝不可侵**。→ マッピング表＝自動管理の許可リスト。Google Ads 対象の creative は手入力不要。
 5. `ledger-store.buildWordRows` ＋ `buildLedgerScoreUpdate` で台帳の訴求スコア/判定/確度を再計算し `updateRowById` で書戻し（Phase 2 `/recalc` と同一ロジック）。
-6. 冪等：毎回現データから再生成。1ワードの失敗が他を止めない（try/継続）。
+6. 冪等：毎回現データから再生成（upsertなので手入力行は保持）。1ワードの失敗が他を止めない（try/継続）。
 
 ## スケジューリング／実行基盤
 
@@ -107,7 +107,7 @@ recalc：ledger-store で全シグナル集約→computeAppealScore→台帳の�
 ## オープン論点（実装時に確定）
 
 - BQ集計ウィンドウ（累計 vs 直近N日）＝訴求の「勝ち」をどの期間で見るか。初期は累計で開始し要調整。
-- 「広告シグナル」洗い替えが手入力行も消す点の運用周知（Google Ads 対象ワードは手入力しない）。
+- upsert の突合キーは `(word_id, creative_id)`。マッピング表を「自動管理する creative の許可リスト」として運用する周知（Google Ads 対象 creative はマッピングに登録し、広告シグナルへは手入力しない）。
 - Google Ads のデモグラ取得方法（別ビュー）と creative への割当ルール。
 - GCP プロジェクトID・データセット名・サービスアカウント権限の確定。
 
