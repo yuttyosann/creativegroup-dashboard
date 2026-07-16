@@ -76,6 +76,13 @@ test('tallyTrackA: 同一回答者が同じwordIdを重複回答しても1回と
   });
 });
 
+test('tallyTrackA: 同一回答者の重複回答は最初の回答が勝つ（①が先なら③は無視）', () => {
+  assert.deepStrictEqual(tallyTrackA([[{ wordId: 'w1', choice: 1 }, { wordId: 'w1', choice: 3 }]]), {});
+  assert.deepStrictEqual(tallyTrackA([[{ wordId: 'w1', choice: 3 }, { wordId: 'w1', choice: 1 }]]), {
+    w1: { count: 1, intentCount: 1, confidences: [] },
+  });
+});
+
 test('tallyTrackA: 空・不正な回答は無視', () => {
   assert.deepStrictEqual(tallyTrackA([]), {});
   assert.deepStrictEqual(tallyTrackA(undefined), {});
