@@ -38,6 +38,8 @@ const { nextId } = require('./lib/id-gen');
 const inf = require('./lib/influencer-store');
 const rst = require('./lib/result-store');
 const { buildAnalyzePrompt } = require('./lib/analyze-prompt');
+const kzLedger = require('./lib/kizuki/ledger-store');
+const kzDx = require('./lib/kizuki/diagnosis-input');
 const Anthropic = require('@anthropic-ai/sdk');
 const SHEET_ID = process.env.SHEET_ID;
 
@@ -378,6 +380,61 @@ app.post('/api/cockpit/results', requireAuth, async (req, res) => {
     const bad = /必須項目/.test(e.message);
     res.status(bad ? 400 : 500).json({ ok: false, error: String(e.message || e).slice(0, 300) });
   }
+});
+
+// --- 気づきワード（Phase 2） ---
+// 5タブをまとめて読む
+async function kzReadTabs() {
+  const [ledgerRows, workshopRows, reviewRows, adRows, collabRows] = await Promise.all([
+    readRows(SHEET_ID, kzLedger.TABS.LEDGER),
+    readRows(SHEET_ID, kzLedger.TABS.WORKSHOP),
+    readRows(SHEET_ID, kzLedger.TABS.REVIEW),
+    readRows(SHEET_ID, kzLedger.TABS.AD),
+    readRows(SHEET_ID, kzLedger.TABS.COLLAB),
+  ]);
+  return { ledgerRows, workshopRows, reviewRows, adRows, collabRows };
+}
+
+// 台帳＋シグナルを結合し、word_idごとに保存値と再計算プレビューを返す
+app.get('/api/cockpit/kizuki/words', requireAuth, async (req, res) => {
+  try {
+    const caseId = String(req.query.case_id || req.query.caseId || '');
+    const tabs = await kzReadTabs();
+    const words = kzLedger.buildWordRows(tabs, caseId);
+    res.json({ ok: true, words });
+  } catch (e) { res.status(500).json({ ok: false, error: String(e.message || e).slice(0, 300) }); }
+});
+
+// 全ワードのスコアを再計算し、台帳の確度/スコア/判定/最終更新を上書き
+app.post('/api/cockpit/kizuki/recalc', requireAuth, async (req, res) => {
+  try {
+    const caseId = String((req.body || {}).case_id || (req.body || {}).caseId || '');
+    const tabs = await kzReadTabs();
+    const words = kzLedger.buildWordRows(tabs, caseId);
+    const dataRows = tabs.ledgerRows.slice(1);
+    let updated = 0;
+    for (const w of words) {
+      const row = dataRows.find((r) => r[kzLedger.L.wordId] === w.wordId);
+      if (!row) continue;
+      const newRow = kzLedger.buildLedgerScoreUpdate(row, w.computed);
+      await updateRowById(SHEET_ID, kzLedger.TABS.LEDGER, kzLedger.L.wordId, w.wordId, newRow);
+      updated += 1;
+    }
+    res.json({ ok: true, updated });
+  } catch (e) { res.status(500).json({ ok: false, error: String(e.message || e).slice(0, 300) }); }
+});
+
+// 指定word_idの勝ちデータから診断入力（productSummary/conditions）を生成して返す
+app.post('/api/cockpit/kizuki/to-diagnosis', requireAuth, async (req, res) => {
+  try {
+    const wordId = String((req.body || {}).word_id || '');
+    if (!wordId) return res.status(400).json({ ok: false, error: '必須項目が不足しています: word_id' });
+    const tabs = await kzReadTabs();
+    const w = kzLedger.buildWordRows(tabs, '').find((x) => x.wordId === wordId);
+    if (!w) return res.status(404).json({ ok: false, error: 'word_idが見つかりません: ' + wordId });
+    const input = kzDx.buildDiagnosisInput({ word: w.word, axis: w.axis, demographics: w.demographics });
+    res.json({ ok: true, word_id: wordId, ...input });
+  } catch (e) { res.status(500).json({ ok: false, error: String(e.message || e).slice(0, 300) }); }
 });
 
 app.get('/', (req, res) => res.redirect('/cg-cockpit.html'));
