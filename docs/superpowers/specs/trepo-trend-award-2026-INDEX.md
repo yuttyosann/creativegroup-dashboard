@@ -68,21 +68,31 @@ Trepo編集部主催の年間アワード。**「客観データで候補を出�
 > ジャンル横断は **Google Trends＋TikTok Creative Center** を主軸（バックボーン）、
 > @cosme/ZOZO等のジャンル別ランキングは補強（エンリッチ）という2層構造。
 
-## 5-2. 次にやること（P1: 候補の自動生成 — 作業中）
+## 5-2. 候補の自動生成（P1 — ✅ 完了・本番稼働中）
 
-**目的**: 今のツールは「採点」しかできない。編集部が探さなくても候補が出る状態にする。
+**目的**: 今のツールは「採点」しかできない → 編集部が探さなくても候補が出る状態にした。
 
-**完成済み**（コミット `ac81153`）:
-- [scripts/apify/discover_tiktok.js](../../../scripts/apify/discover_tiktok.js) … シードのハッシュタグ→TikTok共起タグを発掘
-- [scripts/ai/filter_candidates.js](../../../scripts/ai/filter_candidates.js) … Claude(opus-4-8)で精選・カテゴリ補正・表記統一（実測 33件→16件）
+**パイプライン**（すべて本番の https://award.trepo.jp に載っている）:
+```
+シード設定DB（自動検索ON のハッシュタグ）
+  ↓ scripts/apify/discover_tiktok.js   … TikTok共起タグを発掘（ノイズ多）
+  ↓ scripts/ai/filter_candidates.js    … Claude(opus-4-8)で精選・カテゴリ補正・表記統一（実測33→16件）
+  ↓ 既存候補・シード自体・重複を除外
+「候補の提案」カードに一覧表示 → 編集部がチェック → POST /api/candidates/bulk → 候補プールDBへ登録
+```
 
-**残作業**:
-1. `award-signal-tool/lib/discover.js` を「発掘 → Claude精選 → **提案を返す**」に変更（**自動登録しない**）
-   ※ 現状は自動登録する実装。90件のノイズを登録してしまい全アーカイブした経緯あり
-2. フロントに「提案リスト＋チェックして採用」UI ＋ `POST /api/candidates/bulk`（選ばれた候補だけ登録）
-3. Cloud Run に `ANTHROPIC_API_KEY` シークレット追加（apify-tokenと同手順）→ ビルド＆デプロイ
+| 部品 | 役割 |
+|---|---|
+| `award-signal-tool/lib/discover.js` の `proposeCandidates()` | 発掘→精選→提案を返す。**Notionには一切書かない** |
+| `award-signal-tool/lib/discover.js` の `adoptCandidates()` | 承認された候補だけ登録。`createCandidate()` を呼ぶ唯一の経路 |
+| `POST /api/discover` | 提案ジョブを起動（`job.proposals` を返す） |
+| `POST /api/candidates/bulk` | 選ばれた候補だけ登録（`{created, skipped, failed}` を返す） |
 
-**設計思想**: 編集部は"探さず・評価する"。だから提案までは自動、DBに入れるのは承認後。
+**設計思想**: 編集部は"探さず・評価する"。だから提案までは自動、**DBに入れるのは人の承認後**。
+> ⚠️ 自動登録には絶対に戻さないこと。過去に90件のノイズを登録し、全アーカイブした経緯がある。
+
+**次にやること（P2候補）**: 発掘シードの拡充（シード設定DBの「自動検索ON」を増やす）／
+インフル反響(YouTube)の自動化／Phase 2 のBigQuery集約。
 
 ---
 

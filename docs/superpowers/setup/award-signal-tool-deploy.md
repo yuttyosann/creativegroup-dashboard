@@ -40,13 +40,25 @@ SEED_DB_ID=3832a9c9-20f7-811b-b44f-d11874a495c7,\
 GOOGLE_OAUTH_CLIENT_ID=＜クライアントID＞,\
 ALLOWED_HD=＜社内Workspaceドメイン 例 creativegroup.co.jp＞
 ```
-**機密（NOTION_TOKEN / APIFY_TOKEN）は Secret Manager を推奨**:
+**機密（NOTION_TOKEN / APIFY_TOKEN / ANTHROPIC_API_KEY）は Secret Manager を推奨**:
 ```
-echo -n "＜Notionトークン＞" | gcloud secrets create notion-token --data-file=-
-echo -n "＜Apifyトークン＞"  | gcloud secrets create apify-token  --data-file=-
+echo -n "＜Notionトークン＞"   | gcloud secrets create notion-token      --data-file=-
+echo -n "＜Apifyトークン＞"    | gcloud secrets create apify-token       --data-file=-
+echo -n "＜Anthropic APIキー＞" | gcloud secrets create anthropic-api-key --data-file=-
+
+# Cloud Run の実行サービスアカウントに読み取り権限を付与（新規シークレットごとに必要）
+SA=$(gcloud run services describe trepo-award-tool --region asia-northeast1 \
+       --format='value(spec.template.spec.serviceAccountName)')
+[ -z "$SA" ] && SA="$(gcloud projects describe PROJECT --format='value(projectNumber)')-compute@developer.gserviceaccount.com"
+gcloud secrets add-iam-policy-binding anthropic-api-key \
+  --member="serviceAccount:$SA" --role=roles/secretmanager.secretAccessor
+
 gcloud run services update trepo-award-tool --region asia-northeast1 \
-  --set-secrets NOTION_TOKEN=notion-token:latest,APIFY_TOKEN=apify-token:latest
+  --set-secrets NOTION_TOKEN=notion-token:latest,APIFY_TOKEN=apify-token:latest,ANTHROPIC_API_KEY=anthropic-api-key:latest
 ```
+> ⚠️ `--set-secrets` は**指定しなかったシークレットを外す**ので、必ず3つまとめて指定すること。
+> ANTHROPIC_API_KEY は候補提案のClaude精選（`scripts/ai/filter_candidates.js`）で使う。
+> ローカルはリポジトリ直下の `.env` から読むが、コンテナに `.env` は入らない（.dockerignore）ため必須。
 （簡易にやるなら `--set-env-vars` に直接 NOTION_TOKEN/APIFY_TOKEN を足してもよいが非推奨）
 
 → 払い出されたURL（`https://trepo-award-tool-xxxx.a.run.app`）を OAuthクライアントのJS生成元（手順1-3）に追加し忘れないこと。
@@ -70,7 +82,8 @@ gcloud beta run domain-mappings create --service trepo-award-tool \
 | CANDIDATE_DB_ID / SEED_DB_ID | 対象DB | ✅ |
 | GOOGLE_OAUTH_CLIENT_ID | ログイン | ✅（社内限定にするなら） |
 | ALLOWED_HD / ALLOWED_EMAILS | 許可リスト | ✅ |
-| APIFY_TOKEN | SNS話題量(TikTok)取得 | ○ |
+| APIFY_TOKEN | SNS話題量(TikTok)取得・候補の発掘 | ○ |
+| ANTHROPIC_API_KEY | 候補提案のClaude精選 | ○（「候補を提案してもらう」を使うなら） |
 | YOUTUBE_API_KEY | （将来）インフル反響 | 任意 |
 
 ## トラブルシュート
@@ -78,4 +91,6 @@ gcloud beta run domain-mappings create --service trepo-award-tool \
 - 403「許可されていないアカウント」→ `ALLOWED_HD`/`ALLOWED_EMAILS` を確認
 - 候補が「読み込み失敗」→ NOTION_TOKEN・DB ID、Notionインテグレーションの接続を確認
 - SNS話題量が 402 → Apifyのクレジット残高
+- 「候補を提案してもらう」が精選で失敗 → ANTHROPIC_API_KEY がサービスに付いているか
+  （`gcloud run services describe trepo-award-tool --region asia-northeast1 --format='yaml(spec.template.spec.containers[0].env)'`）
 - 検索の伸びが 429 → 一時的なレート制限。時間を空ける／`--sleep`を上げる（ツール側は既定で対策済み）

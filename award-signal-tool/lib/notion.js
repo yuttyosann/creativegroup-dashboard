@@ -74,6 +74,18 @@ export async function listSeeds() {
   });
 }
 
+/** 候補プールDBに新しい候補を作成（自動生成された候補用） */
+export async function createCandidate({ name, category, note }) {
+  const props = {
+    "対象名": { title: [{ text: { content: String(name).slice(0, 190) } }] },
+    "流入経路": { select: { name: "編集部リサーチ" } },
+    "段階": { select: { name: "0次" } },
+  };
+  if (category) props["カテゴリ"] = { select: { name: category } };
+  if (note) props["トレンドポイント"] = { rich_text: [{ text: { content: String(note).slice(0, 1990) } }] };
+  await notion("/pages", { method: "POST", body: { parent: { database_id: CAND_DB() }, properties: props } });
+}
+
 /**
  * シグナルの結果を候補ページに書き戻す。
  * _点は「空欄のときだけ」入れる（編集部の手入力を上書きしない）。_根拠は常に更新。
