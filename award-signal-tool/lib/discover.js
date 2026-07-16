@@ -12,7 +12,7 @@ import { listSeeds, listCandidates, createCandidate } from "./notion.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, "../..");
 
-function parseCSV(text) {
+export function parseCSV(text) {
   text = text.replace(/^﻿/, "");
   const rows = [];
   let field = "", row = [], inQ = false;
