@@ -68,6 +68,24 @@ Trepo編集部主催の年間アワード。**「客観データで候補を出�
 > ジャンル横断は **Google Trends＋TikTok Creative Center** を主軸（バックボーン）、
 > @cosme/ZOZO等のジャンル別ランキングは補強（エンリッチ）という2層構造。
 
+## 5-2. 次にやること（P1: 候補の自動生成 — 作業中）
+
+**目的**: 今のツールは「採点」しかできない。編集部が探さなくても候補が出る状態にする。
+
+**完成済み**（コミット `ac81153`）:
+- [scripts/apify/discover_tiktok.js](../../../scripts/apify/discover_tiktok.js) … シードのハッシュタグ→TikTok共起タグを発掘
+- [scripts/ai/filter_candidates.js](../../../scripts/ai/filter_candidates.js) … Claude(opus-4-8)で精選・カテゴリ補正・表記統一（実測 33件→16件）
+
+**残作業**:
+1. `award-signal-tool/lib/discover.js` を「発掘 → Claude精選 → **提案を返す**」に変更（**自動登録しない**）
+   ※ 現状は自動登録する実装。90件のノイズを登録してしまい全アーカイブした経緯あり
+2. フロントに「提案リスト＋チェックして採用」UI ＋ `POST /api/candidates/bulk`（選ばれた候補だけ登録）
+3. Cloud Run に `ANTHROPIC_API_KEY` シークレット追加（apify-tokenと同手順）→ ビルド＆デプロイ
+
+**設計思想**: 編集部は"探さず・評価する"。だから提案までは自動、DBに入れるのは承認後。
+
+---
+
 ## 6. 重要な前提・注意
 
 - 1〜5の正規化は**v0.1のヒューリスティック**（プール内5分位）。最終点は編集判断で上書き可、次サイクルで較正。
