@@ -164,6 +164,13 @@ app.post('/api/cockpit/astream-ingest', requireAuth, (req, res) => {
   runPythonCsv('scripts/astream/ingest_csv.py', csv, res);
 });
 
+// Astream X(旧Twitter) CSV → 候補DBに登録できる正規化行を返す
+app.post('/api/cockpit/astream-x-ingest', requireAuth, (req, res) => {
+  const csv = (req.body || {}).csv;
+  if (!csv) return res.status(400).json({ ok: false, error: 'CSVをアップロードしてください' });
+  runPythonCsv('scripts/astream/ingest_x_csv.py', csv, res);
+});
+
 // 商品分析 / マッチング診断（Claude Sonnet 4.6 でWeb完結）
 app.post('/api/cockpit/analyze', requireAuth, async (req, res) => {
   const { kind, payload } = req.body || {};

@@ -3,6 +3,24 @@
 `award-signal-tool/` を Cloud Run にデプロイし、Googleログインで社内限定にする手順。
 既存コックピットとは**別サービス・別ドメイン**で運用する。
 
+## ✅ 本番稼働情報（2026-06 デプロイ済み）
+
+| 項目 | 値 |
+|---|---|
+| 公開URL | **https://award.trepo.jp** |
+| Cloud Run URL | https://trepo-award-tool-620587423995.asia-northeast1.run.app |
+| GCPプロジェクト | cg-project-491303 |
+| サービス名 / リージョン | trepo-award-tool / asia-northeast1 |
+| イメージ | asia-northeast1-docker.pkg.dev/cg-project-491303/cg/trepo-award-tool |
+| シークレット | NOTION_TOKEN=notion-token、APIFY_TOKEN=apify-token（Secret Manager） |
+| 認証 | GOOGLE_OAUTH_CLIENT_ID＋ALLOWED_EMAILS（個別Gmail許可） |
+| ドメイン | award.trepo.jp（Cloud Run domain mapping・CNAME→ghs.googlehosted.com） |
+
+**再デプロイ（コード更新時）**: ビルド（手順2）→ `gcloud run deploy trepo-award-tool --image <上記> --region asia-northeast1 --project cg-project-491303`（env/シークレットは維持される）。
+**メンバー追加/削除**: `gcloud run services update trepo-award-tool --region asia-northeast1 --update-env-vars "^|^ALLOWED_EMAILS=a@x,b@y,..."`
+
+---
+
 > アプリ概要: [award-signal-tool/README.md](../../../award-signal-tool/README.md)
 > ⚠️ `gcloud` 実行・OAuth設定・ドメイン割当は **CG側（GCPオーナー）の作業**。
 
