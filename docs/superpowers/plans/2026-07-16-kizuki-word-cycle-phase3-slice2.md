@@ -1151,6 +1151,7 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 require('dotenv').config({ override: true });
 const Anthropic = require('@anthropic-ai/sdk');
 const { readRows, appendRow, updateRowAt, findRowNumberByKey } = require('../../lib/sheets');
+const { toNum } = require('../../lib/kizuki/format');
 const ledger = require('../../lib/kizuki/ledger-store');
 const reviewIngest = require('../../lib/kizuki/review-ingest');
 
@@ -1169,7 +1170,7 @@ async function readMapping() {
   const rows = await readRows(SHEET_ID, MAPPING_TAB);
   return rows.slice(1)
     .filter((r) => r[0] && r[1] && r[2])
-    .map((r) => ({ campaignId: r[0], reportName: r[1], caseId: r[2], n: ledger.toNum(r[3]) }));
+    .map((r) => ({ campaignId: r[0], reportName: r[1], caseId: r[2], n: toNum(r[3]) }));
 }
 
 /** 台帳から case の候補ワードを引く（word_id と表記のペア）。 */
@@ -1403,9 +1404,143 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 
 ---
 
+## Task 12: `format.js` の再エクスポート撤去（Task 1 の後始末）
+
+Task 1 では「既存テストを1行も変えない」ことを安全網にするため、`ad-ingest` と `ledger-store` に再エクスポートを残した。その足場が恒久化しないうちに剥がす。
+
+**なぜ今か:** 調査の結果、再エクスポート（`ad-ingest.pctStr` / `ad-ingest.ratioStr` / `ledger-store.parsePercent` / `ledger-store.toNum`）は **テストからしか使われておらず、本番コードの利用はゼロ**。この状態を放置すると、`ad-ingest` が「自分が所有していない汎用フォーマッタ」を公開APIとして広告し続けることになり、Task 1 が解消したはずのモジュール境界の問題がぶり返す。`format.js` の冒頭コメント「数値整形・解釈の唯一の置き場」も、再エクスポートがある限り事実に反する。
+
+**前提:** Task 10 の `pamun_ingest.js` は `toNum` を `lib/kizuki/format` から直接 require している（`ledger.toNum` ではない）。この前提が崩れていたら先に直すこと。
+
+**Files:**
+- Create: `test/kizuki/format.test.js`
+- Modify: `test/kizuki/ad-ingest.test.js:4-16`（`pctStr`/`ratioStr` のテストと import を削除）
+- Modify: `test/kizuki/ledger-store.test.js:5-20`（`parsePercent`/`toNum` のテストと import を削除）
+- Modify: `lib/kizuki/ad-ingest.js`（`module.exports` から `pctStr, ratioStr` を削除）
+- Modify: `lib/kizuki/ledger-store.js`（`module.exports` から `parsePercent, toNum` を削除）
+- Modify: `lib/kizuki/format.js`（JSDocの精度修正）
+
+- [ ] **Step 1: 本番コードに再エクスポート経由の利用が無いことを再確認する（撤去の前提）**
+
+Run:
+```bash
+grep -rnE "\.(pctStr|ratioStr|parsePercent|toNum)\b" --include=*.js . \
+  | grep -v node_modules | grep -v "^./test/" | grep -v "^./lib/kizuki/format.js"
+```
+Expected: **1件もヒットしないこと**。ヒットしたら、その呼び出し元を `require('./format')`（または `require('../../lib/kizuki/format')`）に付け替えてから先に進む。
+
+- [ ] **Step 2: `test/kizuki/format.test.js` を作成し、4関数のテストを移設する**
+
+移設元のテストを**内容を変えずに**移す（`format.js` は Task 1 でバイト同一に移設済みなので、期待値は現状のまま通る）：
+
+```javascript
+'use strict';
+const { test } = require('node:test');
+const assert = require('node:assert');
+const { pctStr, ratioStr, parsePercent, toNum } = require('../../lib/kizuki/format');
+
+test('pctStr: 分子/分母を"2.1%"形式（1桁）に。分母0/無効はnull', () => {
+  assert.strictEqual(pctStr(21, 1000), '2.1%');
+  assert.strictEqual(pctStr(3, 1000), '0.3%');
+  assert.strictEqual(pctStr(5, 0), null);
+  assert.strictEqual(pctStr(5, ''), null);
+});
+
+test('ratioStr: 比率を数値文字列（2桁）に。分母0/無効はnull', () => {
+  assert.strictEqual(ratioStr(230, 100), '2.3');
+  assert.strictEqual(ratioStr(1, 0), null);
+});
+
+test('parsePercent: "2.1%"→2.1 / "62%"→62 / 数値そのまま / 空・—はnull', () => {
+  assert.strictEqual(parsePercent('2.1%'), 2.1);
+  assert.strictEqual(parsePercent('62%'), 62);
+  assert.strictEqual(parsePercent(2.1), 2.1);
+  assert.strictEqual(parsePercent(''), null);
+  assert.strictEqual(parsePercent('—'), null);
+});
+
+test('toNum: 数値化・空/—/NaNはnull', () => {
+  assert.strictEqual(toNum('2.3'), 2.3);
+  assert.strictEqual(toNum(0.9), 0.9);
+  assert.strictEqual(toNum(''), null);
+  assert.strictEqual(toNum('—'), null);
+});
+
+test('小数は「最大N桁」であって固定桁ではない（JSDocの意味を固定する）', () => {
+  assert.strictEqual(pctStr(10, 1000), '1%');   // "1.0%" ではない
+  assert.strictEqual(ratioStr(200, 100), '2');  // "2.00" ではない
+});
+```
+
+- [ ] **Step 3: 移設元から重複テストとimportを削除する**
+
+`test/kizuki/ad-ingest.test.js`:
+- 4行目の import を `const { buildAdSignalRow, buildAdSignalRows } = require('../../lib/kizuki/ad-ingest');` に変更
+- `test('pctStr: ...')` と `test('ratioStr: ...')` の2ブロック（7〜17行目相当）を削除
+
+`test/kizuki/ledger-store.test.js`:
+- 5行目の import から `parsePercent, toNum,` を削除
+- `test('parsePercent: ...')` と `test('toNum: ...')` の2ブロック（8〜21行目相当）を削除
+
+- [ ] **Step 4: 再エクスポートを剥がす**
+
+`lib/kizuki/ad-ingest.js` の末尾を：
+```javascript
+module.exports = { buildAdSignalRow, buildAdSignalRows };
+```
+
+`lib/kizuki/ledger-store.js` の `module.exports` から `parsePercent, toNum` を削除：
+```javascript
+module.exports = {
+  TABS, L, R,
+  parseWorkshopRow, parseReviewRow, parseAdRow, parseCollabRow,
+  REVIEW_SOURCE_PRIORITY, pickReviewRows,
+  aggregateSignals, winningDemographics, buildWordRows, buildLedgerScoreUpdate,
+};
+```
+
+両ファイルとも `require('./format')` の行は**残す**（中で使っているため）。
+
+- [ ] **Step 5: JSDocの精度を直す（`format.js` が唯一の契約になったので）**
+
+`lib/kizuki/format.js` の2つのJSDocを差し替える。固定桁ではなく最大桁であること、および汎用モジュールから広告ドメインの語（ROAS）を外すこと：
+
+```javascript
+/** 百分率を "2.1%" 形式（最大小数1桁。"1%" のように0埋めはしない）に。分母0・無効は null。 */
+function pctStr(numerator, denominator) {
+```
+
+```javascript
+/** 比率を数値文字列（最大小数2桁。"2" のように0埋めはしない）に。分母0・無効は null。 */
+function ratioStr(numerator, denominator) {
+```
+
+- [ ] **Step 6: テストを実行して成功を確認**
+
+Run: `npm test`
+Expected: `tests 133` / `pass 133` / `fail 0`
+（132 から、テストは移設なので増減せず、Step 2 で「最大N桁」テストを1件足したぶん +1）
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add lib/kizuki/format.js lib/kizuki/ad-ingest.js lib/kizuki/ledger-store.js \
+        test/kizuki/format.test.js test/kizuki/ad-ingest.test.js test/kizuki/ledger-store.test.js
+git commit -m "refactor(kizuki): format.jsの再エクスポートを撤去しテストを移設
+
+Task1の再エクスポートは「既存テストを変えない」ための足場で、本番利用はゼロだった。
+ad-ingestが所有しない汎用フォーマッタを公開し続ける状態を解消し、format.jsを
+実際に唯一の置き場にする。JSDocの「小数N桁」は実挙動どおり「最大N桁」に修正。
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+```
+
+---
+
 ## 完了条件
 
 - [ ] `npm test` が **fail 0**（既存102テストを含め全て緑）
+- [ ] `pctStr` / `ratioStr` / `parsePercent` / `toNum` が `lib/kizuki/format.js` からのみ import されている（Task 12 Step 1 の grep が0件）
 - [ ] `lib/kizuki/score.js` が **1行も変更されていない**（`git diff main -- lib/kizuki/score.js` が空）
 - [ ] `node --check scripts/kizuki/pamun_ingest.js` が通る
 - [ ] 台帳GASのモニターシグナル列順が `ledger-store.js` の `R` と一致している
