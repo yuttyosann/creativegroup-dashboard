@@ -1554,3 +1554,4 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 - 既存モニターシグナルタブへの3列追加（Task 11のGAS再実行、または既存シートに手で列追加）
 - 施策レポート（xlsx）をGoogleスプレッドシート化し、`report_name` をタブ名の接頭辞として合わせる
 - Track A（標準化アンケート）の設問生成・回答収集の導線は**本スライスのスコープ外**（`review-ingest.tallyTrackA` は用意済みなので、回答が取れ次第つなぐだけ）
+  - ⚠️ **Track Aの回答収集を作る人への申し送り**：`tallyTrackA` は `choice` を厳密比較している（`a.choice !== 2 && a.choice !== 3`）ため、**`choice` を数値に変換してから渡すこと**。Sheets由来のデータは文字列で来るので、`'3'` を渡すと `'3' !== 3` で黙って捨てられ、**全ワードの件数が0に潰れる**（例外は出ないので気づけない）。`parseSurveyRows` が `toNum` で吸収しているのと同じ境界処理を、producer側で必ず行う。現時点では `tallyTrackA` の消費者が存在しないため、純粋核は厳密なままにしてある（YAGNI）。
