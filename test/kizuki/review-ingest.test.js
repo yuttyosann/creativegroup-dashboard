@@ -33,6 +33,24 @@ test('parseSurveyRows: 空行はスキップ・欠損セルは空文字/null', (
   ]);
 });
 
+test('parseSurveyRows: 空白だけの行はスキップ（分母nを水増しさせない）', () => {
+  const rows = [
+    ['ご年齢', '①', '②', '③', '④', '⑤'],
+    ['  ', '', '', '', '', ''],
+    ['\t', null, '', '', '', ''],
+    [22, '満足', 'キラキラ感が可愛かったところです。', '', '', 'JUPITER'],
+  ];
+  const out = parseSurveyRows(rows);
+  assert.strictEqual(out.length, 1);
+  assert.strictEqual(out[0].index, 0);
+  assert.strictEqual(out[0].age, 22);
+});
+
+test('parseSurveyRows: 0は有意な値なのでスキップしない', () => {
+  const rows = [['ご年齢', '①', '②', '③', '④', '⑤'], [0, '', '', '', '', '']];
+  assert.strictEqual(parseSurveyRows(rows).length, 1);
+});
+
 test('parseSurveyRows: ヘッダーのみ・空・undefined は空配列（06レポート＝未回答の回帰）', () => {
   assert.deepStrictEqual(parseSurveyRows([['ご年齢', '①', '②', '③', '④', '⑤']]), []);
   assert.deepStrictEqual(parseSurveyRows([]), []);
