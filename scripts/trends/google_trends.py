@@ -192,6 +192,44 @@ def cmd_score(args):
     print("  ※ suggested_point はv0.1の目安。最終点は編集判断で上書き可。")
 
 
+# ---------------- related: シード語→急上昇関連クエリ（候補生成）----------------
+def cmd_related(args):
+    seeds = read_candidates(args)
+    py = make_client(args.geo)
+    tf = args.timeframe or default_timeframe()
+    rows = []
+    for idx, seed in enumerate(seeds):
+        if idx > 0:
+            time.sleep(args.sleep)
+        try:
+            py.build_payload([seed], timeframe=tf, geo=args.geo)
+            rq = py.related_queries()
+        except Exception as e:
+            print(f"[warn] {seed}: {e}", file=sys.stderr)
+            continue
+        rising = (rq.get(seed) or {}).get("rising")
+        if rising is None or "query" not in getattr(rising, "columns", []):
+            continue
+        for _, r in rising.head(args.top).iterrows():
+            q = str(r["query"]).strip()
+            if q:
+                rows.append({"seed": seed, "query": q, "value": str(r.get("value", ""))})
+
+    out = args.out
+    if not out:
+        d = os.path.join("分析レポート", "trends_data")
+        os.makedirs(d, exist_ok=True)
+        out = os.path.join(d, f"{today_str()}_related.csv")
+    else:
+        os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
+    with open(out, "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["seed", "query", "value"])
+        w.writeheader()
+        w.writerows(rows)
+    print(f"急上昇関連クエリ {len(rows)} 件 → {out}")
+    print("→ query を候補として候補プールDBに登録（seedのカテゴリを継承）。")
+
+
 def main():
     p = argparse.ArgumentParser(description="Google Trends 取得（Trepoトレンド大賞2026）")
     sub = p.add_subparsers(dest="mode", required=True)
@@ -212,6 +250,17 @@ def main():
     ps.add_argument("--breakout", action="store_true", help="関連クエリでbreakout判定（リクエスト増・429リスク上昇）")
     ps.add_argument("--out", default=None)
     ps.set_defaults(func=cmd_score)
+
+    pr = sub.add_parser("related", help="シード語の急上昇関連クエリを取得（候補生成）")
+    pr.add_argument("terms", nargs="?", help='"a,b,c" 形式のシード語')
+    pr.add_argument("--csv", default=None)
+    pr.add_argument("--col", default=None, help="CSVのシード語列（既定: 先頭列）")
+    pr.add_argument("--geo", default="JP")
+    pr.add_argument("--timeframe", default=None)
+    pr.add_argument("--sleep", type=float, default=8.0, help="シード間の待機秒（429回避。既定8）")
+    pr.add_argument("--top", type=int, default=5, help="1シードあたり取得する急上昇クエリ数")
+    pr.add_argument("--out", default=None)
+    pr.set_defaults(func=cmd_related)
 
     args = p.parse_args()
     args.func(args)
