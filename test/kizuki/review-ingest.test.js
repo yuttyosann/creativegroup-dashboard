@@ -1,7 +1,7 @@
 'use strict';
 const { test } = require('node:test');
 const assert = require('node:assert');
-const { parseSurveyRows } = require('../../lib/kizuki/review-ingest');
+const { parseSurveyRows, tallyTrackA } = require('../../lib/kizuki/review-ingest');
 
 test('parseSurveyRows: ヘッダーを飛ばし1行=1回答者にする（indexは0始まり）', () => {
   const rows = [
@@ -55,4 +55,29 @@ test('parseSurveyRows: ヘッダーのみ・空・undefined は空配列（06レ
   assert.deepStrictEqual(parseSurveyRows([['ご年齢', '①', '②', '③', '④', '⑤']]), []);
   assert.deepStrictEqual(parseSurveyRows([]), []);
   assert.deepStrictEqual(parseSurveyRows(undefined), []);
+});
+
+test('tallyTrackA: 件数は②③・意向は③のみ（①は分母のみで両方に数えない）', () => {
+  const respondents = [
+    [{ wordId: 'w1', choice: 3 }, { wordId: 'w2', choice: 1 }],
+    [{ wordId: 'w1', choice: 2 }, { wordId: 'w2', choice: 3 }],
+    [{ wordId: 'w1', choice: 1 }, { wordId: 'w2', choice: 3 }],
+  ];
+  assert.deepStrictEqual(tallyTrackA(respondents), {
+    w1: { count: 2, intentCount: 1, confidences: [] }, // ③1 + ②1 = 件数2 / 意向1
+    w2: { count: 2, intentCount: 2, confidences: [] }, // ③2 = 件数2 / 意向2（①1は分母のみ）
+  });
+});
+
+test('tallyTrackA: 同一回答者が同じwordIdを重複回答しても1回として数える', () => {
+  const respondents = [[{ wordId: 'w1', choice: 3 }, { wordId: 'w1', choice: 3 }]];
+  assert.deepStrictEqual(tallyTrackA(respondents), {
+    w1: { count: 1, intentCount: 1, confidences: [] },
+  });
+});
+
+test('tallyTrackA: 空・不正な回答は無視', () => {
+  assert.deepStrictEqual(tallyTrackA([]), {});
+  assert.deepStrictEqual(tallyTrackA(undefined), {});
+  assert.deepStrictEqual(tallyTrackA([[null, { choice: 3 }, { wordId: '', choice: 3 }]]), {});
 });
