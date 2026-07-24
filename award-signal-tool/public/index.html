@@ -70,9 +70,27 @@
     font-size:15px; margin:0 0 14px; color:var(--pink); font-weight:800;
     display:flex; align-items:center; gap:7px;
   }
+  button.mini {
+    margin-left:auto; font-size:11.5px; padding:7px 13px; font-weight:800;
+    background:#fff; color:var(--pink); border:2px solid var(--pink2);
+    box-shadow:0 4px 10px rgba(255,138,178,.18);
+  }
+  button.mini::before { content:""; }
+  button.mini:disabled { background:#faeaf1; color:#d9b3c4; border-color:var(--line); }
   .card h2::before { content:"🎀"; font-size:15px; }
   .card h2.sig::before { content:"🌷"; }
   .card h2.job::before { content:"⏳"; }
+  .card h2.prop::before { content:"🌟"; }
+
+  /* 提案リスト（採用はここから） */
+  #propCard.hidden { display:none; }
+  .prop-item {
+    display:flex; gap:10px; align-items:flex-start; padding:10px 12px; margin-bottom:7px;
+    background:#fff6fa; border-radius:14px; box-shadow:var(--soft-sm);
+  }
+  .prop-item input { accent-color:var(--pink); width:15px; height:15px; margin-top:3px; flex:none; }
+  .prop-item .reason { color:var(--sub); font-size:11.5px; font-weight:500; line-height:1.6; margin-top:3px; }
+  #propList { max-height:340px; overflow:auto; margin-bottom:14px; }
 
   table { width:100%; border-collapse:separate; border-spacing:0 7px; font-size:13.5px; }
   th { text-align:left; padding:0 10px 4px; color:var(--sub); font-weight:700; font-size:12px; }
@@ -176,8 +194,22 @@
 
 <main>
   <section class="card">
-    <h2>候補プール</h2>
+    <h2>候補プール
+      <button id="discoverBtn" class="mini" title="シードのハッシュタグからTikTokの共起タグを集め、Claudeが精選した候補を提案します（DBには登録しません）">🔎 候補を提案してもらう</button>
+    </h2>
     <div id="candWrap"><div class="muted">読み込み中…</div></div>
+  </section>
+
+  <section class="card hidden" id="propCard">
+    <h2 class="prop">候補の提案
+      <button id="propAllBtn" class="mini" type="button">全部チェック</button>
+    </h2>
+    <div class="muted" style="margin:-6px 0 12px;">TikTokの共起タグをClaudeが精選したものです。採用するものだけチェックして登録してね🌱</div>
+    <div id="propList"></div>
+    <div class="tools">
+      <button id="adoptBtn" disabled>チェックした候補を登録</button>
+      <span id="propCount">0件選択</span>
+    </div>
   </section>
 
   <section class="card">
@@ -202,7 +234,7 @@
 
 <script>
 const $ = (s) => document.querySelector(s);
-let candidates = [], signals = [], selected = new Set();
+let candidates = [], signals = [], selected = new Set(), proposals = [];
 let ID_TOKEN = "";
 
 function apiFetch(url, opts = {}) {
@@ -284,17 +316,99 @@ $("#runBtn").onclick = async () => {
   poll(jobId);
 };
 
-function poll(jobId) {
+$("#discoverBtn").onclick = async () => {
+  if (!confirm("シードのハッシュタグからTikTokの共起タグを集め、Claudeが精選した候補を「提案」します。\n（この時点ではDBに登録しません。数分かかります）\n実行しますか？")) return;
+  $("#discoverBtn").disabled = true;
+  $("#runBtn").disabled = true;
+  $("#propCard").classList.add("hidden");
+  setStatus("running", "候補を提案中…");
+  const r = await apiFetch("/api/discover", { method: "POST" });
+  const { jobId, error } = await r.json();
+  if (error) { setStatus("error", error); $("#discoverBtn").disabled = false; updateSel(); return; }
+  poll(jobId, (job) => {
+    $("#discoverBtn").disabled = false;
+    if (job.status === "done") renderProposals(job.proposals || []);
+  }, "候補を提案中…（TikTok発掘→Claude精選。数分かかります）");
+};
+
+// announce=false: 登録直後など、別のメッセージを出したいときは状態表示を触らない
+function renderProposals(list, announce = true) {
+  proposals = list;
+  if (!proposals.length) {
+    $("#propCard").classList.add("hidden");
+    if (announce) setStatus("done", "提案できる新しい候補はありませんでした🍀");
+    return;
+  }
+  $("#propList").innerHTML = proposals.map((p, i) => `
+    <label class="prop-item">
+      <input type="checkbox" class="propchk" value="${i}">
+      <span>
+        <span class="name">${esc(p.name)}</span> <span class="pill">${esc(p.category || "")}</span>
+        <div class="reason">${esc(p.reason || "")}</div>
+      </span>
+    </label>`).join("");
+  document.querySelectorAll(".propchk").forEach(cb => cb.onchange = updateProp);
+  $("#propAllBtn").textContent = "全部チェック";
+  $("#propCard").classList.remove("hidden");
+  updateProp();
+  if (announce) setStatus("done", `${proposals.length}件を提案しました 🌟 採用するものを選んでね`);
+}
+
+function updateProp() {
+  const n = document.querySelectorAll(".propchk:checked").length;
+  $("#propCount").textContent = `${n}件選択`;
+  $("#adoptBtn").disabled = n === 0;
+}
+
+$("#propAllBtn").onclick = () => {
+  const boxes = [...document.querySelectorAll(".propchk")];
+  const turnOn = boxes.some(cb => !cb.checked);
+  boxes.forEach(cb => cb.checked = turnOn);
+  $("#propAllBtn").textContent = turnOn ? "全部はずす" : "全部チェック";
+  updateProp();
+};
+
+$("#adoptBtn").onclick = async () => {
+  const picked = [...document.querySelectorAll(".propchk:checked")].map(cb => proposals[Number(cb.value)]);
+  if (!picked.length) return;
+  if (!confirm(`${picked.length}件を候補プールDBに登録します。よろしいですか？`)) return;
+  $("#adoptBtn").disabled = true;
+  setStatus("running", "候補プールDBに登録中…");
+  const r = await apiFetch("/api/candidates/bulk", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ candidates: picked }),
+  });
+  const res = await r.json();
+  if (!r.ok) { setStatus("error", res.error || "登録に失敗しました"); $("#adoptBtn").disabled = false; return; }
+  const parts = [`${res.created.length}件を登録しました 🎉`];
+  if (res.skipped.length) parts.push(`${res.skipped.length}件は既存のためスキップ`);
+  if (res.failed.length) parts.push(`${res.failed.length}件は失敗`);
+  $("#log").textContent = [
+    "=== 候補プールDBに登録 ===",
+    ...res.created.map(c => `  ＋ ${c.name}（${c.category}）`),
+    ...res.skipped.map(n => `  − ${n}（既にDBにあります）`),
+    ...res.failed.map(f => `  ✗ ${f.name}: ${f.error}`),
+  ].join("\n");
+  // 登録済み・スキップ分は提案から消す（失敗したものは残して再試行できるように）
+  const done = new Set([...res.created.map(c => c.name), ...res.skipped]);
+  renderProposals(proposals.filter(p => !done.has(p.name)), false);
+  setStatus(res.failed.length ? "error" : "done", parts.join(" / "));
+  await loadCandidates();
+  updateSel();
+};
+
+function poll(jobId, onEnd, runningLabel = "取得中…") {
   const iv = setInterval(async () => {
     const job = await (await apiFetch("/api/jobs/"+jobId)).json();
     $("#log").textContent = job.log.join("\n") || "（処理中…）";
     $("#log").scrollTop = $("#log").scrollHeight;
-    if (job.status === "running") setStatus("running", "取得中…");
+    if (job.status === "running") setStatus("running", runningLabel);
     else {
       clearInterval(iv);
       setStatus(job.status, job.status==="done" ? "完了しました 🎉" : ("エラー: "+(job.error||"")));
-      $("#runBtn").disabled = false;
-      loadCandidates(); // 書き戻した点を反映
+      if (onEnd) onEnd(job);
+      await loadCandidates(); // 書き戻した点・追加された候補を反映
+      updateSel();            // 選択状態に応じて取得ボタンを復帰
     }
   }, 1500);
 }
