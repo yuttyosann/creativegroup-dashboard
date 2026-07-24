@@ -297,6 +297,17 @@ const RENDER = {
       <div id="idb_count" style="margin-top:8px;font-size:12px;color:var(--muted)"></div>
       <div id="idb_list" style="margin-top:6px;font-size:12.5px">読み込み中…</div></div>
 
+    <div class="card"><h3>🐦 X転換質診断（Apify＋Claude）</h3>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:8px">候補DBのX候補のリプライを取得し、購買意向を判定して「転換質%」を埋めます。懸賞・プレゼント企画の投稿は自動除外します。1件あたり1〜1.5分・最大20件。</p>
+      <div class="note" style="margin-bottom:8px">⚠️ v0.1・未較正：<b>X内の相対比較にのみ</b>使用してください。YouTube/IGの転換質とは較正されていないため、媒体をまたいで並べないでください。要 APIFY_TOKEN。</div>
+      <div style="margin-bottom:8px">
+        <button class="btn" style="background:var(--purple)" onclick="loadXCands()">X候補を読み込む</button>
+        <button class="btn" id="xibtn" onclick="runXIntentBatch()">選択した候補を診断</button>
+      </div>
+      <div id="xi_list" style="font-size:12.5px"></div>
+      <div id="xi_result" style="margin-top:10px;font-size:13px"></div>
+    </div>
+
     <div class="card"><h3>＋ 手動で候補を追加</h3>
       <div class="row">${field("ia_account","アカウント名","@は不要")}<div><label>媒体</label><select id="ia_media">${media.map(m=>`<option>${m}</option>`).join("")}</select></div></div>
       <div class="row">${field("ia_genre","ジャンル","美容 等")}${field("ia_followers","フォロワー","数値")}</div>
@@ -844,6 +855,55 @@ window.applyIdbFilter=()=>{
     ${x.note?`<br><span style="font-size:11.5px">${escapeHtml(x.note)}</span>`:""}
     ${x.result?`<br><span style="font-size:11.5px;color:#1E7A46">実績: ${escapeHtml(x.result)}</span>`:""}
     ${x.url?` <a class="link" href="${escapeHtml(x.url)}" target="_blank">開く</a>`:""}</div>`).join("");
+};
+// X転換質診断（S2d-2）— 候補DBのX候補を1件ずつ診断（Cloud Runの300秒制限のためバッチにしない）
+window.loadXCands=()=>{
+  const el=document.getElementById("xi_list");
+  const xs=(IDB_ALL||[]).filter(x=>x.media==="X");
+  if(!xs.length){ el.innerHTML="<span style='color:var(--muted)'>X候補がありません。上の「再読込」を押すか、診断タブの「Astream X CSV取込」で登録してください。</span>"; return; }
+  window.__xiCands=xs;
+  el.innerHTML=`<div style="font-size:12px;color:var(--muted);margin-bottom:6px">X候補 ${xs.length}件（最大20件まで選択可）</div>`+
+    xs.map((x,i)=>`<div style="padding:4px 0;border-bottom:1px solid var(--line)">
+      <input type="checkbox" class="xi_ck" data-i="${i}" style="width:auto;margin-right:6px">
+      <b>@${escapeHtml(x.account)}</b>
+      ${x.conversion?`<span class="pill p-gray">現在 転換質${escapeHtml(x.conversion)}%</span>`:`<span class="pill p-gray">未診断</span>`}
+      <span style="color:var(--muted);font-size:11.5px">フォロワー${(num(x.followers)||0).toLocaleString()}</span>
+      <span id="xi_cell${i}" style="font-size:11.5px"></span></div>`).join("");
+};
+
+window.runXIntentBatch=async()=>{
+  const btn=document.getElementById("xibtn"), res=document.getElementById("xi_result");
+  const cks=[...document.querySelectorAll(".xi_ck:checked")];
+  if(!cks.length){ res.innerHTML="<span style='color:#A32D2D'>診断する候補を選択してください</span>"; return; }
+  if(cks.length>20){ res.innerHTML="<span style='color:#A32D2D'>一度に診断できるのは20件までです</span>"; return; }
+  btn.disabled=true; res.innerHTML="";
+  let done=0;
+  for(const ck of cks){
+    const i=+ck.dataset.i, cand=window.__xiCands[i], cell=document.getElementById("xi_cell"+i);
+    btn.textContent=`診断中… ${done}/${cks.length}`;
+    cell.innerHTML=" ⏳ 実行中…（1〜1.5分）";
+    try{
+      const d=await api("/api/cockpit/x-intent",{account:cand.account});
+      if(!d||!d.ok){ cell.innerHTML=`<span style="color:#A32D2D"> エラー: ${escapeHtml((d&&d.error)||"失敗")}</span>`; }
+      else if(d.conversion==null){
+        cell.innerHTML=`<span style="color:var(--muted)"> ${escapeHtml(d.reason||"算出不可")}（懸賞除外${d.giveawayExcluded||0}件）</span>`;
+      }else{
+        const badge=d.conversion>=15?"p-green":d.conversion>=5?"p-orange":"p-gray";
+        const c=d.counts||{}, ev=d.evidence||{};
+        cell.innerHTML=` <span class="pill ${badge}">転換質${d.conversion}%</span>`+
+          `<span style="color:var(--muted)"> 購入済${c.purchased||0}／予定${c.willBuy||0}／欲しい${c.want||0}／興味${c.interest||0}／無関係${c.unrelated||0}（計${d.total}）${d.lowSample?' <b style="color:#A35A2D">⚠️サンプル不足</b>':""}</span>`;
+        const ex=[...(ev.purchased||[]),...(ev.willBuy||[]),...(ev.want||[])].slice(0,3);
+        if(ex.length) cell.innerHTML+=`<br><span style="color:var(--muted);font-size:11px">根拠: ${ex.map(t=>escapeHtml(String(t).slice(0,40))).join(" ／ ")}</span>`;
+        const rb=document.createElement("button");
+        rb.className="btn"; rb.style.cssText="margin-left:6px;padding:1px 7px;font-size:11px"; rb.textContent="DBに反映";
+        rb.onclick=()=>registerCand({account:cand.account, media:"X", conversion:d.conversion}, rb);
+        cell.appendChild(rb);
+        done++;
+      }
+    }catch(e){ cell.innerHTML=`<span style="color:#A32D2D"> ${escapeHtml(e.message||"失敗")}</span>`; }
+  }
+  btn.disabled=false; btn.textContent="選択した候補を診断";
+  res.innerHTML=`✅ ${done}/${cks.length}件の診断が完了しました。各行の「DBに反映」で候補DBの転換質%が更新されます。`;
 };
 // 候補をDBにupsert登録（YouTube/Astream結果・手動から共用）
 window.registerCand=async(payload, btn)=>{
