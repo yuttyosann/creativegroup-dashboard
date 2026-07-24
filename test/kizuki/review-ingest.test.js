@@ -1,7 +1,7 @@
 'use strict';
 const { test } = require('node:test');
 const assert = require('node:assert');
-const { parseSurveyRows, tallyTrackA } = require('../../lib/kizuki/review-ingest');
+const { parseSurveyRows, tallyTrackA, tallyTrackB } = require('../../lib/kizuki/review-ingest');
 
 test('parseSurveyRows: ヘッダーを飛ばし1行=1回答者にする（indexは0始まり）', () => {
   const rows = [
@@ -87,4 +87,37 @@ test('tallyTrackA: 空・不正な回答は無視', () => {
   assert.deepStrictEqual(tallyTrackA([]), {});
   assert.deepStrictEqual(tallyTrackA(undefined), {});
   assert.deepStrictEqual(tallyTrackA([[null, { choice: 3 }, { wordId: '', choice: 3 }]]), {});
+});
+
+test('tallyTrackB: 件数は言及者数・意向はintent かつ vanityでない ものだけ', () => {
+  const respondents = [
+    [{ wordId: 'w1', intent: true, vanity: false, confidence: 0.9 }],
+    [{ wordId: 'w1', intent: false, vanity: false, confidence: 0.8 }],
+    [{ wordId: 'w1', intent: true, vanity: true, confidence: 0.7 }], // 虚栄反応→意向に数えない
+  ];
+  assert.deepStrictEqual(tallyTrackB(respondents), {
+    w1: { count: 3, intentCount: 1, confidences: [0.9, 0.8, 0.7] },
+  });
+});
+
+test('tallyTrackB: 該当なし（空配列）の回答者は分母には残るがtallyには載らない', () => {
+  const respondents = [
+    [{ wordId: 'w1', intent: true, vanity: false, confidence: 0.9 }],
+    [], // 候補ワードに該当なし
+  ];
+  assert.deepStrictEqual(tallyTrackB(respondents), {
+    w1: { count: 1, intentCount: 1, confidences: [0.9] },
+  });
+});
+
+test('tallyTrackB: 同一回答者の同一wordId重複は1件・confidenceは有限値のみ収集', () => {
+  const respondents = [[
+    { wordId: 'w1', intent: true, vanity: false, confidence: 0.9 },
+    { wordId: 'w1', intent: false, vanity: false, confidence: 0.1 },
+    { wordId: 'w2', intent: true, vanity: false, confidence: null },
+  ]];
+  assert.deepStrictEqual(tallyTrackB(respondents), {
+    w1: { count: 1, intentCount: 1, confidences: [0.9] },
+    w2: { count: 1, intentCount: 1, confidences: [] },
+  });
 });
