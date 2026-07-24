@@ -541,6 +541,12 @@ test('buildReviewSignalRows: trackBはconfidence平均(2桁)・trackA/manualは�
   assert.strictEqual(a[7], '');
 });
 
+test('buildReviewSignalRows: confidence=0は平均に効く（空扱いにしない）', () => {
+  const tally = { w1: { count: 2, intentCount: 1, confidences: [0, 0.5] } };
+  const [b] = buildReviewSignalRows(tally, { n: 10, campaignId: 'c1', source: SOURCES.TRACK_B });
+  assert.strictEqual(b[7], 0.25); // (0+0.5)/2、0を欠損扱いして0.5にはしない
+});
+
 test('buildReviewSignalRows: 候補ワード外はスキップ（閉じた集合への写像を強制）', () => {
   const tally = {
     w1: { count: 1, intentCount: 1, confidences: [] },
@@ -576,8 +582,10 @@ Expected: FAIL — `TypeError: buildReviewSignalRows is not a function`
 
 `tallyTrackB` の下に追加：
 
+> **注（Task 4の決定と整合させること）**: `confidences` の中の `0` は有意な値（要レビューの最強シグナル）なので平均に効かせる。`Number.isFinite` フィルタは 0 を残し、`null`/`NaN` だけ落とす。`avgConfidence([0])` は空文字ではなく数値 `0` を返す（＝「自信ゼロ」を confidence 列にそのまま出す）。「0を空扱い」に変えないこと。
+
 ```javascript
-/** confidence の平均（小数2桁）。無ければ ''。 */
+/** confidence の平均（小数2桁・0は有意値として残す）。空・全て無効なら ''。 */
 function avgConfidence(confidences) {
   const a = (confidences || []).filter((v) => Number.isFinite(v));
   if (!a.length) return '';
@@ -630,7 +638,7 @@ module.exports = {
 - [ ] **Step 4: テストを実行して成功を確認**
 
 Run: `npm test -- test/kizuki/review-ingest.test.js`
-Expected: PASS（17 tests）
+Expected: PASS（22 tests＝Task4完了時点の13 ＋ 本タスクの9）
 
 - [ ] **Step 5: Commit**
 
