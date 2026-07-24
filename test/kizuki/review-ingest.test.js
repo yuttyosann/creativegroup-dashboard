@@ -121,3 +121,16 @@ test('tallyTrackB: 同一回答者の同一wordId重複は1件・confidenceは�
     w2: { count: 1, intentCount: 1, confidences: [] },
   });
 });
+
+test('tallyTrackB: confidence=0 は残す（要レビューの最強シグナル）・null/undefined/NaNだけ落とす', () => {
+  const respondents = [[
+    { wordId: 'w1', intent: true, vanity: false, confidence: 0 },
+    { wordId: 'w2', intent: true, vanity: false, confidence: undefined },
+    { wordId: 'w3', intent: true, vanity: false, confidence: NaN },
+  ]];
+  assert.deepStrictEqual(tallyTrackB(respondents), {
+    w1: { count: 1, intentCount: 1, confidences: [0] }, // 0は有意な最低スコアなので平均に効かせる
+    w2: { count: 1, intentCount: 1, confidences: [] },
+    w3: { count: 1, intentCount: 1, confidences: [] },
+  });
+});
