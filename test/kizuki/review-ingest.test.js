@@ -1,7 +1,9 @@
 'use strict';
 const { test } = require('node:test');
 const assert = require('node:assert');
-const { parseSurveyRows, tallyTrackA, tallyTrackB } = require('../../lib/kizuki/review-ingest');
+const {
+  parseSurveyRows, tallyTrackA, tallyTrackB, buildReviewSignalRows, signalKey, SOURCES,
+} = require('../../lib/kizuki/review-ingest');
 
 test('parseSurveyRows: ヘッダーを飛ばし1行=1回答者にする（indexは0始まり）', () => {
   const rows = [
@@ -133,4 +135,75 @@ test('tallyTrackB: confidence=0 は残す（要レビューの最強シグナル
     w2: { count: 1, intentCount: 1, confidences: [] },
     w3: { count: 1, intentCount: 1, confidences: [] },
   });
+});
+
+test('buildReviewSignalRows: 共感率は意向÷n（言及なしも分母に残る＝普及率）', () => {
+  // 回答者n=50、w1に共感したのは20人だが「買いたい」は17人 → 17/50 = 34%
+  const tally = { w1: { count: 20, intentCount: 17, confidences: [] } };
+  const rows = buildReviewSignalRows(tally, { n: 50, campaignId: '2026_04_stardust', source: SOURCES.TRACK_A });
+  assert.deepStrictEqual(rows, [
+    ['w1', 20, '34%', '', '', 'trackA', '2026_04_stardust', ''],
+  ]);
+});
+
+test('buildReviewSignalRows: レビュー件数は共感/言及者数であって意向数ではない', () => {
+  const tally = { w1: { count: 20, intentCount: 17, confidences: [] } };
+  const [row] = buildReviewSignalRows(tally, { n: 50, campaignId: 'c1', source: SOURCES.TRACK_A });
+  assert.strictEqual(row[1], 20);   // 件数=共感者
+  assert.strictEqual(row[2], '34%'); // 率=意向÷n
+});
+
+test('buildReviewSignalRows: 虚栄ワード（件数は多いが意向は低い）は件数高・共感率低で出る', () => {
+  // 「パケが可愛い」型: 40人が共感したが買いたいは2人 → 2/50 = 4%
+  const tally = { vanity1: { count: 40, intentCount: 2, confidences: [] } };
+  const [row] = buildReviewSignalRows(tally, { n: 50, campaignId: 'c1', source: SOURCES.TRACK_A });
+  assert.strictEqual(row[1], 40);
+  assert.strictEqual(row[2], '4%');
+});
+
+test('buildReviewSignalRows: n=0 は率を空にする（0除算防止・ad-ingestのpctStrと同じ扱い）', () => {
+  const tally = { w1: { count: 0, intentCount: 0, confidences: [] } };
+  const rows = buildReviewSignalRows(tally, { n: 0, campaignId: 'c1', source: SOURCES.TRACK_B });
+  assert.strictEqual(rows[0][2], '');
+});
+
+test('buildReviewSignalRows: trackBはconfidence平均(2桁)・trackA/manualは空', () => {
+  const tally = { w1: { count: 2, intentCount: 1, confidences: [0.9, 0.8] } };
+  const [b] = buildReviewSignalRows(tally, { n: 10, campaignId: 'c1', source: SOURCES.TRACK_B });
+  assert.strictEqual(b[5], 'trackB');
+  assert.strictEqual(b[7], 0.85);
+
+  const [a] = buildReviewSignalRows(tally, { n: 10, campaignId: 'c1', source: SOURCES.TRACK_A });
+  assert.strictEqual(a[7], '');
+});
+
+test('buildReviewSignalRows: confidence=0は平均に効く（空扱いにしない）', () => {
+  const tally = { w1: { count: 2, intentCount: 1, confidences: [0, 0.5] } };
+  const [b] = buildReviewSignalRows(tally, { n: 10, campaignId: 'c1', source: SOURCES.TRACK_B });
+  assert.strictEqual(b[7], 0.25); // (0+0.5)/2、0を欠損扱いして0.5にはしない
+});
+
+test('buildReviewSignalRows: 候補ワード外はスキップ（閉じた集合への写像を強制）', () => {
+  const tally = {
+    w1: { count: 1, intentCount: 1, confidences: [] },
+    unknown: { count: 5, intentCount: 5, confidences: [] },
+  };
+  const rows = buildReviewSignalRows(tally, {
+    n: 10, campaignId: 'c1', source: SOURCES.TRACK_B, candidateWordIds: ['w1', 'w2'],
+  });
+  assert.strictEqual(rows.length, 1);
+  assert.strictEqual(rows[0][0], 'w1');
+});
+
+test('buildReviewSignalRows: 代表URL・2次利用可否は空（当面は手入力/任意）', () => {
+  const tally = { w1: { count: 1, intentCount: 1, confidences: [] } };
+  const [row] = buildReviewSignalRows(tally, { n: 10, campaignId: 'c1', source: SOURCES.TRACK_A });
+  assert.strictEqual(row[3], '');
+  assert.strictEqual(row[4], '');
+});
+
+test('signalKey: upsertキーは (word_id, campaign_id, source)', () => {
+  assert.strictEqual(
+    signalKey(['w1', 20, '34%', '', '', 'trackA', '2026_04_stardust', '']),
+    'w1|2026_04_stardust|trackA');
 });
