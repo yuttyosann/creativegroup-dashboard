@@ -28,8 +28,16 @@ test('parseWorkshopRow: 言及数と未認知(TRUE)', () => {
 
 test('parseReviewRow: 購買意向共感率"62%"は0.62（/100して0..1に）', () => {
   assert.deepStrictEqual(
+    parseReviewRow(['w001', 24, '62%', 'https://x', 'TRUE', 'trackB', '2026_04_stardust', 0.82]),
+    { wordId: 'w001', intentRate: 0.62, count: 24, source: 'trackB',
+      campaignId: '2026_04_stardust', confidence: 0.82 });
+});
+
+test('parseReviewRow: 追加3列が無い既存の手入力行は source=manual として読む（後方互換）', () => {
+  assert.deepStrictEqual(
     parseReviewRow(['w001', 24, '62%', 'https://x', 'TRUE']),
-    { wordId: 'w001', intentRate: 0.62 });
+    { wordId: 'w001', intentRate: 0.62, count: 24, source: 'manual',
+      campaignId: '', confidence: null });
 });
 
 test('parseAdRow: CTR/CVRは%を外すだけ・ROAS/明確度は数値', () => {
