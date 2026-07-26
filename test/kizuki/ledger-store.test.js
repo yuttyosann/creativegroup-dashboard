@@ -142,3 +142,59 @@ test('buildLedgerScoreUpdate: 確度/スコア/判定/最終更新のみ更新�
   assert.strictEqual(out[10], 'メモ');     // 保持
   assert.notStrictEqual(out, row);        // 非破壊（新配列）
 });
+
+test('aggregateSignals: reviewはsource優先ピック（trackAがあればtrackBは無視・平均しない）', () => {
+  const parsed = {
+    workshop: [], ad: [], collab: [],
+    review: [
+      { wordId: 'w1', intentRate: 0.60, source: 'trackA', campaignId: 'c1' },
+      { wordId: 'w1', intentRate: 0.20, source: 'trackB', campaignId: 'c2' },
+    ],
+  };
+  // 平均(0.40)ではなく trackA の 0.60
+  assert.strictEqual(aggregateSignals('w1', parsed).review.intentRate, 0.60);
+});
+
+test('aggregateSignals: reviewの優先順位は trackA > manual > trackB', () => {
+  const base = { workshop: [], ad: [], collab: [] };
+  const manualAndB = Object.assign({}, base, { review: [
+    { wordId: 'w1', intentRate: 0.50, source: 'manual', campaignId: '' },
+    { wordId: 'w1', intentRate: 0.20, source: 'trackB', campaignId: 'c2' },
+  ]});
+  assert.strictEqual(aggregateSignals('w1', manualAndB).review.intentRate, 0.50);
+
+  const onlyB = Object.assign({}, base, { review: [
+    { wordId: 'w1', intentRate: 0.20, source: 'trackB', campaignId: 'c2' },
+  ]});
+  assert.strictEqual(aggregateSignals('w1', onlyB).review.intentRate, 0.20);
+});
+
+test('aggregateSignals: 同一source内に複数campaignがあれば従来どおり平均', () => {
+  const parsed = {
+    workshop: [], ad: [], collab: [],
+    review: [
+      { wordId: 'w1', intentRate: 0.60, source: 'trackA', campaignId: 'c1' },
+      { wordId: 'w1', intentRate: 0.40, source: 'trackA', campaignId: 'c2' },
+    ],
+  };
+  assert.strictEqual(aggregateSignals('w1', parsed).review.intentRate, 0.50);
+});
+
+test('aggregateSignals: review行はあるが率が全てnullなら intentRate=null（score.jsで0点・stageは暫定）', () => {
+  const parsed = {
+    workshop: [], ad: [], collab: [],
+    review: [{ wordId: 'w1', intentRate: null, source: 'trackB', campaignId: 'c1' }],
+  };
+  assert.strictEqual(aggregateSignals('w1', parsed).review.intentRate, null);
+});
+
+test('aggregateSignals: 率がnullのtrackA行は上位を占有せず、非nullのmanual行にフォールバックする', () => {
+  const parsed = {
+    workshop: [], ad: [], collab: [],
+    review: [
+      { wordId: 'w1', intentRate: null, source: 'trackA', campaignId: 'c1' },
+      { wordId: 'w1', intentRate: 0.50, source: 'manual', campaignId: '' },
+    ],
+  };
+  assert.strictEqual(aggregateSignals('w1', parsed).review.intentRate, 0.50);
+});
