@@ -9,7 +9,7 @@
     "cockpit": "node cockpit-server.js",
     "ig:fetch": "node scripts/instagram/fetch_insights.js",
     "ig:analyze": "node scripts/instagram/analyze.js",
-    "test": "node --test"
+    "test": "node --test \"test/**/*.test.js\""
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.105.0",
