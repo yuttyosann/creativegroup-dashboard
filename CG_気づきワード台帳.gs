@@ -100,15 +100,17 @@ function _kzWorkshop(ss) {
 
 // ②モニターシグナル（Pamun）
 function _kzReview(ss) {
-  const cols = [['word_id', 120], ['レビュー件数', 90], ['購買意向共感率', 110], ['代表クリエイティブURL', 220], ['2次利用可否', 90]];
+  const cols = [['word_id', 120], ['レビュー件数', 90], ['購買意向共感率', 110], ['代表クリエイティブURL', 220], ['2次利用可否', 90],
+    ['source', 90], ['campaign_id', 140], ['confidence', 90]];
   const rows = [
-    ['w001', 24, '62%', 'https://pamun.example/r/001', 'TRUE'],
-    ['w003', 30, '12%', 'https://pamun.example/r/003', 'TRUE'],
+    ['w001', 24, '62%', 'https://pamun.example/r/001', 'TRUE', 'manual', '', ''],
+    ['w003', 30, '12%', 'https://pamun.example/r/003', 'TRUE', 'manual', '', ''],
   ];
   const sh = _kzSheet(ss, 2, 'モニターシグナル', '#0D9488', cols, rows);
   sh.getRange(4, 3, 60, 1).setNumberFormat('0%');
   sh.getRange(4, 5, 60, 1).setDataValidation(KZ_DV(['TRUE', 'FALSE']));
   sh.getRange(3, 3).setNote('「買いたい/使ってみたい」系の反応 ÷ 総反応。可愛い等の虚栄反応は除外。');
+  sh.getRange(3, 6).setNote('manual=手入力 / trackA=標準化アンケート / trackB=既存レポートのLLM写像。\n同じword_idに複数sourceがあれば trackA > manual > trackB の優先で1つだけ採用（平均しない）。\n自動取込は (word_id, campaign_id, source) をキーにupsert。manual行は自動取込で上書きされない。');
 }
 
 // ③広告シグナル
@@ -152,6 +154,14 @@ function _kzGuide(ss) {
       '② Pamunモニター後：モニターシグナルに購買意向共感率を記入（確度=レビュー反映）\n' +
       '③ 広告運用後：広告シグナルにCTR/CVR/ROAS・勝ちデモグラを記入（確度=広告確定）\n' +
       '④ コラボ後：コラボ実績に適合・実売・ROASを記入'],
+    ['【モニターシグナルの各列】',
+      '・レビュー件数 … そのワードに共感/言及した人数（意向の数ではない）\n' +
+      '・購買意向共感率 … 「買いたい/使い続けたい」人数 ÷ その施策の全回答者n（%で記入。例: 34%）\n' +
+      '・source … manual（手入力）/ trackA（標準化アンケート）/ trackB（既存レポートのLLM写像）\n' +
+      '・campaign_id … 施策の一意キー（例: 2026_04_stardust）。手入力行は空でよい\n' +
+      '・confidence … trackBのみ。0〜1の機械分類の確からしさ（要レビューの目安）\n' +
+      '※同じword_idに複数sourceがある場合、trackA > manual > trackB の優先で1つだけ採用する（平均しない）\n' +
+      '※自動取込は (word_id, campaign_id, source) をキーに upsert。source=manual の行は自動取込では上書きされない'],
     ['【訴求スコアの考え方】',
       '実データ（広告CTR/CVR）を最重視。言及が多くても購買につながらなければ低い（虚栄控除）。\n' +
       '配点：勉強会15／Pamun25／広告40／デモグラ明確度10／インフル10／虚栄控除-20〜0。\n' +
