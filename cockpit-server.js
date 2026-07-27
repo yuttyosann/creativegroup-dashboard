@@ -38,6 +38,7 @@ const { nextId } = require('./lib/id-gen');
 const inf = require('./lib/influencer-store');
 const rst = require('./lib/result-store');
 const { buildAnalyzePrompt } = require('./lib/analyze-prompt');
+const { buildXIntentPrompt } = require('./lib/x-intent-prompt');
 const Anthropic = require('@anthropic-ai/sdk');
 const SHEET_ID = process.env.SHEET_ID;
 
@@ -99,6 +100,23 @@ function runScriptThen(scriptRel, scriptArgs, res, after) {
       }
       res.status(500).json({ ok: false, error: '実行に失敗しました' });
     });
+}
+
+// スクリプトを実行して @@JSON@@ をPromiseで返す版。
+// runScriptThen は after() の例外を握り潰して「実行に失敗しました」に丸めるため、
+// 取得段と判定段のエラーを区別したい呼び出し元はこちらを使う。
+function runScriptJson(scriptRel, scriptArgs) {
+  const script = path.join(__dirname, scriptRel);
+  return new Promise((resolve, reject) => {
+    execFile('node', [script, ...scriptArgs], { cwd: __dirname, timeout: 180000, maxBuffer: 10 * 1024 * 1024 },
+      (err, stdout, stderr) => {
+        const marker = (stdout || '').split('\n').find((l) => l.startsWith('@@JSON@@'));
+        if (marker) {
+          try { return resolve(JSON.parse(marker.slice(8))); } catch (e) { /* 下のrejectへ */ }
+        }
+        reject(new Error(String(stderr || (err && err.message) || 'JSON出力が見つかりませんでした').slice(0, 400)));
+      });
+  });
 }
 
 // YouTube チャンネル診断
@@ -196,6 +214,69 @@ app.post('/api/cockpit/analyze', requireAuth, async (req, res) => {
   } catch (e) {
     res.status(500).json({ ok: false, error: String((e && e.message) || e).slice(0, 500) });
   }
+});
+
+// X リプライ転換質診断（Apify取得＋Claude判定）— 1アカウントずつ（フロントで複数ループ）
+// Cloud Runのリクエストタイムアウトが300秒のため、バッチ処理にはしない（既存のIG診断と同型）
+app.post('/api/cockpit/x-intent', requireAuth, async (req, res) => {
+  const account = String((req.body || {}).account || '').trim().replace(/^@/, '');
+  if (!account) return res.status(400).json({ ok: false, error: 'アカウント名を入力してください' });
+  if (!process.env.APIFY_TOKEN) return res.status(400).json({ ok: false, error: 'APIFY_TOKEN未設定（Cloud Runの環境変数に追加してください）' });
+  if (!process.env.ANTHROPIC_API_KEY) return res.status(400).json({ ok: false, error: 'ANTHROPIC_API_KEY未設定（Cloud Runの環境変数に追加してください）' });
+
+  // 1) Apify取得＋懸賞投稿の除外
+  let data;
+  try {
+    data = await runScriptJson('scripts/apify/fetch_x_replies.js', [account, '--json']);
+  } catch (e) {
+    return res.status(500).json({ ok: false, error: 'リプライ取得に失敗しました: ' + String(e.message || e).slice(0, 400) });
+  }
+  // 「対象投稿なし」は 0% と意味が違う（0%＝反応はあるが買う気ゼロ）ので conversion を null で返す
+  if (!data.posts) {
+    return res.json({ ok: true, account, conversion: null, reason: data.note || '対象投稿なし（懸賞のみ）', posts: 0, giveawayExcluded: data.giveawayExcluded || 0 });
+  }
+  if (!data.replies || !data.replies.length) {
+    return res.json({ ok: true, account, conversion: null, reason: data.note || '判定対象のリプライがありません', posts: data.posts, giveawayExcluded: data.giveawayExcluded || 0 });
+  }
+
+  // 2) Claude判定
+  let prompt;
+  try { prompt = buildXIntentPrompt({ account, replies: data.replies }); }
+  catch (e) { return res.status(400).json({ ok: false, error: e.message }); }
+
+  let judged;
+  try {
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, timeout: 120000 });
+    const msg = await client.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 4096,
+      system: prompt.system,
+      messages: [{ role: 'user', content: prompt.user }],
+    });
+    const text = (msg.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('\n');
+    const m = text.match(/\{[\s\S]*\}/);
+    if (!m) throw new Error('JSONが見つかりません');
+    judged = JSON.parse(m[0]);
+  } catch (e) {
+    return res.status(500).json({ ok: false, error: '判定結果の解析に失敗しました: ' + String(e.message || e).slice(0, 300) });
+  }
+
+  // 3) 転換質% = (購入済＋購入予定＋欲しい) ÷ 判定数。重み付けはしない（未検証の任意定数を入れないため）
+  const c = judged.counts || {};
+  const total = Number(judged.total) || data.replies.length;
+  const hit = (Number(c.purchased) || 0) + (Number(c.willBuy) || 0) + (Number(c.want) || 0);
+  const conversion = total > 0 ? +((hit / total) * 100).toFixed(1) : null;
+
+  res.json({
+    ok: true, account, conversion, total,
+    counts: c,
+    evidence: judged.evidence || {},
+    note: judged.note || '',
+    posts: data.posts,
+    giveawayExcluded: data.giveawayExcluded || 0,
+    hasPRPost: !!data.hasPRPost,
+    lowSample: total < 20,
+  });
 });
 
 // --- ブランド ---
