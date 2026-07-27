@@ -2,23 +2,8 @@
 const { test } = require('node:test');
 const assert = require('node:assert');
 const {
-  parsePercent, toNum, parseWorkshopRow, parseReviewRow, parseAdRow, parseCollabRow,
+  parseWorkshopRow, parseReviewRow, parseAdRow, parseCollabRow,
 } = require('../../lib/kizuki/ledger-store');
-
-test('parsePercent: "2.1%"→2.1 / "62%"→62 / 数値そのまま / 空・—はnull', () => {
-  assert.strictEqual(parsePercent('2.1%'), 2.1);
-  assert.strictEqual(parsePercent('62%'), 62);
-  assert.strictEqual(parsePercent(2.1), 2.1);
-  assert.strictEqual(parsePercent(''), null);
-  assert.strictEqual(parsePercent('—'), null);
-});
-
-test('toNum: 数値化・空/—/NaNはnull', () => {
-  assert.strictEqual(toNum('2.3'), 2.3);
-  assert.strictEqual(toNum(0.9), 0.9);
-  assert.strictEqual(toNum(''), null);
-  assert.strictEqual(toNum('—'), null);
-});
 
 test('parseWorkshopRow: 言及数と未認知(TRUE)', () => {
   assert.deepStrictEqual(

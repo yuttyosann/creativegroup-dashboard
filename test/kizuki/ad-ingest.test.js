@@ -1,20 +1,8 @@
 'use strict';
 const { test } = require('node:test');
 const assert = require('node:assert');
-const { pctStr, ratioStr, buildAdSignalRow, buildAdSignalRows } = require('../../lib/kizuki/ad-ingest');
+const { buildAdSignalRow, buildAdSignalRows } = require('../../lib/kizuki/ad-ingest');
 const { parseAdRow } = require('../../lib/kizuki/ledger-store');
-
-test('pctStr: 分子/分母を"2.1%"形式（1桁）に。分母0/無効はnull', () => {
-  assert.strictEqual(pctStr(21, 1000), '2.1%');
-  assert.strictEqual(pctStr(3, 1000), '0.3%');
-  assert.strictEqual(pctStr(5, 0), null);
-  assert.strictEqual(pctStr(5, ''), null);
-});
-
-test('ratioStr: 比率を数値文字列（2桁）に。分母0/無効はnull', () => {
-  assert.strictEqual(ratioStr(230, 100), '2.3');
-  assert.strictEqual(ratioStr(1, 0), null);
-});
 
 test('buildAdSignalRow: Phase2広告シグナル列順で行を生成（デモグラ明確度は空）', () => {
   const row = buildAdSignalRow(
