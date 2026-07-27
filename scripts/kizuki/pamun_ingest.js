@@ -111,10 +111,8 @@ async function classify(respondents, candidates) {
   if (msg.stop_reason === 'refusal') throw new Error('分類がrefusalで停止しました');
   const text = msg.content.filter((b) => b.type === 'text').map((b) => b.text).join('');
   const parsed = JSON.parse(text);
-
-  // index で整列し直す（対応ズレ検知。欠落は「該当なし」として空配列）
-  const byIndex = new Map(parsed.respondents.map((r) => [r.index, r.items || []]));
-  return respondents.map((r) => byIndex.get(r.index) || []);
+  // index で整列し直す（純粋関数へ委譲。対応ズレ検知・欠落は空配列に縮退）
+  return reviewIngest.realignByIndex(respondents, parsed.respondents);
 }
 
 /** モニターシグナルを (word_id, campaign_id, source) で upsert。手入力/trackA行は触らない。 */

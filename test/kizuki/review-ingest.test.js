@@ -3,6 +3,7 @@ const { test } = require('node:test');
 const assert = require('node:assert');
 const {
   parseSurveyRows, tallyTrackA, tallyTrackB, buildReviewSignalRows, signalKey, SOURCES,
+  realignByIndex,
 } = require('../../lib/kizuki/review-ingest');
 
 test('parseSurveyRows: ヘッダーを飛ばし1行=1回答者にする（indexは0始まり）', () => {
@@ -206,4 +207,35 @@ test('signalKey: upsertキーは (word_id, campaign_id, source)', () => {
   assert.strictEqual(
     signalKey(['w1', 20, '34%', '', '', 'trackA', '2026_04_stardust', '']),
     'w1|2026_04_stardust|trackA');
+});
+
+test('realignByIndex: 回答者順に items を並べ、LLMが順序を入れ替えても index で対応づける', () => {
+  const respondents = [{ index: 0 }, { index: 1 }, { index: 2 }];
+  const classified = [
+    { index: 2, items: [{ wordId: 'c' }] },
+    { index: 0, items: [{ wordId: 'a' }] },
+    { index: 1, items: [{ wordId: 'b' }] },
+  ];
+  assert.deepStrictEqual(realignByIndex(respondents, classified), [
+    [{ wordId: 'a' }], [{ wordId: 'b' }], [{ wordId: 'c' }],
+  ]);
+});
+
+test('realignByIndex: LLMが欠落させた回答者は空配列に縮退する', () => {
+  const respondents = [{ index: 0 }, { index: 1 }, { index: 2 }];
+  const classified = [{ index: 0, items: [{ wordId: 'a' }] }]; // 1,2 が欠落
+  assert.deepStrictEqual(realignByIndex(respondents, classified), [
+    [{ wordId: 'a' }], [], [],
+  ]);
+});
+
+test('realignByIndex: items欠落・未知index・空入力に耐える', () => {
+  const respondents = [{ index: 0 }, { index: 1 }];
+  const classified = [
+    { index: 0 },                          // items 欠落 → []
+    { index: 9, items: [{ wordId: 'x' }] }, // 未知index → 無視
+  ];
+  assert.deepStrictEqual(realignByIndex(respondents, classified), [[], []]);
+  assert.deepStrictEqual(realignByIndex([], []), []);
+  assert.deepStrictEqual(realignByIndex(undefined, undefined), []);
 });
