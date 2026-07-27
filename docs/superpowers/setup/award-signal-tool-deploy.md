@@ -79,6 +79,21 @@ gcloud run services update trepo-award-tool --region asia-northeast1 \
 > ローカルはリポジトリ直下の `.env` から読むが、コンテナに `.env` は入らない（.dockerignore）ため必須。
 （簡易にやるなら `--set-env-vars` に直接 NOTION_TOKEN/APIFY_TOKEN を足してもよいが非推奨）
 
+> 🩹 **必ずやる: プレースホルダ混入チェック**（2026-07-27 に `apify-token` がこの罠にハマった）。
+> 上の `echo -n "＜Apifyトークン＞"` はサンプルの飾り。**実値に置き換え忘れると全角 `＜＞` がそのまま
+> シークレットに入り、Apify/Claude/Notion 認証が毎回即失敗する**（症状: 「候補を提案してもらう」が提案0件、
+> discover は 200 だがポーリングが十数秒で停止）。作成後に3本とも検証すること:
+> ```
+> for s in notion-token apify-token anthropic-api-key; do
+>   v=$(gcloud secrets versions access latest --secret=$s --project=PROJECT)
+>   printf '%s' "$v" | grep -q '＜' && echo "❌ $s: プレースホルダ混入" || echo "✅ $s: len=${#v}"
+> done
+> ```
+> 期待値の目安: notion `ntn_`〜50字 / apify `apify_`〜46字 / anthropic `sk-ant-`〜108字。
+> 既存シークレットを直すには `printf '%s' "<実トークン>" | gcloud secrets versions add <name> --data-file=-` の後、
+> `gcloud run services update ... --update-secrets <ENV>=<name>:latest` で**新リビジョンを出して再読込**させる
+> （稼働中インスタンスは起動時にシークレットを固定するので、バージョン追加だけでは反映されない）。
+
 → 払い出されたURL（`https://trepo-award-tool-xxxx.a.run.app`）を OAuthクライアントのJS生成元（手順1-3）に追加し忘れないこと。
 
 ## 4. アクセス制限（許可リスト）
