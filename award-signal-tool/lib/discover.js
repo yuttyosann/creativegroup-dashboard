@@ -138,6 +138,9 @@ export async function proposeCandidates(onLog) {
   const { selected, deferred } = selectSeeds(categories, CAP, rotation);
   const tags = selected.map((s) => s.tag);
   log(`対象カテゴリ ${categories.length}件 / 今回のシード ${tags.length}件（上限${CAP}）`);
+  if (categories.length > CAP) {
+    log(`⚠ カテゴリ数(${categories.length})が上限(${CAP})を超えています。後方カテゴリが常に選ばれない可能性があります（CAPの引き上げを検討）`);
+  }
   const byCat = {};
   for (const s of selected) (byCat[s.category] ??= []).push(s.tag);
   for (const [c, ts] of Object.entries(byCat)) log(`  ${c}: ${ts.join(", ")}`);
