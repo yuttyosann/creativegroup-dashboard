@@ -116,18 +116,21 @@ export async function proposeCandidates(onLog) {
 
   // 1) シード設定DBの「自動検索ON」を カテゴリ→タグ で集める（フラット化しない）
   const seeds = await listSeeds();
-  const categories = [];
+  const catMap = new Map(); // カテゴリ名 → タグ配列（同名カテゴリの行はマージする。
+                            // Notionの「カテゴリ」はtitleプロパティで一意性が保証されないため）
   const allSeedTags = new Set(); // 候補から除外する用（シード自身は候補にしない）
   for (const s of seeds) {
     if (!s.autoOn || !s.hashtags || s.hashtags === "—") continue;
-    const tags = [];
+    const name = s.category || "その他";
+    const tags = catMap.get(name) || [];
     for (const t of s.hashtags.split(/[\s、,]+/)) {
       const v = normalize(t);
       if (v) { tags.push(v); allSeedTags.add(v); }
     }
-    if (tags.length) categories.push({ category: s.category, tags });
+    if (tags.length) catMap.set(name, tags);
   }
   if (!allSeedTags.size) { log("⚠ シード設定DBに有効なハッシュタグがありません"); return []; }
+  const categories = [...catMap].map(([category, tags]) => ({ category, tags }));
 
   // 2) カテゴリ均等＋日次ローテーションで今回のシードを選ぶ（上限14≒実証済み7〜8分）
   const CAP = 14;
@@ -139,6 +142,7 @@ export async function proposeCandidates(onLog) {
   for (const s of selected) (byCat[s.category] ??= []).push(s.tag);
   for (const [c, ts] of Object.entries(byCat)) log(`  ${c}: ${ts.join(", ")}`);
   if (deferred.length) log(`  今回見送り（次回ローテーション）: ${deferred.map((d) => d.tag).join(", ")}`);
+  if (!tags.length) { log("⚠ 今回選ばれたシードが0件でした"); return []; }
 
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "discover-"));
   const rawCsv = path.join(tmp, "raw.csv");
