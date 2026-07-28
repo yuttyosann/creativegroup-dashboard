@@ -53,7 +53,9 @@ const normalize = (s) => String(s || "").replace(/^#/, "").trim();
  * カテゴリ均等＋ローテーションでシードを選ぶ（純粋関数・ネットワーク不要）。
  * ・タグ空カテゴリを除外。カテゴリ内/カテゴリ間の重複タグを除去（初出のみ）。
  * ・各カテゴリを rotation で回転させ、ラウンドロビンで cap 件まで選ぶ
- *   （＝タグを持つ全カテゴリが必ず1つ以上代表される。cap≥カテゴリ数のとき）。
+ *   （＝タグを持つ全カテゴリが必ず1つ以上代表される。cap≥カテゴリ数のとき。
+ *   ※同名タグがカテゴリ間で重複しない前提。重複する場合はグローバル重複除去が優先され、
+ *     後発カテゴリが代表を得られないことがある）。
  * @param {Array<{category:string, tags:string[]}>} categories
  * @param {number} cap 1回で選ぶ最大シード数
  * @param {number} rotation 日次ローテーション用の整数（同じ値なら決定的）
@@ -61,6 +63,7 @@ const normalize = (s) => String(s || "").replace(/^#/, "").trim();
  */
 export function selectSeeds(categories, cap, rotation = 0) {
   const limit = Math.max(0, Math.trunc(cap) || 0);
+  const rot = Number.isFinite(rotation) ? Math.trunc(rotation) : 0;
   // 1) タグ空カテゴリを除外し、カテゴリ内の重複タグを除去（順序維持）
   const cats = [];
   for (const c of categories || []) {
@@ -75,7 +78,7 @@ export function selectSeeds(categories, cap, rotation = 0) {
   // 2) 各カテゴリを rotation で回転
   const rotated = cats.map((c) => {
     const n = c.tags.length;
-    const off = ((Math.trunc(rotation) % n) + n) % n;
+    const off = ((rot % n) + n) % n;
     return { category: c.category, tags: c.tags.map((_, i) => c.tags[(off + i) % n]) };
   });
   // 3) ラウンドロビンで選ぶ（グローバル重複タグは初出のみ）

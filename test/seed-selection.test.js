@@ -66,3 +66,22 @@ test('空入力・cap 0 でも落ちない', () => {
   assert.deepEqual(selectSeeds([], 14, 0), { selected: [], deferred: [] });
   assert.deepEqual(selectSeeds(CATS, 0, 0).selected, []);
 });
+
+test('rotation が NaN/undefined でも全ユニークタグを網羅する（消失しない）', () => {
+  for (const rot of [NaN, undefined]) {
+    const { selected, deferred } = selectSeeds(CATS, 3, rot);
+    const all = [...selected, ...deferred].map(x => x.tag).sort();
+    assert.deepEqual(all, ['スキンケア', '推し活', '新作コスメ', '毛穴ケア', '韓国コスメ', 'プチプラコスメ'].sort());
+  }
+});
+
+test('rotation が負値でも決定的に動く（-n は 0 と同義。単一カテゴリで検証）', () => {
+  // 注: CATS はカテゴリごとにタグ数が異なる（3/2/1）ため、-1 と 2 の等価性は
+  // タグ数3のカテゴリでしか成り立たない（-1 ≡ 2 mod 3 だが -1 ≡ 1 mod 2）。
+  // 全カテゴリ横断で deepEqual すると別カテゴリの差異で誤って失敗するため、
+  // タグ数を揃えた単一カテゴリで -n ≡ 0 (mod n) を検証する。
+  const cats = [{ category: 'コスメ', tags: ['a', 'b', 'c'] }];
+  const neg = selectSeeds(cats, 3, -3);
+  const zero = selectSeeds(cats, 3, 0);
+  assert.deepEqual(neg, zero);
+});
