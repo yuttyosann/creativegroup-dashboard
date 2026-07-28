@@ -114,28 +114,40 @@ export function selectSeeds(categories, cap, rotation = 0) {
 export async function proposeCandidates(onLog) {
   const log = (s) => onLog && onLog(s);
 
-  // 1) シード設定DBから「自動検索ON」のハッシュタグを集める
+  // 1) シード設定DBの「自動検索ON」を カテゴリ→タグ で集める（フラット化しない）
   const seeds = await listSeeds();
-  const seedTags = new Set();
+  const categories = [];
+  const allSeedTags = new Set(); // 候補から除外する用（シード自身は候補にしない）
   for (const s of seeds) {
     if (!s.autoOn || !s.hashtags || s.hashtags === "—") continue;
+    const tags = [];
     for (const t of s.hashtags.split(/[\s、,]+/)) {
       const v = normalize(t);
-      if (v) seedTags.add(v);
+      if (v) { tags.push(v); allSeedTags.add(v); }
     }
+    if (tags.length) categories.push({ category: s.category, tags });
   }
-  if (!seedTags.size) { log("⚠ シード設定DBに有効なハッシュタグがありません"); return []; }
-  const tags = [...seedTags];
-  log(`シード ${tags.length}件: ${tags.join(", ")}`);
+  if (!allSeedTags.size) { log("⚠ シード設定DBに有効なハッシュタグがありません"); return []; }
+
+  // 2) カテゴリ均等＋日次ローテーションで今回のシードを選ぶ（上限14≒実証済み7〜8分）
+  const CAP = 14;
+  const rotation = Math.floor(Date.now() / 86400000); // 経過日数（ステートレス）
+  const { selected, deferred } = selectSeeds(categories, CAP, rotation);
+  const tags = selected.map((s) => s.tag);
+  log(`対象カテゴリ ${categories.length}件 / 今回のシード ${tags.length}件（上限${CAP}）`);
+  const byCat = {};
+  for (const s of selected) (byCat[s.category] ??= []).push(s.tag);
+  for (const [c, ts] of Object.entries(byCat)) log(`  ${c}: ${ts.join(", ")}`);
+  if (deferred.length) log(`  今回見送り（次回ローテーション）: ${deferred.map((d) => d.tag).join(", ")}`);
 
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "discover-"));
   const rawCsv = path.join(tmp, "raw.csv");
   const pickedCsv = path.join(tmp, "picked.csv");
 
-  // 2) TikTok共起タグ発掘
+  // 3) TikTok共起タグ発掘（件数はlib側で --max-seeds に明示指定して制御）
   await spawnP("node", [
     "scripts/apify/discover_tiktok.js", ...tags,
-    "--per", "30", "--top", "8", "--out", rawCsv,
+    "--per", "30", "--top", "8", "--max-seeds", String(tags.length), "--out", rawCsv,
   ], log);
   if (!fs.existsSync(rawCsv)) throw new Error("発掘結果CSVが生成されませんでした");
   if (!parseCSV(fs.readFileSync(rawCsv, "utf-8")).length) {
@@ -143,20 +155,20 @@ export async function proposeCandidates(onLog) {
     return [];
   }
 
-  // 3) Claude精選（総称語・persona語・表記ゆれを落とし、カテゴリを補正）
+  // 4) Claude精選（総称語・persona語・表記ゆれを落とし、カテゴリを補正）
   await spawnP("node", [
     "scripts/ai/filter_candidates.js", "--csv", rawCsv, "--out", pickedCsv,
   ], log);
   if (!fs.existsSync(pickedCsv)) throw new Error("精選結果CSVが生成されませんでした");
   const picked = parseCSV(fs.readFileSync(pickedCsv, "utf-8"));
 
-  // 4) 既存候補・シード自体・重複を除外して提案リストにする（登録はしない）
-  const existing = new Set((await listCandidates()).map(c => c.name.trim()));
+  // 5) 既存候補・シード自体・重複を除外して提案リストにする（登録はしない）
+  const existing = new Set((await listCandidates()).map((c) => c.name.trim()));
   const seen = new Set();
   const proposals = [];
   for (const r of picked) {
     const name = normalize(r.name);
-    if (!name || seen.has(name) || existing.has(name) || seedTags.has(name)) continue;
+    if (!name || seen.has(name) || existing.has(name) || allSeedTags.has(name)) continue;
     seen.add(name);
     proposals.push({ name, category: r.category || "その他", reason: r.reason || "" });
   }
