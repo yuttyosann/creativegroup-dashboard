@@ -75,13 +75,13 @@ test('rotation が NaN/undefined でも全ユニークタグを網羅する（�
   }
 });
 
-test('rotation が負値でも決定的に動く（-n は 0 と同義。単一カテゴリで検証）', () => {
+test('rotation が負値でも正しく正規化される（-1 ≡ 2 mod 3。+n 補正パスを踏む）', () => {
   // 注: CATS はカテゴリごとにタグ数が異なる（3/2/1）ため、-1 と 2 の等価性は
-  // タグ数3のカテゴリでしか成り立たない（-1 ≡ 2 mod 3 だが -1 ≡ 1 mod 2）。
-  // 全カテゴリ横断で deepEqual すると別カテゴリの差異で誤って失敗するため、
-  // タグ数を揃えた単一カテゴリで -n ≡ 0 (mod n) を検証する。
+  // タグ数3のカテゴリでしか成り立たない。よってタグ数を揃えた単一カテゴリで検証する。
+  // -1 % 3 は JS では -1（負の剰余）になるため、((rot % n) + n) % n の +n 補正が
+  // 実際に効く非退化ケースになっている（-3 だと -0 になり補正の有無を検証できない）。
   const cats = [{ category: 'コスメ', tags: ['a', 'b', 'c'] }];
-  const neg = selectSeeds(cats, 3, -3);
-  const zero = selectSeeds(cats, 3, 0);
-  assert.deepEqual(neg, zero);
+  const neg = selectSeeds(cats, 3, -1);
+  const pos = selectSeeds(cats, 3, 2);
+  assert.deepEqual(neg, pos);
 });
