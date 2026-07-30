@@ -10,7 +10,8 @@
 ## 0. まず診断を回す
 
 ```bash
-node scripts/kizuki/pamun_preflight.js
+cd /Users/yuttyo/claude/creativegroup-dashboard
+node .worktrees/kizuki-word-cycle/scripts/kizuki/pamun_preflight.js
 ```
 
 読み取り専用。環境変数・Google認証・タブの有無・**ヘッダー行の位置**・候補ワード・アンケート回答数までを実物を見て検査し、
@@ -33,12 +34,27 @@ NG ごとに具体的な直し方を出す。以下の Step は preflight が指
 
 ## Step 1. `.env`
 
-**置き場所は「実行時のカレントディレクトリ」**。worktree から実行するなら
-`.worktrees/kizuki-word-cycle/.env` が要る（`dotenv` は cwd 基準で解決する）。
+`dotenv` は **実行時のカレントディレクトリ**基準で `.env` を解決する。
+一方 `require` はスクリプト自身の位置基準なので、**本体リポジトリをカレントにして
+worktree のスクリプトを実行すれば、`.env` を worktree に複製しなくてよい**。
+
+```bash
+cd /Users/yuttyo/claude/creativegroup-dashboard
+node .worktrees/kizuki-word-cycle/scripts/kizuki/pamun_preflight.js
+```
+
+本体の `.env` には `ANTHROPIC_API_KEY` が既にある。**追記が要るのは `SHEET_ID` の1行だけ**：
 
 ```
-SHEET_ID=<コックピットのスプレッドシートID>
-ANTHROPIC_API_KEY=sk-ant-...
+SHEET_ID=1VxAOesBm_gi_jlSlq39FDtTMZNYOQcBm3J53gw3_g3o
+```
+
+この値はコックピット本番（Cloud Run `cg-cockpit` / asia-northeast1）の環境変数と同じもの。
+次回以降うろ覚えになったら以下で引ける：
+
+```bash
+gcloud run services describe cg-cockpit --region=asia-northeast1 \
+  --format="value(spec.template.spec.containers[0].env)" | tr ';' '\n' | grep SHEET_ID
 ```
 
 `ANTHROPIC_API_KEY` は dry-run では不要、本実行で必須。
