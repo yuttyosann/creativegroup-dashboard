@@ -122,3 +122,14 @@ test('isBotAccount: newspaper を news で誤検出しない', () => {
   assert.equal(isBotAccount({ name: '', description: 'I read the newspaper daily' }), false);
   assert.equal(isBotAccount({ name: '', description: '美容ニュースをまとめて配信' }), true);
 });
+
+test('isBotAccount: まとめ買い を bot 扱いしない（購買意欲の高い候補を失わない）', () => {
+  assert.equal(isBotAccount({ name: '', description: 'コスメをまとめ買いするのが趣味' }), false);
+  assert.equal(isBotAccount({ name: '', description: '新作をまとめ買いしました' }), false);
+  assert.equal(isBotAccount({ name: '', description: 'コスメ情報のまとめサイトです' }), true);  // 本物は引き続き検出
+});
+
+test('isOfficialAccount: zinc を inc. で誤検出しない', () => {
+  assert.equal(isOfficialAccount({ name: '', description: 'zinc oxide 配合が好き' }), false);
+  assert.equal(isOfficialAccount({ name: 'ABC Inc.', description: '' }), true);  // 本物は引き続き検出
+});
