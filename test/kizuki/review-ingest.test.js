@@ -54,6 +54,20 @@ test('parseSurveyRows: 0は有意な値なのでスキップしない', () => {
   assert.strictEqual(parseSurveyRows(rows).length, 1);
 });
 
+test('parseSurveyRows: アベンヌ様式（3列・感想と満足度が逆順）をヘッダー名で正しく取る', () => {
+  // 施策レポートの様式は案件ごとに違う。04/06は6列だがアベンヌ(2026/06 ミルキープロテクターUV)は3列で、
+  // 固定インデックスだと「①とても満足」がgoodPoints（LLMの主判断材料）に入り自由記述が捨てられる。
+  const rows = [
+    ['ご年齢', '商品の感想を教えてください', '商品の満足度を教えてください'],
+    [30, '子どもと一緒に使える点が良かったです。石鹸で落とせるのも助かります。', '①とても満足'],
+  ];
+  assert.deepStrictEqual(parseSurveyRows(rows), [
+    { index: 0, age: 30, satisfaction: '①とても満足',
+      goodPoints: '子どもと一緒に使える点が良かったです。石鹸で落とせるのも助かります。',
+      improvements: '', favorite: '' },
+  ]);
+});
+
 test('parseSurveyRows: ヘッダーのみ・空・undefined は空配列（06レポート＝未回答の回帰）', () => {
   assert.deepStrictEqual(parseSurveyRows([['ご年齢', '①', '②', '③', '④', '⑤']]), []);
   assert.deepStrictEqual(parseSurveyRows([]), []);
