@@ -18,11 +18,9 @@ const reviewIngest = require('../../lib/kizuki/review-ingest');
 
 const SHEET_ID = process.env.SHEET_ID;
 const MAPPING_TAB = 'Pamun取込マッピング';
-const SURVEY_TAB = '《事後アンケート》詳細';
 
-const MAPPING_HEADER = ['campaign_id', 'report_name', 'case_id', 'n'];
+const MAPPING_HEADER = ['campaign_id', 'report_sheet_id', 'survey_tab', 'case_id', 'n'];
 const REVIEW_HEADER_TAIL = ['source', 'campaign_id', 'confidence'];
-const SURVEY_MIN_COLS = 6; // A..F（年代/満足度/良かった点/改善点/容器希望/お気に入り）
 
 const results = [];
 const ok = (label, detail) => results.push({ level: 'ok', label, detail });
@@ -81,10 +79,11 @@ async function main() {
   }
 
   const titles = meta.sheets.map((s) => s.properties.title);
-  const readRows = async (tab) => {
-    const res = await sheets.spreadsheets.values.get({ spreadsheetId: SHEET_ID, range: `${tab}!A:Z` });
+  const readRowsOf = async (spreadsheetId, tab) => {
+    const res = await sheets.spreadsheets.values.get({ spreadsheetId, range: `${tab}!A:Z` });
     return res.data.values || [];
   };
+  const readRows = (tab) => readRowsOf(SHEET_ID, tab);
 
   // --- 3. 気づきワード台帳 -------------------------------------------------
   let ledgerRows = [];
@@ -140,10 +139,18 @@ async function main() {
         `ヘッダー(${MAPPING_HEADER.join(',')})を1行目に移動する`);
     } else {
       mapping = rows.slice(1)
-        .filter((r) => r[0] && r[1] && r[2])
-        .map((r) => ({ campaignId: r[0], reportName: r[1], caseId: r[2], n: r[3] }));
+        .filter((r) => r[0] && r[2] && r[3])
+        .map((r) => ({
+          campaignId: r[0],
+          reportSheetId: r[1] || SHEET_ID,
+          ownSheet: !r[1],
+          surveyTab: r[2],
+          caseId: r[3],
+          n: r[4],
+        }));
       if (!mapping.length) {
-        ng(MAPPING_TAB, 'データ行が0件', '取り込む施策を1行以上追加（campaign_id / report_name / case_id は必須）');
+        ng(MAPPING_TAB, 'データ行が0件',
+          '取り込む施策を1行以上追加（campaign_id / survey_tab / case_id は必須。report_sheet_id は空ならこのスプレッドシート）');
       } else {
         ok(MAPPING_TAB, `${mapping.length} 施策`);
       }
@@ -162,26 +169,38 @@ async function main() {
       ok(`${label} / 候補ワード`, `${candidates.length} 件`);
     }
 
-    const surveyTab = `${m.reportName}${SURVEY_TAB}`;
-    if (!titles.includes(surveyTab)) {
-      const near = titles.filter((t) => t.includes(SURVEY_TAB));
-      ng(`${label} / アンケート`, `タブ「${surveyTab}」がありません`,
-        near.length
-          ? `report_name を実在タブに合わせる。候補: ${near.map((t) => `「${t.replace(SURVEY_TAB, '')}」`).join(' / ')}`
-          : `施策レポート(xlsx)をこのスプレッドシートに取り込み、タブ名を「<report_name>${SURVEY_TAB}」にする`);
+    // アンケートは別スプレッドシート（施策レポート／フォームの生回答）にあることが多い。
+    let surveyRows;
+    try {
+      surveyRows = await readRowsOf(m.reportSheetId, m.surveyTab);
+    } catch (e) {
+      const where = m.ownSheet ? 'このスプレッドシート' : `report_sheet_id=${m.reportSheetId}`;
+      ng(`${label} / アンケート`, `${where} のタブ「${m.surveyTab}」を読めません: ${e.message.slice(0, 90)}`,
+        m.ownSheet
+          ? 'survey_tab を実在するタブ名に合わせるか、report_sheet_id にレポート/生回答のシートIDを入れる'
+          : 'report_sheet_id と survey_tab が正しいか、そのシートが実行中のサービスアカウント（ADCのなりすまし先）から見えるか確認する');
       continue;
     }
-    const surveyRows = await readRows(surveyTab);
     const respondents = reviewIngest.parseSurveyRows(surveyRows);
-    const widthOk = (surveyRows[0] || []).length >= SURVEY_MIN_COLS;
+    // 検出した列は必ず出す。ここがズレると自由記述ではなく選択肢がLLMに渡り、静かに誤分類される。
+    const cols = reviewIngest.detectSurveyColumns(surveyRows[0]);
+    const shown = ['age', 'goodPoints', 'satisfaction']
+      .map((f) => `${f}=${cols[f] === undefined ? '未検出' : `列${cols[f] + 1}`}`).join(' / ');
+    if (cols.goodPoints === undefined) {
+      ng(`${label} / アンケート列`, `自由記述の列を特定できません（${shown}）`,
+        '設問名に「良かった」または「感想」を含む列があるか確認する（LLM分類の主判断材料）');
+    } else {
+      ok(`${label} / アンケート列`, shown);
+    }
     if (!respondents.length) {
-      ng(`${label} / アンケート`, `「${surveyTab}」の回答が0件（生成なしで終わります）`, '1行目がヘッダー・2行目以降が回答になっているか確認');
-    } else if (!widthOk) {
-      warn(`${label} / アンケート`, `回答 ${respondents.length} 人だが列が ${(surveyRows[0] || []).length} 列（A..F の6列を想定）`,
-        '列順が 年代/満足度/良かった点/改善点/容器希望/お気に入り になっているか確認');
+      ng(`${label} / アンケート`, `「${m.surveyTab}」の回答が0件（生成なしで終わります）`,
+        '1行目がヘッダー・2行目以降が回答になっているか確認');
     } else {
       const nEff = m.n ? Number(m.n) : respondents.length;
-      ok(`${label} / アンケート`, `回答 ${respondents.length} 人 / 共感率の分母 n=${nEff}${m.n ? '（マッピング指定）' : '（回答数を使用）'}`);
+      const blank = respondents.filter((x) => !x.goodPoints.trim()).length;
+      ok(`${label} / アンケート`,
+        `回答 ${respondents.length} 人 / 分母 n=${nEff}${m.n ? '（マッピング指定）' : '（回答数を使用）'}`
+        + (blank ? ` ／ 自由記述が空 ${blank} 人` : ''));
     }
   }
 

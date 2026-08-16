@@ -1,7 +1,7 @@
 'use strict';
 /**
  * 気づきワードサイクル Phase3 スライス2 バッチ本体（Track B＝既存の従来Pamun進行）。
- * Sheet(Pamun取込マッピング) → レポートの《事後アンケート》詳細 → LLMで候補ワードへ写像
+ * Sheet(Pamun取込マッピング) → 施策ごとの事後アンケート（別スプレッドシート可）→ LLMで候補ワードへ写像
  * → review-ingest でモニターシグナル行を生成 → (word_id, campaign_id, source) で upsert。
  * 仕様: docs/superpowers/specs/2026-07-16-kizuki-word-cycle-phase3-slice2-pamun-ingest.md
  *
@@ -17,7 +17,6 @@ const reviewIngest = require('../../lib/kizuki/review-ingest');
 
 const SHEET_ID = process.env.SHEET_ID;
 const MAPPING_TAB = 'Pamun取込マッピング';
-const SURVEY_TAB = '《事後アンケート》詳細';
 const MODEL = 'claude-opus-4-8';
 const DRY_RUN = process.argv.includes('--dry-run');
 const CAMPAIGN_ARG = (() => {
@@ -25,12 +24,24 @@ const CAMPAIGN_ARG = (() => {
   return i >= 0 ? process.argv[i + 1] : null;
 })();
 
-/** Pamun取込マッピングタブ（ヘッダー: campaign_id, report_name, case_id, n）を読む。 */
+/**
+ * Pamun取込マッピングタブ（ヘッダー: campaign_id, report_sheet_id, survey_tab, case_id, n）を読む。
+ *
+ * 施策レポートもフォームの生回答も施策ごとに別スプレッドシートで発行されるため、
+ * 「どのシートの・どのタブか」を明示的に持たせる（タブ名を組み立てない）。
+ * report_sheet_id が空なら SHEET_ID＝同じスプレッドシート内のタブを見る。
+ */
 async function readMapping() {
   const rows = await readRows(SHEET_ID, MAPPING_TAB);
   return rows.slice(1)
-    .filter((r) => r[0] && r[1] && r[2])
-    .map((r) => ({ campaignId: r[0], reportName: r[1], caseId: r[2], n: toNum(r[3]) }));
+    .filter((r) => r[0] && r[2] && r[3])
+    .map((r) => ({
+      campaignId: r[0],
+      reportSheetId: r[1] || SHEET_ID,
+      surveyTab: r[2],
+      caseId: r[3],
+      n: toNum(r[4]),
+    }));
 }
 
 /** 台帳から case の候補ワードを引く（word_id と表記のペア）。 */
@@ -133,7 +144,7 @@ async function upsertReviewSignals(signalRows) {
 }
 
 async function ingestCampaign(m) {
-  const surveyRows = await readRows(SHEET_ID, `${m.reportName}${SURVEY_TAB}`);
+  const surveyRows = await readRows(m.reportSheetId, m.surveyTab);
   const respondents = reviewIngest.parseSurveyRows(surveyRows);
   const n = m.n !== null ? m.n : respondents.length;
   const candidates = await readCandidates(m.caseId);
