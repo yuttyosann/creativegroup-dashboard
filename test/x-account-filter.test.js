@@ -105,3 +105,20 @@ test('sortByRate: エンゲージ率の降順・nullは末尾', () => {
   const out = sortByRate([{ rate: 1.0 }, { rate: null }, { rate: 3.0 }]);
   assert.deepEqual(out.map((x) => x.rate), [3.0, 1.0, null]);
 });
+
+test('isBotAccount: 英単語に埋まった bot を誤検出しない（botanical等）', () => {
+  assert.equal(isBotAccount({ name: '', description: 'botanical skincare lover' }), false);
+  assert.equal(isBotAccount({ name: '', description: 'I love robots' }), false);
+  assert.equal(isBotAccount({ name: 'コスメbot', description: '' }), true);   // 本物は引き続き検出
+});
+
+test('isOfficialAccount: unofficial / 非公式 を公式扱いしない', () => {
+  assert.equal(isOfficialAccount({ name: '', description: 'unofficial fan account' }), false);
+  assert.equal(isOfficialAccount({ name: '◯◯非公式ファン', description: '' }), false);
+  assert.equal(isOfficialAccount({ name: '◯◯コスメ公式', description: '' }), true);  // 本物は引き続き検出
+});
+
+test('isBotAccount: newspaper を news で誤検出しない', () => {
+  assert.equal(isBotAccount({ name: '', description: 'I read the newspaper daily' }), false);
+  assert.equal(isBotAccount({ name: '', description: '美容ニュースをまとめて配信' }), true);
+});
