@@ -88,6 +88,25 @@ if (process.env.FAKE_BQ_JSON || process.env.FAKE_BQ_ERROR) {
   };
 }
 
+// Anthropic SDK も差し替える（FAKE_LLM_JSON=messages.create が返す JSON 文字列）。
+if (process.env.FAKE_LLM_JSON) {
+  const payload = process.env.FAKE_LLM_JSON;
+  class FakeAnthropic {
+    constructor() {
+      this.messages = {
+        create: async () => ({ stop_reason: 'end_turn', content: [{ type: 'text', text: payload }] }),
+      };
+    }
+  }
+  const sdkPath = require.resolve('@anthropic-ai/sdk', {
+    paths: [path.join(__dirname, '..', '..', '..')],
+  });
+  require.cache[sdkPath] = {
+    id: sdkPath, filename: sdkPath, loaded: true, children: [], paths: [],
+    exports: FakeAnthropic,
+  };
+}
+
 const sheetsPath = require.resolve(path.join(__dirname, '..', '..', '..', 'lib', 'sheets.js'));
 const real = require(sheetsPath);
 fake.findRowNumber = real.findRowNumber;
