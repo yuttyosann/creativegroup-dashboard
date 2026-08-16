@@ -22,6 +22,9 @@ const MAPPING_TAB = 'Pamun取込マッピング';
 const MAPPING_HEADER = ['campaign_id', 'report_sheet_id', 'survey_tab', 'case_id', 'n'];
 const REVIEW_HEADER_TAIL = ['source', 'campaign_id', 'confidence'];
 
+// CG_気づきワード台帳.gs が書き込む説明用サンプルのワード本文（小文字化して比較）
+const GAS_SAMPLE_WORDS = ['乾燥でゆらいだ日の駆け込み', '無香料だから夜も気にならない', 'パケが可愛い'];
+
 const results = [];
 const ok = (label, detail) => results.push({ level: 'ok', label, detail });
 const warn = (label, detail, fix) => results.push({ level: 'warn', label, detail, fix });
@@ -99,10 +102,12 @@ async function main() {
         `1〜${h.row - 1} 行目（タイトル帯など）を削除してヘッダーを1行目にする`);
     }
     // GAS が書き込む説明用サンプル行。残すと架空ワードが採点され、候補ワードにも混ざる。
-    const sample = ledgerRows.slice(1).filter((r) => norm(r[ledger.L.case]) === '2026-06-avene');
+    // 案件IDではなくサンプル固有のワード文言で判定する（実案件の案件IDと衝突させないため）。
+    const sample = ledgerRows.slice(1)
+      .filter((r) => GAS_SAMPLE_WORDS.includes(norm(r[ledger.L.word])));
     if (sample.length) {
       ng(`${ledger.TABS.LEDGER} / サンプル行`,
-        `GAS のサンプル行が ${sample.length} 件残っています（案件ID=2026-06-AVENE / ${sample.map((r) => r[ledger.L.wordId]).join(',')}）`,
+        `GAS の説明用サンプル行が ${sample.length} 件残っています（${sample.map((r) => r[ledger.L.word]).join(' / ')}）`,
         '台帳と各シグナルタブから説明用サンプル行を削除する（架空ワードが採点され、pamun_ingest の候補ワードにも混ざります）');
     }
   }
