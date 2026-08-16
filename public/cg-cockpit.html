@@ -267,6 +267,11 @@ const RENDER = {
       <p style="font-size:12.5px;color:var(--muted);margin-bottom:8px">キーワードで候補チャンネルを検索し、転換質で粗くランク付けします。</p>
       <div style="display:flex;gap:8px"><input id="srcytkw" placeholder="乾燥肌 ファンデ レビュー"><button class="btn" onclick="searchYTSource()">検索</button></div>
       <div id="srcytresult" style="margin-top:10px;font-size:13px"></div></div>
+    <div class="card"><h3>🔎 X候補検索（Apifyキーワード検索）</h3>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:8px">カテゴリ語や商品・ブランド名でXを検索し、投稿者を候補として発掘します。企業公式・懸賞垢・botは自動除外します。キーワードは3つまで／1語あたり100件（約6円）。</p>
+      <div class="note" style="margin-bottom:8px">⚠️ エンゲージ率は<b>X内の相対比較にのみ</b>使用してください。YouTube/IGの指標とは較正されていないため、媒体をまたいで並べないでください。要 APIFY_TOKEN。</div>
+      <div style="display:flex;gap:8px"><input id="xdkw" placeholder="毛穴ケア, 化粧水（カンマ区切りで3つまで）"><button class="btn" style="background:var(--purple)" onclick="runXDiscover()">検索</button></div>
+      <div id="xd_result" style="margin-top:10px;font-size:13px"></div></div>
     <div class="card"><h3>🤝 Astreamの役割</h3>
       <span class="pill p-blue">客層を取得</span><span class="pill p-blue">実在率(bot)</span><span class="pill p-blue">競合PR調査</span><span class="pill p-blue">類似アカウント</span>
       <p style="font-size:12.5px;color:var(--muted);margin-top:8px">Astream＝客層・競合を丸裸に／当社＝買う気と商品適合を見極める。CSVは ingest_csv.py でマスタDBに取込。</p>
@@ -611,6 +616,35 @@ window.searchYTSource=async()=>{
         +`</table>`;
     }else{ el.innerHTML="<span style='color:var(--muted)'>"+escapeHtml(r.error||"該当なし")+"</span>"; }
   }catch(e){ el.innerHTML="<span style='color:#A32D2D'>"+escapeHtml(e.message)+"</span>"; }
+};
+
+// X候補検索（S2d-3）— キーワードで発掘し、選んだものを候補DBに登録する
+window.runXDiscover=async()=>{
+  const kw=(document.getElementById("xdkw").value||"").trim();
+  const el=document.getElementById("xd_result");
+  if(!kw){ el.innerHTML="<span style='color:#A32D2D'>キーワードを入力してください</span>"; return; }
+  el.innerHTML="検索中…（30秒〜1分・リロードしないでください）";
+  try{
+    const r=await api("/api/cockpit/x-discover",{keywords:kw});
+    if(!r||!r.ok){ el.innerHTML="<span style='color:#A32D2D'>"+escapeHtml((r&&r.error)||"検索に失敗しました")+"</span>"; return; }
+    window.__xdCand=r.candidates||[];
+    const b=r.excludedBreakdown||{};
+    const exLine=`<div style="font-size:11.5px;color:var(--muted);margin-bottom:6px">取得${r.fetched||0}ツイート／候補${window.__xdCand.length}件・除外${(r.excluded||[]).length}件（公式${b["公式"]||0} 懸賞${b["懸賞"]||0} bot${b["bot"]||0}）</div>`;
+    if(!window.__xdCand.length){ el.innerHTML=exLine+"<span style='color:var(--muted)'>"+escapeHtml(r.note||"該当なし")+"</span>"; return; }
+    el.innerHTML=exLine+window.__xdCand.map((x,i)=>`<div style="padding:5px 0;border-bottom:1px solid var(--line)">
+      <b>@${escapeHtml(x.account)}</b>
+      <span class="pill ${x.rate!=null&&x.rate>=3?"p-green":x.rate!=null&&x.rate>=1?"p-orange":"p-gray"}">${x.rate==null?"エンゲージ率—":"エンゲージ率"+x.rate+"%"}</span>
+      <span style="color:var(--muted);font-size:11.5px">フォロワー${(x.followers||0).toLocaleString()}／ヒット${x.hits}件／平均♥${(x.avgLike||0).toLocaleString()}</span>
+      <button class="btn" style="margin-left:6px;padding:1px 7px;font-size:11px" onclick="regXCand(${i},this)">DBに登録</button>
+      <br><span style="color:var(--muted);font-size:11px">${escapeHtml(x.sampleText||"")}</span></div>`).join("")
+      +((r.excluded||[]).length?`<details style="margin-top:8px"><summary style="cursor:pointer;font-size:12px;color:var(--muted)">除外された${(r.excluded||[]).length}件を見る（誤除外の確認用）</summary>
+      <div style="font-size:11.5px;color:var(--muted);margin-top:4px">${(r.excluded||[]).map(e=>`@${escapeHtml(e.account)}（${escapeHtml(e.reason||"")}・フォロワー${(e.followers||0).toLocaleString()}）`).join("／")}</div></details>`:"");
+  }catch(e){ el.innerHTML="<span style='color:#A32D2D'>"+escapeHtml(e.message||"検索に失敗しました")+"</span>"; }
+};
+
+window.regXCand=(i,btn)=>{
+  const x=(window.__xdCand||[])[i]; if(!x) return;
+  return registerCand({account:x.account, media:"X", followers:x.followers||"", prEngage:(x.rate==null?"":x.rate), url:x.url||""}, btn);
 };
 
 window.runIGBatch=async()=>{
