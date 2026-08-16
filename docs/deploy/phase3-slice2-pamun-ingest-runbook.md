@@ -210,6 +210,46 @@ Pamun の事後アンケートは「商品の感想」しか聞いておらず�
 
 ---
 
+## Track A（標準化3択）の回し方
+
+Track B が「感想の自由記述から拾う」のに対し、Track A は**意向を設問で直接聞く**。
+Pamun の事後アンケートに同居させるので、マッピングは Track B と同じ1行をそのまま使う。
+設計: [Track A取込 設計書](../superpowers/specs/2026-08-16-kizuki-word-cycle-tracka-ingest.md)
+
+### 1. 設問にするワードを決める
+
+台帳で、聞きたいワードの **status を「モニター」** にする（**5〜8件**）。
+設問数＝ワード数なので、多いと回答負担で離脱し、少ないと比較する材料が足りない。
+
+### 2. 設問テキストを出す
+
+```bash
+node scripts/kizuki/tracka_questions.js --case 2026-06-AVENE-MPUV
+```
+
+出力をそのまま Google フォームに貼る（各問「1つ選択」形式）。
+
+> ⚠️ **設問文末尾の `[wNNN]` は消さないこと。** 取込はこの word_id だけで列を突合する。
+> 逆に言えば、**文言はフォーム側で自由に直してよい**（`[wNNN]` さえ残っていれば壊れない）。
+
+### 3. 回答後に取り込む
+
+```bash
+node scripts/kizuki/tracka_ingest.js --campaign <campaign_id> --dry-run   # 集計だけ確認
+node scripts/kizuki/tracka_ingest.js --campaign <campaign_id>
+```
+
+> **Track B と違い、dry-run でも実際の集計結果が出る。** LLM を使わないため。
+> 「モニターシグナル生成 0行」なら本当に0件なので、設問列か回答を疑う。
+
+`status=モニター` なのに設問列が見つからないワードは警告が出る。
+フォームで設問を消したり `[wNNN]` を落とすと、そのワードだけ静かに欠測になるため。
+
+同じ施策に trackA と trackB が並存でき、`ledger-store` の source優先ピックで **trackA が採用される**
+（平均しない）。手入力の manual 行も上書きされない。
+
+---
+
 ## 確認しておくべき数字
 
 初回実行後、モニターシグナルの `trackB` 行を見て:
