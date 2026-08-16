@@ -36,21 +36,25 @@ function addKizukiLedger() {
   SpreadsheetApp.getUi().alert(added.length ? `✅ 追加: ${added.join('、')}` : 'すでに存在します。');
 }
 
-// 共通：シート骨格を作る（タイトル帯＋ヘッダー＋データ＋ゼブラ＋固定）
+// 共通：シート骨格を作る（ヘッダー＋データ＋ゼブラ＋固定）
+//
+// ⚠️ ヘッダーは必ず1行目・データは2行目から。上にタイトル帯などを足さないこと。
+// Node 側の読み手（lib/kizuki/*、scripts/kizuki/*、cockpit-server.js）はすべて
+// rows.slice(1) ＝「1行目がヘッダー」を前提にしている。ヘッダーが2行目以降にあると
+// ヘッダー行がデータとして読まれ、ledger-store.js の r[L.wordId] に文字列 'word_id' が
+// 引っかかって1件のワードとして採点され、recalc_job がヘッダー行にスコアを書き戻す。
+// 例外が出ないので気づけない。
 function _kzSheet(ss, idx, name, headerColor, cols, rows) {
-  const C = { dark: '#1E2D40', white: '#FFFFFF', zebra: '#F4F6F7' };
+  const C = { white: '#FFFFFF', zebra: '#F4F6F7' };
   const sh = ss.insertSheet(name, idx);
   const need = cols.length;
   if (sh.getMaxColumns() < need) sh.insertColumnsAfter(sh.getMaxColumns(), need - sh.getMaxColumns());
   cols.forEach((c, i) => sh.setColumnWidth(i + 1, c[1]));
-  sh.setRowHeight(2, 34); sh.setRowHeight(3, 38);
-  sh.getRange(2, 1, 1, need).merge().setValue('Creative Group — ' + name)
-    .setBackground(C.dark).setFontColor(C.white).setFontSize(13).setFontWeight('bold')
-    .setHorizontalAlignment('center').setVerticalAlignment('middle');
-  sh.getRange(3, 1, 1, need).setValues([cols.map((c) => c[0])])
+  sh.setRowHeight(1, 38);
+  sh.getRange(1, 1, 1, need).setValues([cols.map((c) => c[0])])
     .setBackground(headerColor).setFontColor(C.white).setFontSize(8).setFontWeight('bold')
     .setHorizontalAlignment('center').setVerticalAlignment('middle').setWrap(true);
-  const DR = 4;
+  const DR = 2;
   if (rows && rows.length) {
     sh.getRange(DR, 1, rows.length, need).setValues(rows).setFontSize(9).setVerticalAlignment('middle').setWrap(true);
     for (let r = DR; r < DR + rows.length; r += 2) sh.getRange(r, 1, 1, need).setBackground(C.zebra);
@@ -59,7 +63,7 @@ function _kzSheet(ss, idx, name, headerColor, cols, rows) {
   for (let r = emptyStart; r < emptyStart + 20; r++) {
     if (r % 2 === 0) sh.getRange(r, 1, 1, need).setBackground(C.zebra);
   }
-  sh.setFrozenRows(3);
+  sh.setFrozenRows(1);
   sh.setFrozenColumns(1);
   return sh;
 }
@@ -78,13 +82,13 @@ function _kzLedger(ss) {
     ['2026-06-AVENE', 'AV01', 'w003', 'パケが可愛い', '情緒', '勉強会', '見送り', '広告確定', 28, '×', '言及最多だがCVR低・虚栄控除', '2026/06/30'],
   ];
   const sh = _kzSheet(ss, 0, '気づきワード台帳', '#4F46E5', cols, rows);
-  sh.getRange(4, 5, 60, 1).setDataValidation(KZ_DV(['効能', '情緒', '使用シーン', '成分', '価格']));
-  sh.getRange(4, 6, 60, 1).setDataValidation(KZ_DV(['勉強会', 'レビュー', 'コメント']));
-  sh.getRange(4, 7, 60, 1).setDataValidation(KZ_DV(['候補', 'モニター', '広告検証', '勝ち', '見送り']));
-  sh.getRange(4, 8, 60, 1).setDataValidation(KZ_DV(['暫定', 'レビュー反映', '広告確定']));
-  sh.getRange(4, 10, 60, 1).setDataValidation(KZ_DV(['◎', '○', '△', '×']));
-  sh.getRange(3, 9).setNote('lib/kizuki/score.js の computeAppealScore で算出（100点満点＋虚栄控除）。\nPhase1は手入力。サンプル値(87/64/28)は説明用でエンジン出力とは独立（例: w002は表示64○だがレビューのみだとエンジンは×）。\n★Phase2でコックピットがエンジン値で自動上書きする。Phase2開始前に手入力サンプル行は削除すること。');
-  sh.getRange(3, 3).setNote('word_id が全シグナルシートを串刺しする連携キー。');
+  sh.getRange(2, 5, 60, 1).setDataValidation(KZ_DV(['効能', '情緒', '使用シーン', '成分', '価格']));
+  sh.getRange(2, 6, 60, 1).setDataValidation(KZ_DV(['勉強会', 'レビュー', 'コメント']));
+  sh.getRange(2, 7, 60, 1).setDataValidation(KZ_DV(['候補', 'モニター', '広告検証', '勝ち', '見送り']));
+  sh.getRange(2, 8, 60, 1).setDataValidation(KZ_DV(['暫定', 'レビュー反映', '広告確定']));
+  sh.getRange(2, 10, 60, 1).setDataValidation(KZ_DV(['◎', '○', '△', '×']));
+  sh.getRange(1, 9).setNote('lib/kizuki/score.js の computeAppealScore で算出（100点満点＋虚栄控除）。\nPhase1は手入力。サンプル値(87/64/28)は説明用でエンジン出力とは独立（例: w002は表示64○だがレビューのみだとエンジンは×）。\n★Phase2でコックピットがエンジン値で自動上書きする。Phase2開始前に手入力サンプル行は削除すること。');
+  sh.getRange(1, 3).setNote('word_id が全シグナルシートを串刺しする連携キー。');
 }
 
 // ①勉強会シグナル
@@ -95,7 +99,7 @@ function _kzWorkshop(ss) {
     ['w003', 'U-07', 'まずパッケージが可愛くてテンション上がる', 11, 4.1, 'FALSE'],
   ];
   const sh = _kzSheet(ss, 1, '勉強会シグナル', '#0369A1', cols, rows);
-  sh.getRange(4, 6, 60, 1).setDataValidation(KZ_DV(['TRUE', 'FALSE']));
+  sh.getRange(2, 6, 60, 1).setDataValidation(KZ_DV(['TRUE', 'FALSE']));
 }
 
 // ②モニターシグナル（Pamun）
@@ -107,10 +111,10 @@ function _kzReview(ss) {
     ['w003', 30, '12%', 'https://pamun.example/r/003', 'TRUE', 'manual', '', ''],
   ];
   const sh = _kzSheet(ss, 2, 'モニターシグナル', '#0D9488', cols, rows);
-  sh.getRange(4, 3, 60, 1).setNumberFormat('0%');
-  sh.getRange(4, 5, 60, 1).setDataValidation(KZ_DV(['TRUE', 'FALSE']));
-  sh.getRange(3, 3).setNote('「買いたい/使ってみたい」系の反応 ÷ 総反応。可愛い等の虚栄反応は除外。');
-  sh.getRange(3, 6).setNote('manual=手入力 / trackA=標準化アンケート / trackB=既存レポートのLLM写像。\n同じword_idに複数sourceがあれば trackA > manual > trackB の優先で1つだけ採用（平均しない）。\n自動取込は (word_id, campaign_id, source) をキーにupsert。manual行は自動取込で上書きされない。');
+  sh.getRange(2, 3, 60, 1).setNumberFormat('0%');
+  sh.getRange(2, 5, 60, 1).setDataValidation(KZ_DV(['TRUE', 'FALSE']));
+  sh.getRange(1, 3).setNote('「買いたい/使ってみたい」系の反応 ÷ 総反応。可愛い等の虚栄反応は除外。');
+  sh.getRange(1, 6).setNote('manual=手入力 / trackA=標準化アンケート / trackB=既存レポートのLLM写像。\n同じword_idに複数sourceがあれば trackA > manual > trackB の優先で1つだけ採用（平均しない）。\n自動取込は (word_id, campaign_id, source) をキーにupsert。manual行は自動取込で上書きされない。');
 }
 
 // ③広告シグナル
@@ -121,11 +125,11 @@ function _kzAd(ss) {
     ['w003', 'cr-003a', '0.6%', '0.3%', '0.5', '—', '0.2', 120000],
   ];
   const sh = _kzSheet(ss, 3, '広告シグナル', '#EA580C', cols, rows);
-  sh.getRange(4, 3, 60, 1).setNumberFormat('0.0%');
-  sh.getRange(4, 4, 60, 1).setNumberFormat('0.0%');
-  sh.getRange(4, 8, 60, 1).setNumberFormat('#,##0');
-  sh.getRange(3, 7).setNote('刺さる層が立っているか 0..1。後工程のインフル選定精度に直結。');
-  sh.getRange(3, 3).setNote('★Phase2連携メモ：CTR%/CVR%は"2.1%"のテキストで保存。getValues()では文字列で返るため parseFloat(v.replace("%","")) で数値化してから score.js の ad.ctr/ad.cvr に渡すこと。ROAS・デモグラ明確度・配信額は数値そのまま。');
+  sh.getRange(2, 3, 60, 1).setNumberFormat('0.0%');
+  sh.getRange(2, 4, 60, 1).setNumberFormat('0.0%');
+  sh.getRange(2, 8, 60, 1).setNumberFormat('#,##0');
+  sh.getRange(1, 7).setNote('刺さる層が立っているか 0..1。後工程のインフル選定精度に直結。');
+  sh.getRange(1, 3).setNote('★Phase2連携メモ：CTR%/CVR%は"2.1%"のテキストで保存。getValues()では文字列で返るため parseFloat(v.replace("%","")) で数値化してから score.js の ad.ctr/ad.cvr に渡すこと。ROAS・デモグラ明確度・配信額は数値そのまま。');
 }
 
 // ④コラボ実績
@@ -133,8 +137,8 @@ function _kzCollab(ss) {
   const cols = [['word_id', 120], ['influencer_id', 130], ['適合スコア', 90], ['実売数', 80], ['ROAS', 70]];
   const rows = [['w001', 'inf-SACHI', 87, 320, '2.3']];
   const sh = _kzSheet(ss, 4, 'コラボ実績', '#7C3AED', cols, rows);
-  sh.getRange(4, 4, 60, 1).setNumberFormat('#,##0');
-  sh.getRange(3, 2).setNote('提案ログDB／実績タブの influencer_id と一致させる。');
+  sh.getRange(2, 4, 60, 1).setNumberFormat('#,##0');
+  sh.getRange(1, 2).setNote('提案ログDB／実績タブの influencer_id と一致させる。');
 }
 
 // 記入ガイド

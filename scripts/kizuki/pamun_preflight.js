@@ -99,6 +99,13 @@ async function main() {
       ng(ledger.TABS.LEDGER, `ヘッダーが ${h.row} 行目（スクリプトは1行目を前提）`,
         `1〜${h.row - 1} 行目（タイトル帯など）を削除してヘッダーを1行目にする`);
     }
+    // GAS が書き込む説明用サンプル行。残すと架空ワードが採点され、候補ワードにも混ざる。
+    const sample = ledgerRows.slice(1).filter((r) => norm(r[ledger.L.case]) === '2026-06-avene');
+    if (sample.length) {
+      ng(`${ledger.TABS.LEDGER} / サンプル行`,
+        `GAS のサンプル行が ${sample.length} 件残っています（案件ID=2026-06-AVENE / ${sample.map((r) => r[ledger.L.wordId]).join(',')}）`,
+        '台帳と各シグナルタブから説明用サンプル行を削除する（架空ワードが採点され、pamun_ingest の候補ワードにも混ざります）');
+    }
   }
 
   // --- 4. モニターシグナル（source/campaign_id/confidence の3列） ----------

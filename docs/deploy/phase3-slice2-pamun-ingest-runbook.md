@@ -59,29 +59,52 @@ gcloud run services describe cg-cockpit --region=asia-northeast1 \
 
 `ANTHROPIC_API_KEY` は dry-run では不要、本実行で必須。
 
-## Step 2. Google 認証にスプレッドシートのスコープを付ける
+## Step 2. Google 認証（ADC）
 
-**現状の ADC は spreadsheets スコープを持っていない**（preflight で `Insufficient Permission` を確認済み）。
-`lib/sheets.js` は ADC を使うので、これを直さないと読み取りすらできない。
+`lib/sheets.js` は ADC を使う。`--scopes` で spreadsheets を直接要求する方法は
+**Google 側でブロックされる**（gcloud の既定 OAuth クライアントは制限付きスコープに未対応。
+`このアプリはブロックされます` と出る）。サービスアカウントのなりすましを使う。
 
 ```bash
-gcloud auth application-default login --scopes=https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/cloud-platform
+# 1. 自分を対象SAのトークン作成者にする（Owner でも別途付与が必要。roles/owner には含まれない）
+gcloud iam service-accounts add-iam-policy-binding \
+  620587423995-compute@developer.gserviceaccount.com \
+  --member="user:cg.yutayamaguchi@gmail.com" \
+  --role="roles/iam.serviceAccountTokenCreator"
+
+# 2. ADC をなりすまし構成でログイン（--scopes は付けない）
+gcloud auth application-default login \
+  --impersonate-service-account=620587423995-compute@developer.gserviceaccount.com
 ```
 
-サービスアカウント鍵を使うなら `GOOGLE_APPLICATION_CREDENTIALS` に鍵のパスを設定し、
-そのサービスアカウントにスプレッドシートの閲覧＋編集権限を共有する。
+ブラウザ同意は gcloud の既定スコープだけで済むのでブロックされない。
+スプレッドシート用トークンは IAM Credentials API 経由で SA 側から発行される。
+**本番コックピットと同一アカウントで検証できる**ため、ローカルと本番の権限差が原理的に出ない。
 
-## Step 3. モニターシグナルに 3 列を追記
+## Step 3. 気づきワード台帳のタブを作る
 
-ヘッダー行の F/G/H に `source` / `campaign_id` / `confidence` を**手で追記**する。
+**台帳のタブはまだ 1 つも存在しない**（preflight で確認済み）。
+置き場所はコックピットと同じスプレッドシート
+**「【CG】インフルエンサーマスターDB」`1VxAOesBm_gi_jlSlq39FDtTMZNYOQcBm3J53gw3_g3o`** で確定。
+[cockpit-server.js](../../cockpit-server.js) の気づきワードAPIが同じ `SHEET_ID` から台帳を読むため、別スプレッドシートには置けない。
 
-> ⚠️ **`buildKizukiLedger()` は実行しないこと。** この関数は
+1. 上記スプレッドシートを開き、拡張機能 → Apps Script
+2. **`CG_気づきワード台帳.gs` の最新版**を貼り付ける（ヘッダー1行目版。古い版は3行目ヘッダーで読み手と噛み合わない）
+3. **`addKizukiLedger()` を実行**する
+4. 生成された各タブから**説明用サンプル行を削除**する（台帳の `2026-06-AVENE` 3行、各シグナルの `w001`/`w003` 行）
+
+> ⚠️ **`buildKizukiLedger()` は実行しないこと。**
 > `KZ_SHEETS` のタブを **一度削除してから作り直す**（[CG_気づきワード台帳.gs:19](../../CG_気づきワード台帳.gs)）。
-> 既存の台帳・シグナルが全部消える。
-> `addKizukiLedger()` は安全だが「無いタブを足す」だけなので、既存タブには 3 列を追加しない。
-> つまり **GAS 再実行では解決しない**。手で足すのが正しい。
+> 既存データがある状態で実行すると全部消える。追加したいだけなら常に `addKizukiLedger()`。
 
-既存の手入力行は `source` 空欄のままでよい（`DEFAULT_REVIEW_SOURCE` で `manual` 扱い）。
+> ⚠️ **サンプル行を消し忘れると静かに壊れる。** 架空ワード（`パケが可愛い` 等）が
+> 実データとして採点され、`pamun_ingest` の候補ワードにも混ざって LLM 分類の対象になる。
+> preflight がこれを検出する。
+
+`source` / `campaign_id` / `confidence` の 3 列は最新版 GAS のヘッダー定義に含まれているので、
+新規作成なら手での追記は不要。既に古い版で作ってしまったタブがある場合のみ、
+ヘッダー行の F/G/H に手で追記する（既存の手入力行は `source` 空欄のままでよい。
+`DEFAULT_REVIEW_SOURCE` で `manual` 扱いになる）。
 
 ## Step 4. `Pamun取込マッピング` タブを作る
 
