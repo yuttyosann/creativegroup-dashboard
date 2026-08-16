@@ -3,8 +3,32 @@ const { test } = require('node:test');
 const assert = require('node:assert');
 const {
   parseSurveyRows, tallyTrackA, tallyTrackB, buildReviewSignalRows, signalKey, SOURCES,
-  realignByIndex,
+  realignByIndex, detectSurveyColumns,
 } = require('../../lib/kizuki/review-ingest');
+
+test('detectSurveyColumns: 名前で特定できた列をフォールバックが横取りしない（フォーム生シートの回帰）', () => {
+  // Googleフォームの回答シートは先頭にタイムスタンプ等が入るため年齢が4列目になる。
+  // improvements/containerWish/favorite は設問自体が存在しないので、
+  // フォールバック(3/4/5)が age/goodPoints/satisfaction の列を奪ってはいけない。
+  const header = ['タイムスタンプ', 'メールアドレス', '氏名（漢字表記）', 'ご年齢',
+    '商品の感想を教えてください', '商品の満足度を教えてください'];
+  assert.deepStrictEqual(detectSurveyColumns(header), {
+    age: 3, goodPoints: 4, satisfaction: 5,
+    improvements: undefined, containerWish: undefined, favorite: undefined,
+  });
+});
+
+test('parseSurveyRows: 設問が無い項目に他項目の値が混入しない（フォーム生シート）', () => {
+  const rows = [
+    ['タイムスタンプ', 'メールアドレス', '氏名（漢字表記）', 'ご年齢',
+      '商品の感想を教えてください', '商品の満足度を教えてください'],
+    ['2026/06/20 10:00:00', 'a@example.com', '山田', 30, '伸びがいいのでコスパいい！', '②やや満足'],
+  ];
+  assert.deepStrictEqual(parseSurveyRows(rows), [
+    { index: 0, age: 30, satisfaction: '②やや満足', goodPoints: '伸びがいいのでコスパいい！',
+      improvements: '', favorite: '' },
+  ]);
+});
 
 test('parseSurveyRows: ヘッダーを飛ばし1行=1回答者にする（indexは0始まり）', () => {
   const rows = [
@@ -47,6 +71,20 @@ test('parseSurveyRows: 空白だけの行はスキップ（分母nを水増し�
   assert.strictEqual(out.length, 1);
   assert.strictEqual(out[0].index, 0);
   assert.strictEqual(out[0].age, 22);
+});
+
+test('parseSurveyRows: 氏名だけで設問が全て空の行は回答者に数えない（分母nの水増し防止）', () => {
+  // アベンヌ生シートの実データ: 完全な回答22行に加えて、氏名だけの行が22行入っていた。
+  // 「どこかに値があれば回答者」だと n が倍になり共感率が半分に潰れる。
+  const rows = [
+    ['タイムスタンプ', 'メールアドレス', '氏名（漢字表記）', 'ご年齢',
+      '商品の感想を教えてください', '商品の満足度を教えてください'],
+    ['2026/06/20 10:00:00', 'a@example.com', '山田', 30, '伸びがいいのでコスパいい！', '②やや満足'],
+    ['', '', '佐藤'],
+  ];
+  const out = parseSurveyRows(rows);
+  assert.strictEqual(out.length, 1);
+  assert.strictEqual(out[0].age, 30);
 });
 
 test('parseSurveyRows: 0は有意な値なのでスキップしない', () => {
