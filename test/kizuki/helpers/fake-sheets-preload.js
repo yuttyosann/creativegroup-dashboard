@@ -67,6 +67,27 @@ const fake = {
   findRowNumberByKey: null,
 };
 
+// BigQuery も差し替える（FAKE_BQ_JSON=返す行 / FAKE_BQ_ERROR=投げるメッセージ）。
+// 未設定なら本物のまま。recalc_job は @google-cloud/bigquery を遅延requireするので、
+// ここで require.cache に入れておけば実行時にこちらが使われる。
+if (process.env.FAKE_BQ_JSON || process.env.FAKE_BQ_ERROR) {
+  const bqRows = JSON.parse(process.env.FAKE_BQ_JSON || '[]');
+  const bqError = process.env.FAKE_BQ_ERROR || '';
+  class FakeBigQuery {
+    async query() {
+      if (bqError) throw new Error(bqError);
+      return [bqRows];
+    }
+  }
+  const bqPath = require.resolve('@google-cloud/bigquery', {
+    paths: [path.join(__dirname, '..', '..', '..')],
+  });
+  require.cache[bqPath] = {
+    id: bqPath, filename: bqPath, loaded: true, children: [], paths: [],
+    exports: { BigQuery: FakeBigQuery },
+  };
+}
+
 const sheetsPath = require.resolve(path.join(__dirname, '..', '..', '..', 'lib', 'sheets.js'));
 const real = require(sheetsPath);
 fake.findRowNumber = real.findRowNumber;

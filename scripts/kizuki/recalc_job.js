@@ -85,18 +85,37 @@ async function recalcLedger() {
   return updated;
 }
 
-async function main() {
+/** 広告シグナルの取込（BQ → 広告シグナル upsert）。upsertした行数を返す。失敗は呼び出し側が握る。 */
+async function ingestAdSignals() {
   const bqRows = await fetchAdRowsFromBQ();
   const mapping = DRY_RUN ? [] : await readMapping();
   const signalRows = adIngest.buildAdSignalRows(bqRows, mapping);
   if (DRY_RUN) {
     console.log('DRY-RUN: BQ %d行 / マッピング %d件 / 広告シグナル生成 %d行（書込なし）',
       bqRows.length, mapping.length, signalRows.length);
-    return;
+    return signalRows.length;
   }
   await upsertAdSignals(signalRows);
+  return signalRows.length;
+}
+
+async function main() {
+  // 広告取込と台帳の採点は本来独立で、採点は BigQuery を必要としない。
+  // 同じジョブに同居しているために、BQ やマッピングが無い環境では台帳が一度も
+  // 採点されなかった。取込が落ちても採点まで到達させる。
+  // ただし失敗は握りつぶさず終了コードに反映する（監視で気づけるように）。
+  let adCount = null;
+  try {
+    adCount = await ingestAdSignals();
+  } catch (e) {
+    console.error('⚠ 広告シグナルの取込に失敗したためスキップします: %s', e.message);
+    console.error('  台帳スコアの再計算は続行します（広告シグナルは前回の値のまま）。');
+    process.exitCode = 1;
+  }
+  if (DRY_RUN) return;
   const updated = await recalcLedger();
-  console.log('✅ 広告シグナル upsert %d行 / 台帳スコア再計算 %d件', signalRows.length, updated);
+  console.log('✅ 広告シグナル %s / 台帳スコア再計算 %d件',
+    adCount === null ? 'スキップ' : `upsert ${adCount}行`, updated);
 }
 
 main().catch((e) => { console.error('❌ recalc_job 失敗:', e.message); process.exit(1); });
