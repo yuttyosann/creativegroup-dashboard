@@ -279,6 +279,25 @@ app.post('/api/cockpit/x-intent', requireAuth, async (req, res) => {
   });
 });
 
+// X候補検索（S2d-3）— キーワードでXアカウントを発掘。
+// 検索は300件でも数十秒で終わるため、転換質診断と違い1リクエストで完結する。
+app.post('/api/cockpit/x-discover', requireAuth, async (req, res) => {
+  const raw = (req.body || {}).keywords;
+  const keywords = (Array.isArray(raw) ? raw : String(raw || '').split(/[\n,、，]/))
+    .map((s) => String(s).trim())
+    .filter(Boolean);
+  if (!keywords.length) return res.status(400).json({ ok: false, error: 'キーワードを入力してください' });
+  if (keywords.length > 3) return res.status(400).json({ ok: false, error: 'キーワードは3つまでです' });
+  if (!process.env.APIFY_TOKEN) return res.status(400).json({ ok: false, error: 'APIFY_TOKEN未設定（Cloud Runの環境変数に追加してください）' });
+
+  try {
+    const data = await runScriptJson('scripts/apify/discover_x.js', [...keywords, '--json']);
+    return res.json(data);
+  } catch (e) {
+    return res.status(502).json({ ok: false, error: 'X検索に失敗しました: ' + String(e.message || e).slice(0, 400) });
+  }
+});
+
 // --- ブランド ---
 app.get('/api/cockpit/brands', requireAuth, async (req, res) => {
   try {
