@@ -85,6 +85,23 @@ const API_BASE = (window.CG_CONFIG && window.CG_CONFIG.API_BASE) || "";
 function showLogin(msg){
   document.getElementById("login").style.display="flex";
   if(msg) document.getElementById("loginerr").textContent=msg;
+  renderGoogleButton();  // トークン期限切れ後もログインし直せるようにする
+}
+
+// Googleログインボタンの描画。gsiクライアントは async 読み込みのため、
+// 未ロードなら少し待って再試行する（初回表示で間に合わないことがある）。
+function renderGoogleButton(tries){
+  tries = tries || 0;
+  const cid = window.CG_CONFIG && window.CG_CONFIG.GOOGLE_CLIENT_ID;
+  if(!cid) return;
+  const el = document.getElementById("gbtn");
+  if(!el || el.childElementCount) return;   // 既に描画済み
+  if(window.google && google.accounts){
+    google.accounts.id.initialize({ client_id: cid, callback: window.onGoogleCredential });
+    google.accounts.id.renderButton(el, { theme:"filled_blue", size:"large" });
+  } else if(tries < 20){
+    setTimeout(function(){ renderGoogleButton(tries + 1); }, 300);
+  }
 }
 function hideLogin(){ document.getElementById("login").style.display="none"; }
 
@@ -98,11 +115,7 @@ function initAuth(){
   const cid = window.CG_CONFIG && window.CG_CONFIG.GOOGLE_CLIENT_ID;
   if(!cid){ hideLogin(); return; } // 未設定なら開発用に素通り
   if(ID_TOKEN){ hideLogin(); return; }
-  showLogin();
-  if(window.google && google.accounts){
-    google.accounts.id.initialize({ client_id: cid, callback: window.onGoogleCredential });
-    google.accounts.id.renderButton(document.getElementById("gbtn"), { theme:"filled_blue", size:"large" });
-  }
+  showLogin();   // showLogin が renderGoogleButton を呼ぶ
 }
 
 const STEPS = [
@@ -473,7 +486,7 @@ async function api(path,body){
   }catch(e){
     throw new Error("通信エラー（リロードせず再実行してください）");
   }
-  if(r.status===401){ showLogin("再ログインしてください"); throw new Error("未ログイン"); }
+  if(r.status===401){ ID_TOKEN=""; sessionStorage.removeItem("cg_idtoken"); showLogin("再ログインしてください"); throw new Error("未ログイン"); }
   if(r.status===403){ showLogin("このアカウントは許可リストにありません"); throw new Error("許可リスト外"); }
   try{ return await r.json(); }
   catch(e){ throw new Error("応答の解析に失敗（HTTP "+r.status+"）"); }
@@ -482,7 +495,7 @@ async function apiGet(path){
   let r;
   try{ r=await fetch(API_BASE+path,{ headers:{ "Authorization":"Bearer "+ID_TOKEN } }); }
   catch(e){ throw new Error("通信エラー（リロードせず再実行してください）"); }
-  if(r.status===401){ showLogin("再ログインしてください"); throw new Error("未ログイン"); }
+  if(r.status===401){ ID_TOKEN=""; sessionStorage.removeItem("cg_idtoken"); showLogin("再ログインしてください"); throw new Error("未ログイン"); }
   if(r.status===403){ showLogin("このアカウントは許可リストにありません"); throw new Error("許可リスト外"); }
   try{ return await r.json(); }catch(e){ throw new Error("応答の解析に失敗（HTTP "+r.status+"）"); }
 }
@@ -491,7 +504,7 @@ async function apiPatch(path, body){
   try{ r=await fetch(API_BASE+path,{ method:"PATCH",
     headers:{ "Content-Type":"application/json","Authorization":"Bearer "+ID_TOKEN }, body:JSON.stringify(body) }); }
   catch(e){ throw new Error("通信エラー（リロードせず再実行してください）"); }
-  if(r.status===401){ showLogin("再ログインしてください"); throw new Error("未ログイン"); }
+  if(r.status===401){ ID_TOKEN=""; sessionStorage.removeItem("cg_idtoken"); showLogin("再ログインしてください"); throw new Error("未ログイン"); }
   if(r.status===403){ showLogin("このアカウントは許可リストにありません"); throw new Error("許可リスト外"); }
   try{ return await r.json(); }catch(e){ throw new Error("応答の解析に失敗（HTTP "+r.status+"）"); }
 }
@@ -640,13 +653,13 @@ window.runXDiscover=async()=>{
     const exLine=`<div style="font-size:11.5px;color:var(--muted);margin-bottom:6px">取得${r.fetched||0}ツイート／候補${window.__xdCand.length}件・除外${(r.excluded||[]).length}件（公式${b["公式"]||0} 懸賞${b["懸賞"]||0} bot${b["bot"]||0}）</div>`;
     if(!window.__xdCand.length){ el.innerHTML=exLine+"<span style='color:var(--muted)'>"+escapeHtml(r.note||"該当なし")+"</span>"; return; }
     el.innerHTML=exLine+window.__xdCand.map((x,i)=>`<div style="padding:5px 0;border-bottom:1px solid var(--line)">
-      <b>@${escapeHtml(x.account)}</b>
+      <a href="${escapeHtml(x.url||("https://x.com/"+x.account))}" target="_blank" rel="noopener" style="font-weight:700;color:var(--purple);text-decoration:none">@${escapeHtml(x.account)} ↗</a>
       <span class="pill ${x.rate!=null&&x.rate>=3?"p-green":x.rate!=null&&x.rate>=1?"p-orange":"p-gray"}">${x.rate==null?"エンゲージ率—":"エンゲージ率"+x.rate+"%"}</span>
       <span style="color:var(--muted);font-size:11.5px">フォロワー${(x.followers||0).toLocaleString()}／ヒット${x.hits}件／平均♥${(x.avgLike||0).toLocaleString()}</span>
       <button class="btn" style="margin-left:6px;padding:1px 7px;font-size:11px" onclick="regXCand(${i},this)">DBに登録</button>
       <br><span style="color:var(--muted);font-size:11px">${escapeHtml(x.sampleText||"")}</span></div>`).join("")
       +((r.excluded||[]).length?`<details style="margin-top:8px"><summary style="cursor:pointer;font-size:12px;color:var(--muted)">除外された${(r.excluded||[]).length}件を見る（誤除外の確認用）</summary>
-      <div style="font-size:11.5px;color:var(--muted);margin-top:4px">${(r.excluded||[]).map(e=>`@${escapeHtml(e.account)}（${escapeHtml(e.reason||"")}・フォロワー${(e.followers||0).toLocaleString()}）`).join("／")}</div></details>`:"");
+      <div style="font-size:11.5px;color:var(--muted);margin-top:4px">${(r.excluded||[]).map(e=>`<a href="${escapeHtml(e.url||("https://x.com/"+e.account))}" target="_blank" rel="noopener" style="color:var(--purple)">@${escapeHtml(e.account)} ↗</a>（${escapeHtml(e.reason||"")}・フォロワー${(e.followers||0).toLocaleString()}）`).join("／")}</div></details>`:"");
   }catch(e){ el.innerHTML="<span style='color:#A32D2D'>"+escapeHtml(e.message||"検索に失敗しました")+"</span>"; }
 };
 

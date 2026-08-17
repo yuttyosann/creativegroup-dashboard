@@ -98,7 +98,7 @@ function normalize(it) {
     keywords,
     fetched: all.length,
     candidates: included,
-    excluded: excluded.map((x) => ({ account: x.account, followers: x.followers, reason: x.reason })),
+    excluded: excluded.map((x) => ({ account: x.account, followers: x.followers, reason: x.reason, url: x.url })),
     excludedBreakdown: breakdown,
     note,
   }));
