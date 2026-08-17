@@ -48,8 +48,47 @@ trepo/schema/trepo_analytics.sql の内容をコピペして実行
 6. エクスポート形式: 「毎日」にチェック
 7. 「送信」をクリック
 
-> 翌日から `trepo_analytics.events_YYYYMMDD` テーブルが自動生成される。
-> セッション・ページビューはBigQueryで集計クエリを作成して `trepo_article_pv` ビューに変換する。
+> 翌日から `analytics_263435110.events_YYYYMMDD` テーブルが自動生成される。
+> セッション・ページビューはスケジュールクエリで `trepo_article_pv` テーブルに変換する。
+
+### 2-1. PV集計スケジュールクエリ
+
+| 項目 | 値 |
+|---|---|
+| 表示名 | `trepo_article_pv_daily_sync` |
+| 転送設定ID | `projects/620587423995/locations/asia-northeast1/transferConfigs/69d5ec36-0000-29f0-8524-94eb2c1b1188` |
+| SQL | [`schema/ga4_to_article_pv.sql`](schema/ga4_to_article_pv.sql) |
+| スケジュール | 毎日 04:00 UTC（13:00 JST） |
+| 実行サービスアカウント | `trepo-bq-scheduler@cg-project-491303.iam.gserviceaccount.com` |
+
+必要な権限（**これが欠けていて2026-03〜08の約145日間サイレントに失敗していた**）:
+
+- プロジェクト: `roles/bigquery.jobUser`（ジョブ起動）
+- `trepo_analytics` データセット: `WRITER`（DELETE+INSERT）
+- **`analytics_263435110` データセット: `READER`（GA4読み取り）**
+
+```bash
+# GA4データセットの読み取り権限を付与する（データセット単位のACLなのでIAMバインディングではない）
+bq show --format=prettyjson cg-project-491303:analytics_263435110 > ds.json
+# ds.json の access 配列に
+#   {"role": "READER", "userByEmail": "trepo-bq-scheduler@cg-project-491303.iam.gserviceaccount.com"}
+# を追記してから
+bq update --source ds.json cg-project-491303:analytics_263435110
+```
+
+過去分を埋め直す場合は [`schema/ga4_to_article_pv_backfill.sql`](schema/ga4_to_article_pv_backfill.sql) の
+`start_date` / `end_date` を書き換えて実行する（対象期間をDELETEしてから入れ直すので何度でも安全）。
+
+```bash
+bq query --use_legacy_sql=false --project_id=cg-project-491303 < trepo/schema/ga4_to_article_pv_backfill.sql
+```
+
+> 日次クエリは前日〜3日前の3日分を毎回作り直す。GA4のエクスポートは実測で最大約25時間遅れる日があり、
+> 前日1日分だけを対象にすると遅延した日が永久に欠損するため。
+
+**既知の制約:** `trepo_articles` のURLが実サイトの `/{カテゴリ}/{記事ID}/` 形式になっている記事だけが
+集計対象になる（2026-08-17時点で477件中74件）。スラッグ形式のURLは実在せずGA4のログにも出現しないため
+マッチしない。カバレッジ改善は別タスクで対応。
 
 ---
 
