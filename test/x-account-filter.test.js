@@ -133,3 +133,36 @@ test('isOfficialAccount: zinc を inc. で誤検出しない', () => {
   assert.equal(isOfficialAccount({ name: '', description: 'zinc oxide 配合が好き' }), false);
   assert.equal(isOfficialAccount({ name: 'ABC Inc.', description: '' }), true);  // 本物は引き続き検出
 });
+
+// --- 以下は本番の初回検索(2026-08-16)で実際に誤除外された3件。プロフィール文は実データそのまま ---
+
+test('isOfficialAccount: 連絡先メールの official で誤除外しない（実データ @marunouchi__ol_）', () => {
+  assert.equal(isOfficialAccount({
+    name: '丸の内OLの憂鬱',
+    description: '化粧品を独学で勉強しています。歴史や研究技術を学び、文字で伝えることが好き。隙あらば論文を読んでいます。主食は成分解説、全色レビュー。全肯定甘やかし百貨店管理人。化粧品検定1級。📫marunouchi.ol.official@gmail.com',
+  }), false);
+});
+
+test('isBotAccount: 動詞「まとめてます」で誤除外しない（実データ @llx_ayu_xll）', () => {
+  assert.equal(isBotAccount({
+    name: 'タフ子ちゃん🐟',
+    description: '絶対に老けたくない女の奮闘記✍️ 9割美容と人生の話🌼過去の人気投稿はハイライトにまとめてます☺️dm見れないのでインスタの方にお願いしますmm',
+  }), false);
+});
+
+test('isOfficialAccount: プロフィール文の(株)は個人の経営会社なので除外しない（実データ @kazunosuke13）', () => {
+  assert.equal(isOfficialAccount({
+    name: 'かずのすけ',
+    description: '美容と化粧品の専門家です。ブログ月間500万PV。化粧品開発顧問(株)セララボ代表。著書「美肌成分事典」など。敏感肌用オリジナル化粧品【CeraLabo】→ https://t.co/rhy4rEtquG . YouTube→https://t.co/DnFDflAb8h（登録者65万人）',
+  }), false);
+});
+
+test('isOfficialAccount: 表示名の企業語は引き続き公式として除外する', () => {
+  assert.equal(isOfficialAccount({ name: '株式会社ABC', description: '' }), true);
+  assert.equal(isOfficialAccount({ name: '(株)ABC コスメ', description: '' }), true);
+  assert.equal(isOfficialAccount({ name: 'ABCオンラインストア', description: '' }), true);
+});
+
+test('isOfficialAccount: URL内の文字列で誤判定しない', () => {
+  assert.equal(isOfficialAccount({ name: 'みか', description: 'ブログ→ https://example.com/official/news' }), false);
+});
