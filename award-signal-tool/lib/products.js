@@ -26,3 +26,32 @@ const PRODUCT_CATEGORIES = new Set([
 export function needsProductResolution(category) {
   return PRODUCT_CATEGORIES.has(String(category || "").trim());
 }
+
+// 1ブランド約30秒（--per 80 実測）。1回の解決はここまで（≒5分）。超過分は次回に回す。
+export const BRAND_CAP = 10;
+
+/**
+ * 採用ブランドを「今回解決する / 対象外 / 次回に回す」に振り分ける（純粋関数・ネットワーク不要）。
+ * ・非商品系カテゴリ（スポット・エンタメ等）は skipped（対象自体が受賞対象のため）
+ * ・# と前後空白を正規化し、空名と重複は捨てる
+ * ・cap を超えた分は deferred（サイレントに切り捨てない）
+ * @param {Array<{name:string, category:string}>} brands
+ * @param {number} cap
+ * @returns {{run:{name:string,category:string}[], skipped:{brand:string,category:string,why:string}[], deferred:{name:string,category:string}[]}}
+ */
+export function planResolution(brands, cap = BRAND_CAP) {
+  const limit = Math.max(0, Math.trunc(cap) || 0);
+  const targets = [], skipped = [], seen = new Set();
+  for (const b of brands || []) {
+    const name = String(b?.name || "").replace(/^#/, "").trim();
+    if (!name || seen.has(name)) continue;
+    seen.add(name);
+    const category = b?.category || "";
+    if (!needsProductResolution(category)) {
+      skipped.push({ brand: name, category, why: "このカテゴリは対象自体が受賞対象のため商品解決しません" });
+      continue;
+    }
+    targets.push({ name, category });
+  }
+  return { run: targets.slice(0, limit), skipped, deferred: targets.slice(limit) };
+}
