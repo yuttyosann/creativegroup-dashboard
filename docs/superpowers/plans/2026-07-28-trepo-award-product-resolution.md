@@ -321,7 +321,7 @@ keep=false にすべきもの:
 ```bash
 cd /Users/yuttyo/claude/creativegroup-dashboard
 export APIFY_TOKEN=$(grep "^APIFY_TOKEN=" .env | cut -d= -f2-)
-node scripts/apify/discover_tiktok.js キャンメイク ケラスターゼ --per 30 --top 12 --max-seeds 2 --out /tmp/b2p.csv
+node scripts/apify/discover_tiktok.js キャンメイク ケラスターゼ --per 80 --top 20 --max-seeds 2 --out /tmp/b2p.csv
 node scripts/ai/filter_products.js --csv /tmp/b2p.csv --out /tmp/b2p_products.csv
 ```
 
@@ -512,7 +512,10 @@ export async function resolveProducts(brands, onLog) {
   // 1) ブランド名でTikTok再検索（既存スクリプトを無変更で再利用）
   await spawnP("node", [
     "scripts/apify/discover_tiktok.js", ...run.map(r => r.name),
-    "--per", "30", "--top", "12", "--max-seeds", String(run.length), "--out", rawCsv,
+    // --per 80 / --top 20 は実測に基づく（2026-07-28）。--per 30 --top 12 だと商品名を取りこぼす:
+    // 商品タグは総称語より下位（実測15〜16位）に出るため、サンプル数と取得深度の両方が要る。
+    // 時間は --per 30 と変わらない（実測30秒/ブランド。Apify側の固定オーバーヘッドが支配的）。
+    "--per", "80", "--top", "20", "--max-seeds", String(run.length), "--out", rawCsv,
   ], log);
   if (!fs.existsSync(rawCsv)) throw new Error("共起タグCSVが生成されませんでした");
   if (!parseCSV(fs.readFileSync(rawCsv, "utf-8")).length) {
