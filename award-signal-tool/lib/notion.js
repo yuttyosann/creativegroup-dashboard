@@ -74,8 +74,8 @@ export async function listSeeds() {
   });
 }
 
-/** 候補プールDBに新しい候補を作成（自動生成された候補用） */
-export async function createCandidate({ name, category, note }) {
+/** 候補プールDBに新しい候補を作成（自動生成された候補用）。brand は企業名（ブランド）に入る */
+export async function createCandidate({ name, category, note, brand }) {
   const props = {
     "対象名": { title: [{ text: { content: String(name).slice(0, 190) } }] },
     "流入経路": { select: { name: "編集部リサーチ" } },
@@ -83,6 +83,7 @@ export async function createCandidate({ name, category, note }) {
   };
   if (category) props["カテゴリ"] = { select: { name: category } };
   if (note) props["トレンドポイント"] = { rich_text: [{ text: { content: String(note).slice(0, 1990) } }] };
+  if (brand) props["企業名"] = { rich_text: [{ text: { content: String(brand).slice(0, 1990) } }] };
   await notion("/pages", { method: "POST", body: { parent: { database_id: CAND_DB() }, properties: props } });
 }
 

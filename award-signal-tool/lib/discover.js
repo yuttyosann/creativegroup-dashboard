@@ -196,12 +196,13 @@ export async function adoptCandidates(items, onLog) {
     if (!name) continue;
     if (existing.has(name)) { skipped.push(name); log(`  − ${name}（既にDBにあります）`); continue; }
     const category = it.category || "その他";
-    const note = ["🔎自動生成(TikTok共起タグ→Claude精選)", it.reason].filter(Boolean).join(" ");
+    const brand = it.brand ? String(it.brand).trim() : "";
+    const note = ["🔎自動生成(TikTok共起タグ→Claude精選)", brand ? `ブランド: ${brand}` : "", it.reason].filter(Boolean).join(" ");
     try {
-      await createCandidate({ name, category, note });
+      await createCandidate({ name, category, note, brand });
       existing.add(name);
-      created.push({ name, category });
-      log(`  ＋ ${name}（${category}）`);
+      created.push({ name, category, brand });
+      log(`  ＋ ${name}${brand ? `（${brand} / ${category}）` : `（${category}）`}`);
     } catch (e) {
       failed.push({ name, error: e.message });
       log(`  ✗ ${name} 登録失敗: ${e.message}`);
