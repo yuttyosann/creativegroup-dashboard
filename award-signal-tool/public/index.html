@@ -83,7 +83,7 @@
   .card h2.prop::before { content:"🌟"; }
 
   /* 提案リスト（採用はここから） */
-  #propCard.hidden { display:none; }
+  #propCard.hidden, #prodCard.hidden { display:none; }
   .prop-item {
     display:flex; gap:10px; align-items:flex-start; padding:10px 12px; margin-bottom:7px;
     background:#fff6fa; border-radius:14px; box-shadow:var(--soft-sm);
@@ -209,6 +209,21 @@
     <div class="tools">
       <button id="adoptBtn" disabled>チェックした候補を登録</button>
       <span id="propCount">0件選択</span>
+    </div>
+  </section>
+
+  <section class="card hidden" id="prodCard">
+    <h2 class="prop">商品を選ぶ
+      <button id="prodAllBtn" class="mini" type="button">全部チェック</button>
+    </h2>
+    <div class="muted" style="margin:-6px 0 12px;">
+      受賞は<b>商品単位</b>です。採用したブランドの具体的な商品を選んでね🎁<br>
+      商品が見つからなかったブランドは「ブランドのまま登録」もできます。
+    </div>
+    <div id="prodList"></div>
+    <div class="tools">
+      <button id="prodAdoptBtn" disabled>チェックした商品を登録</button>
+      <span id="prodCount">0件選択</span>
     </div>
   </section>
 
@@ -368,34 +383,117 @@ $("#propAllBtn").onclick = () => {
   updateProp();
 };
 
+// 商品まで落とすカテゴリ（サーバーの needsProductResolution と揃えること）
+const PRODUCT_CATEGORIES = new Set([
+  "コスメ", "スキンケア", "ヘアケア", "ボディケア", "フレグランス",
+  "食品・飲料", "ライフスタイル雑貨", "ファッション",
+]);
+let resolvedBrands = [];   // 商品解決の結果
+let pendingDirect = [];    // 商品解決不要でそのまま登録するもの
+
 $("#adoptBtn").onclick = async () => {
   const picked = [...document.querySelectorAll(".propchk:checked")].map(cb => proposals[Number(cb.value)]);
   if (!picked.length) return;
-  if (!confirm(`${picked.length}件を候補プールDBに登録します。よろしいですか？`)) return;
+  const needProduct = picked.filter(p => PRODUCT_CATEGORIES.has((p.category || "").trim()));
+  const direct = picked.filter(p => !PRODUCT_CATEGORIES.has((p.category || "").trim()));
+
+  if (!needProduct.length) {
+    if (!confirm(`${direct.length}件を候補プールDBに登録します。よろしいですか？`)) return;
+    await registerCandidates(direct);
+    return;
+  }
+  if (!confirm(`${needProduct.length}件は具体的な商品を探します（1件あたり約30秒）。\n${direct.length}件はそのまま登録します。\n続けますか？`)) return;
+
+  pendingDirect = direct;
   $("#adoptBtn").disabled = true;
+  setStatus("running", "商品を探しています…");
+  const r = await apiFetch("/api/products/resolve", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ brands: needProduct }),
+  });
+  const { jobId, error } = await r.json();
+  if (error) { setStatus("error", error); $("#adoptBtn").disabled = false; return; }
+  poll(jobId, (job) => {
+    $("#adoptBtn").disabled = false;
+    if (job.status === "done") renderProducts(job.resolved || []);
+  }, "商品を探しています…（TikTok再検索→Claude精選）");
+};
+
+function renderProducts(list) {
+  resolvedBrands = list;
+  if (!resolvedBrands.length) { $("#prodCard").classList.add("hidden"); return; }
+  const rows = [];
+  resolvedBrands.forEach((b, bi) => {
+    if (b.products.length) {
+      b.products.forEach((p, pi) => {
+        rows.push(`<label class="prop-item">
+          <input type="checkbox" class="prodchk" value="${bi}:${pi}">
+          <span><b>${esc(p.name)}</b><span class="pill">${esc(b.brand)}</span>
+          <div class="reason">${esc(p.reason || "")}</div></span></label>`);
+      });
+    } else {
+      rows.push(`<label class="prop-item">
+        <input type="checkbox" class="prodchk" value="${bi}:brand">
+        <span><b>${esc(b.brand)}</b><span class="pill">ブランドのまま</span>
+        <div class="reason">商品を特定できませんでした。ブランドとして登録し、後で商品名を手で入れられます。</div></span></label>`);
+    }
+  });
+  $("#prodList").innerHTML = rows.join("");
+  document.querySelectorAll(".prodchk").forEach(cb => cb.onchange = updateProd);
+  $("#prodAllBtn").textContent = "全部チェック";
+  $("#prodCard").classList.remove("hidden");
+  updateProd();
+  const n = resolvedBrands.reduce((a, b) => a + b.products.length, 0);
+  setStatus("done", `${n}件の商品候補が見つかりました 🎁 登録するものを選んでね`);
+}
+
+function updateProd() {
+  const n = document.querySelectorAll(".prodchk:checked").length;
+  $("#prodCount").textContent = `${n}件選択`;
+  $("#prodAdoptBtn").disabled = n === 0;
+}
+
+$("#prodAllBtn").onclick = () => {
+  const boxes = [...document.querySelectorAll(".prodchk")];
+  const turnOn = boxes.some(cb => !cb.checked);
+  boxes.forEach(cb => cb.checked = turnOn);
+  $("#prodAllBtn").textContent = turnOn ? "全部はずす" : "全部チェック";
+  updateProd();
+};
+
+$("#prodAdoptBtn").onclick = async () => {
+  const picked = [...document.querySelectorAll(".prodchk:checked")].map(cb => {
+    const [bi, pi] = cb.value.split(":");
+    const b = resolvedBrands[Number(bi)];
+    return pi === "brand"
+      ? { name: b.brand, category: b.category, reason: "商品を特定できずブランドとして登録" }
+      : { name: b.products[Number(pi)].name, category: b.category, brand: b.brand, reason: b.products[Number(pi)].reason };
+  });
+  const all = [...picked, ...pendingDirect];
+  if (!all.length) return;
+  if (!confirm(`${all.length}件を候補プールDBに登録します。よろしいですか？`)) return;
+  $("#prodAdoptBtn").disabled = true;
+  await registerCandidates(all);
+  pendingDirect = [];
+};
+
+async function registerCandidates(list) {
   setStatus("running", "候補プールDBに登録中…");
   const r = await apiFetch("/api/candidates/bulk", {
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ candidates: picked }),
+    body: JSON.stringify({ candidates: list }),
   });
   const res = await r.json();
-  if (!r.ok) { setStatus("error", res.error || "登録に失敗しました"); $("#adoptBtn").disabled = false; return; }
+  if (!r.ok) { setStatus("error", res.error || "登録に失敗しました"); $("#adoptBtn").disabled = false; $("#prodAdoptBtn").disabled = false; return; }
   const parts = [`${res.created.length}件を登録しました 🎉`];
   if (res.skipped.length) parts.push(`${res.skipped.length}件は既存のためスキップ`);
   if (res.failed.length) parts.push(`${res.failed.length}件は失敗`);
-  $("#log").textContent = [
-    "=== 候補プールDBに登録 ===",
-    ...res.created.map(c => `  ＋ ${c.name}（${c.category}）`),
-    ...res.skipped.map(n => `  − ${n}（既にDBにあります）`),
-    ...res.failed.map(f => `  ✗ ${f.name}: ${f.error}`),
-  ].join("\n");
-  // 登録済み・スキップ分は提案から消す（失敗したものは残して再試行できるように）
-  const done = new Set([...res.created.map(c => c.name), ...res.skipped]);
-  renderProposals(proposals.filter(p => !done.has(p.name)), false);
-  setStatus(res.failed.length ? "error" : "done", parts.join(" / "));
+  setStatus("done", parts.join(" / "));
+  $("#propCard").classList.add("hidden");
+  $("#prodCard").classList.add("hidden");
   await loadCandidates();
   updateSel();
-};
+}
 
 function poll(jobId, onEnd, runningLabel = "取得中…") {
   const iv = setInterval(async () => {
