@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { listCandidates, listSeeds, writeSignal, SIGNAL_FIELDS } from "./lib/notion.js";
 import { runEngine, ENGINES } from "./lib/engines.js";
 import { proposeCandidates, adoptCandidates } from "./lib/discover.js";
+import { resolveProducts } from "./lib/products.js";
 import { requireAuth, authEnabled } from "./lib/auth.js";
 
 // .env 読み込み（Node20.12+ / 24 の process.loadEnvFile）
@@ -87,6 +88,31 @@ app.post("/api/candidates/bulk", requireAuth, async (req, res) => {
     res.status(500).json({ error: String(e.message) });
   }
 });
+
+// 採用したブランドから具体的な商品を解決する（提案のみ。Notionには書かない）
+app.post("/api/products/resolve", requireAuth, (req, res) => {
+  const { brands = [] } = req.body || {};
+  if (!Array.isArray(brands) || !brands.length) {
+    return res.status(400).json({ error: "brands を1件以上指定してください" });
+  }
+  const id = randomUUID();
+  const job = { id, status: "running", createdAt: Date.now(), type: "products", log: [], resolved: [], skipped: [], deferred: [], error: null };
+  jobs.set(id, job);
+  res.json({ jobId: id });
+  runResolve(job, brands).catch((e) => { job.status = "error"; job.error = String(e.message); });
+});
+
+async function runResolve(job, brands) {
+  const log = (s) => { job.log.push(String(s).replace(/\n+$/, "")); };
+  log("=== 採用したブランドの具体的な商品を探しています ===");
+  const { resolved, skipped, deferred } = await resolveProducts(brands, log);
+  job.resolved = resolved;
+  job.skipped = skipped;
+  job.deferred = deferred;
+  const total = resolved.reduce((n, r) => n + r.products.length, 0);
+  log(`=== 完了: ${total}件の商品候補が見つかりました ===`);
+  job.status = "done";
+}
 
 async function runJob(job) {
   const log = (s) => { job.log.push(s.replace(/\n+$/, "")); };
