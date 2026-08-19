@@ -48,3 +48,16 @@ test('buildXGenrePrompt: プロフィールだけでも組み立てられる', (
   const p = buildXGenrePrompt({ account: 'mika', profile: 'スキンケア好き', posts: [] });
   assert.ok(p.user.includes('スキンケア好き'));
 });
+
+test('buildXGenrePrompt: 出力部でカテゴリを再掲し完全一致を要求する', () => {
+  const p = buildXGenrePrompt({ account: 'mika', profile: 'コスメ好き', posts: ['化粧水いい'] });
+  assert.ok(p.user.includes('完全に一致'));
+  assert.ok(p.user.includes('スキンケア / メイク'));   // 出力直前の再掲
+  assert.ok(p.user.includes('変形・複合・独自表記は不可'));
+});
+
+test('buildXGenrePrompt: 複数該当時の優先ルールを与える', () => {
+  const p = buildXGenrePrompt({ account: 'mika', profile: 'コスメ好き', posts: ['化粧水いい'] });
+  assert.ok(p.user.includes('最も多く扱っている話題'));
+  assert.ok(p.user.includes('投稿内容を優先'));
+});
