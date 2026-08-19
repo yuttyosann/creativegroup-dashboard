@@ -102,3 +102,14 @@ test('summarizePR: 投稿が空でも落ちない', () => {
   assert.equal(s.prRate, 0);
   assert.equal(s.prEngage, null);
 });
+
+test('isExplicitPR: 全角のＰＲを検出する（日本語圏では全角表記がある）', () => {
+  assert.equal(isExplicitPR('【ＰＲ】新作コスメを試しました'), true);
+  assert.equal(isExplicitPR('新作コスメを試しました　ＰＲ'), true);
+});
+
+test('isExplicitPR: @メンションのハンドル名で誤検出しない', () => {
+  assert.equal(isExplicitPR('@pr_cosme さんありがとう'), false);
+  assert.equal(isExplicitPR('@PR_official からもらった'), false);
+  assert.equal(isExplicitPR('@friend さんに教わった新作【PR】'), true);  // 本物のPRは引き続き検出
+});
