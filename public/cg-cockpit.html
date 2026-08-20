@@ -324,7 +324,8 @@ const RENDER = {
       <div id="idb_list" style="margin-top:6px;font-size:12.5px">読み込み中…</div></div>
 
     <div class="card"><h3>🐦 X転換質診断（Apify＋Claude）</h3>
-      <p style="font-size:12.5px;color:var(--muted);margin-bottom:8px">候補DBのX候補のリプライを取得し、購買意向を判定して「転換質%」を埋めます。懸賞・プレゼント企画の投稿は自動除外します。1件あたり1〜1.5分・最大20件。</p>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:8px">候補DBのX候補について、転換質（リプライの購買意向）に加えて<b>PR実績・ジャンル</b>を診断します。懸賞・プレゼント企画の投稿は自動除外します。1件あたり1〜1.5分・最大20件。</p>
+      <div class="note" style="margin-bottom:8px">📌 <b>PR係数</b>＝PR投稿のエンゲージ率÷通常投稿のエンゲージ率。100%なら「PRでも反応が落ちない」、低いほど「フォロワーは多いがPRでは動かない」。PRは本文中の「PR」表記で判定するため、<b>表記のない案件は検出できません</b>（PR投稿0件＝案件なし、とは限りません）。</div>
       <div class="note" style="margin-bottom:8px">⚠️ v0.1・未較正：<b>X内の相対比較にのみ</b>使用してください。YouTube/IGの転換質とは較正されていないため、媒体をまたいで並べないでください。要 APIFY_TOKEN。</div>
       <div style="margin-bottom:8px">
         <button class="btn" style="background:var(--purple)" onclick="loadXCands()">X候補を読み込む</button>
@@ -940,18 +941,38 @@ window.runXIntentBatch=async()=>{
     try{
       const d=await api("/api/cockpit/x-intent",{account:cand.account});
       if(!d||!d.ok){ cell.innerHTML=`<span style="color:#A32D2D"> エラー: ${escapeHtml((d&&d.error)||"失敗")}</span>`; }
-      else if(d.conversion==null){
-        cell.innerHTML=`<span style="color:var(--muted)"> ${escapeHtml(d.reason||"算出不可")}（懸賞除外${d.giveawayExcluded||0}件）</span>`;
-      }else{
-        const badge=d.conversion>=15?"p-green":d.conversion>=5?"p-orange":"p-gray";
-        const c=d.counts||{}, ev=d.evidence||{};
-        cell.innerHTML=` <span class="pill ${badge}">転換質${d.conversion}%</span>`+
-          `<span style="color:var(--muted)"> 購入済${c.purchased||0}／予定${c.willBuy||0}／欲しい${c.want||0}／興味${c.interest||0}／無関係${c.unrelated||0}（計${d.total}）${d.lowSample?' <b style="color:#A35A2D">⚠️サンプル不足</b>':""}</span>`;
-        const ex=[...(ev.purchased||[]),...(ev.willBuy||[]),...(ev.want||[])].slice(0,3);
-        if(ex.length) cell.innerHTML+=`<br><span style="color:var(--muted);font-size:11px">根拠: ${ex.map(t=>escapeHtml(String(t).slice(0,40))).join(" ／ ")}</span>`;
+      else{
+        const pr=d.pr||{};
+        // PR実績は転換質が出なくても表示する（PR投稿が多くリプライが少ない候補もあるため）
+        const prLine=pr.tweets?`<br><span style="color:var(--muted);font-size:11.5px">PR投稿${pr.prCount}/${pr.tweets}件（${pr.prRate}%）`
+          +`${pr.prEngage!=null?`／PRエンゲージ${pr.prEngage}%`:""}`
+          +`${pr.nonPrEngage!=null?`／通常${pr.nonPrEngage}%`:""}`
+          +`${pr.prLift!=null?`／<b style="color:${pr.prLift<30?"#A32D2D":pr.prLift<70?"#A35A2D":"#2D7A4F"}">PR係数${pr.prLift}%</b>`:""}`
+          +`${pr.lowPrSample?' <b style="color:#A35A2D">⚠️PR件数少</b>':""}`
+          +`${d.truncated?' <span style="color:var(--muted)">※取得上限</span>':""}</span>`:"";
+        const genreLine=d.genre?` <span class="pill p-blue">${escapeHtml(d.genre)}</span>`:"";
+
+        if(d.conversion==null){
+          cell.innerHTML=`<span style="color:var(--muted)"> ${escapeHtml(d.reason||"転換質は算出不可")}（懸賞除外${d.giveawayExcluded||0}件）</span>`+genreLine+prLine;
+        }else{
+          const badge=d.conversion>=15?"p-green":d.conversion>=5?"p-orange":"p-gray";
+          const c=d.counts||{}, ev=d.evidence||{};
+          cell.innerHTML=` <span class="pill ${badge}">転換質${d.conversion}%</span>`+genreLine+
+            `<span style="color:var(--muted)"> 購入済${c.purchased||0}／予定${c.willBuy||0}／欲しい${c.want||0}／興味${c.interest||0}／無関係${c.unrelated||0}（計${d.total}）${d.lowSample?' <b style="color:#A35A2D">⚠️サンプル不足</b>':""}</span>`+prLine;
+          const ex=[...(ev.purchased||[]),...(ev.willBuy||[]),...(ev.want||[])].slice(0,3);
+          if(ex.length) cell.innerHTML+=`<br><span style="color:var(--muted);font-size:11px">根拠: ${ex.map(t=>escapeHtml(String(t).slice(0,40))).join(" ／ ")}</span>`;
+        }
+        if((pr.prSamples||[]).length) cell.innerHTML+=`<br><span style="color:var(--muted);font-size:11px">PR投稿例: ${pr.prSamples.map(t=>escapeHtml(String(t).slice(0,40))).join(" ／ ")}</span>`;
+
+        // 転換質が出なくてもPR実績・ジャンルは反映できるので、常に反映ボタンを出す
         const rb=document.createElement("button");
         rb.className="btn"; rb.style.cssText="margin-left:6px;padding:1px 7px;font-size:11px"; rb.textContent="DBに反映";
-        rb.onclick=()=>registerCand({account:cand.account, media:"X", conversion:d.conversion}, rb);
+        rb.onclick=()=>registerCand({
+          account:cand.account, media:"X",
+          conversion:(d.conversion==null?"":d.conversion),
+          prEngage:(pr.prEngage==null?"":pr.prEngage),
+          genre:d.genre||"",
+        }, rb);
         cell.appendChild(rb);
         done++;
       }
