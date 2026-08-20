@@ -39,6 +39,7 @@ const inf = require('./lib/influencer-store');
 const rst = require('./lib/result-store');
 const { buildAnalyzePrompt } = require('./lib/analyze-prompt');
 const { buildXIntentPrompt } = require('./lib/x-intent-prompt');
+const { buildXGenrePrompt, GENRES } = require('./lib/x-genre-prompt');
 const Anthropic = require('@anthropic-ai/sdk');
 const SHEET_ID = process.env.SHEET_ID;
 
@@ -117,6 +118,21 @@ function runScriptJson(scriptRel, scriptArgs) {
         reject(new Error(String(stderr || (err && err.message) || 'JSON出力が見つかりませんでした').slice(0, 400)));
       });
   });
+}
+
+// Claudeを呼びJSONだけを取り出す。転換質判定とジャンル判定の2箇所で使う。
+async function callClaudeJson(prompt, maxTokens) {
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, timeout: 120000 });
+  const msg = await client.messages.create({
+    model: 'claude-sonnet-4-6',
+    max_tokens: maxTokens || 4096,
+    system: prompt.system,
+    messages: [{ role: 'user', content: prompt.user }],
+  });
+  const text = (msg.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('\n');
+  const m = text.match(/\{[\s\S]*\}/);
+  if (!m) throw new Error('JSONが見つかりません');
+  return JSON.parse(m[0]);
 }
 
 // YouTube チャンネル診断
@@ -224,59 +240,69 @@ app.post('/api/cockpit/x-intent', requireAuth, async (req, res) => {
   if (!process.env.APIFY_TOKEN) return res.status(400).json({ ok: false, error: 'APIFY_TOKEN未設定（Cloud Runの環境変数に追加してください）' });
   if (!process.env.ANTHROPIC_API_KEY) return res.status(400).json({ ok: false, error: 'ANTHROPIC_API_KEY未設定（Cloud Runの環境変数に追加してください）' });
 
-  // 1) Apify取得＋懸賞投稿の除外
+  // 1) Apify取得（投稿＋リプライ）＋PR実績の集計
   let data;
   try {
     data = await runScriptJson('scripts/apify/fetch_x_replies.js', [account, '--json']);
   } catch (e) {
     return res.status(500).json({ ok: false, error: 'リプライ取得に失敗しました: ' + String(e.message || e).slice(0, 400) });
   }
+
+  // 2) ジャンル判定。失敗しても診断全体は続ける（ジャンルだけのために結果を失わない）
+  let genre = null, genreReason = '';
+  try {
+    const gp = buildXGenrePrompt({ account, profile: data.profile, posts: data.recentPosts });
+    const g = await callClaudeJson(gp, 512);
+    // 固定カテゴリと完全一致しない値は採用しない（候補DBの絞り込みに使う列のため）
+    genre = GENRES.includes(g.genre) ? g.genre : null;
+    genreReason = String(g.reason || '').slice(0, 60);
+  } catch (e) { /* ジャンル未判定のまま進む */ }
+
+  // 転換質の可否に関わらず返す共通部分。PR実績は転換質が出なくても価値があるため。
+  const base = {
+    ok: true, account,
+    pr: data.pr || null,
+    genre, genreReason,
+    followers: data.followers || 0,
+    truncated: !!data.truncated,
+    giveawayExcluded: data.giveawayExcluded || 0,
+  };
+
   // 「対象投稿なし」は 0% と意味が違う（0%＝反応はあるが買う気ゼロ）ので conversion を null で返す
   if (!data.posts) {
-    return res.json({ ok: true, account, conversion: null, reason: data.note || '対象投稿なし（懸賞のみ）', posts: 0, giveawayExcluded: data.giveawayExcluded || 0 });
+    return res.json(Object.assign({}, base, { conversion: null, reason: data.note || '対象投稿なし（懸賞のみ）', posts: 0 }));
   }
   if (!data.replies || !data.replies.length) {
-    return res.json({ ok: true, account, conversion: null, reason: data.note || '判定対象のリプライがありません', posts: data.posts, giveawayExcluded: data.giveawayExcluded || 0 });
+    return res.json(Object.assign({}, base, { conversion: null, reason: data.note || '判定対象のリプライがありません', posts: data.posts }));
   }
 
-  // 2) Claude判定
+  // 3) 転換質のClaude判定
   let prompt;
   try { prompt = buildXIntentPrompt({ account, replies: data.replies }); }
   catch (e) { return res.status(400).json({ ok: false, error: e.message }); }
 
   let judged;
   try {
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, timeout: 120000 });
-    const msg = await client.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 4096,
-      system: prompt.system,
-      messages: [{ role: 'user', content: prompt.user }],
-    });
-    const text = (msg.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('\n');
-    const m = text.match(/\{[\s\S]*\}/);
-    if (!m) throw new Error('JSONが見つかりません');
-    judged = JSON.parse(m[0]);
+    judged = await callClaudeJson(prompt, 4096);
   } catch (e) {
     return res.status(500).json({ ok: false, error: '判定結果の解析に失敗しました: ' + String(e.message || e).slice(0, 300) });
   }
 
-  // 3) 転換質% = (購入済＋購入予定＋欲しい) ÷ 判定数。重み付けはしない（未検証の任意定数を入れないため）
+  // 4) 転換質% = (購入済＋購入予定＋欲しい) ÷ 判定数。重み付けはしない（未検証の任意定数を入れないため）
   const c = judged.counts || {};
   const total = Number(judged.total) || data.replies.length;
   const hit = (Number(c.purchased) || 0) + (Number(c.willBuy) || 0) + (Number(c.want) || 0);
   const conversion = total > 0 ? +((hit / total) * 100).toFixed(1) : null;
 
-  res.json({
-    ok: true, account, conversion, total,
+  res.json(Object.assign({}, base, {
+    conversion, total,
     counts: c,
     evidence: judged.evidence || {},
     note: judged.note || '',
     posts: data.posts,
-    giveawayExcluded: data.giveawayExcluded || 0,
     hasPRPost: !!data.hasPRPost,
     lowSample: total < 20,
-  });
+  }));
 });
 
 // X候補検索（S2d-3）— キーワードでXアカウントを発掘。
