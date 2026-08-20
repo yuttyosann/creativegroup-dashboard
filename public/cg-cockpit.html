@@ -944,12 +944,17 @@ window.runXIntentBatch=async()=>{
       else{
         const pr=d.pr||{};
         // PR実績は転換質が出なくても表示する（PR投稿が多くリプライが少ない候補もあるため）
-        const prLine=pr.tweets?`<br><span style="color:var(--muted);font-size:11.5px">PR投稿${pr.prCount}/${pr.tweets}件（${pr.prRate}%）`
-          +`${pr.prEngage!=null?`／PRエンゲージ${pr.prEngage}%`:""}`
-          +`${pr.nonPrEngage!=null?`／通常${pr.nonPrEngage}%`:""}`
-          +`${pr.prLift!=null?`／<b style="color:${pr.prLift<30?"#A32D2D":pr.prLift<70?"#A35A2D":"#2D7A4F"}">PR係数${pr.prLift}%</b>`:""}`
-          +`${pr.lowPrSample?' <b style="color:#A35A2D">⚠️PR件数少</b>':""}`
-          +`${d.truncated?' <span style="color:var(--muted)">※取得上限</span>':""}</span>`:"";
+        // PR投稿0件は「PRで反応されない」ではなく「PR表記が見つからない」。混同すると判断が逆になるので文言を分ける。
+        const prLine=!pr.tweets?"":(pr.prCount===0
+          ? `<br><span style="color:var(--muted);font-size:11.5px">PR表記のある投稿なし（直近${pr.tweets}件中）<span style="color:#A35A2D">※表記のない案件は検出できません</span>`
+            +`${pr.nonPrEngage!=null?`／通常エンゲージ${pr.nonPrEngage}%`:""}`
+            +`${d.truncated?' ※取得上限':""}</span>`
+          : `<br><span style="color:var(--muted);font-size:11.5px">PR投稿${pr.prCount}/${pr.tweets}件（${pr.prRate}%）`
+            +`${pr.prEngage!=null?`／PRエンゲージ${pr.prEngage}%`:""}`
+            +`${pr.nonPrEngage!=null?`／通常${pr.nonPrEngage}%`:""}`
+            +`${pr.prLift!=null?`／<b style="color:${pr.prLift<30?"#A32D2D":pr.prLift<70?"#A35A2D":"#2D7A4F"}">PR係数${pr.prLift}%</b>`:""}`
+            +`${pr.lowPrSample?' <b style="color:#A35A2D">⚠️PR件数少</b>':""}`
+            +`${d.truncated?' <span style="color:var(--muted)">※取得上限</span>':""}</span>`);
         const genreLine=d.genre?` <span class="pill p-blue">${escapeHtml(d.genre)}</span>`:"";
 
         if(d.conversion==null){
