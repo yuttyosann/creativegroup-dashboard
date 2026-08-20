@@ -16,6 +16,7 @@
 require('dotenv').config();
 const axios = require('axios');
 const { selectPosts, cleanReplies, isPRPost, isGiveawayPost } = require('../../lib/x-reply-filter');
+const { summarizePR } = require('../../lib/x-pr-filter');
 
 const TOKEN = process.env.APIFY_TOKEN;
 if (!TOKEN) {
@@ -24,7 +25,10 @@ if (!TOKEN) {
 }
 
 const ACTOR = 'apidojo~twitter-profile-scraper';
-const MAX_POSTS = 5, MAX_REPLIES_PER_POST = 50, DAYS = 90, MIN_REPLY_COUNT = 5, MAX_ITEMS = 300;
+// MIN_REPLY_COUNT は取得条件ではなく「転換質判定に使う投稿の絞り込み」に使う（下記参照）。
+// PR投稿はリプライが少なく、取得段で切るとPR率が測れないため。
+const MAX_POSTS = 5, MAX_REPLIES_PER_POST = 50, DAYS = 90, MIN_REPLY_COUNT = 5, MAX_ITEMS = 500;
+const RECENT_POSTS_FOR_GENRE = 20;
 
 const args = process.argv.slice(2);
 const handle = (args.find((a) => !a.startsWith('--')) || '').replace(/^@/, '');
@@ -52,18 +56,24 @@ function normalize(it) {
     text: it.text || it.full_text || it.fullText || '',
     url: it.url || it.twitterUrl || '',
     replyCount: Number(it.replyCount != null ? it.replyCount : it.reply_count) || 0,
+    likeCount: Number(it.likeCount != null ? it.likeCount : it.favorite_count) || 0,
+    retweetCount: Number(it.retweetCount != null ? it.retweetCount : it.retweet_count) || 0,
     isReply: Boolean(it.isReply || it.inReplyToId || it.in_reply_to_status_id_str),
+    isRetweet: Boolean(it.isRetweet),
     parentId: String(it.inReplyToId || it.in_reply_to_status_id_str || it.conversationId || ''),
     authorHandle: author.userName || author.screen_name || it.userName || '',
+    followers: Number(author.followers != null ? author.followers : author.followers_count) || 0,
+    description: author.description || '',
   };
 }
 
 (async () => {
+  // minReplyCount は指定しない。PR投稿はリプライが少なく、取得段で切ると
+  // PR率・PRエンゲージ率が測れなくなるため（S2d-4）。絞り込みは取得後に行う。
   const input = {
     twitterHandles: [handle],
     getReplies: true,
     start: sinceDate(DAYS),
-    minReplyCount: MIN_REPLY_COUNT,
     maxItems: MAX_ITEMS,
   };
 
@@ -85,8 +95,17 @@ function normalize(it) {
   const tweets = all.filter((x) => !x.isReply && own(x));
   const replies = all.filter((x) => x.isReply);
 
-  const giveawayExcluded = tweets.filter((t) => isGiveawayPost(t.text)).length;
-  const picked = selectPosts(tweets, { maxPosts: MAX_POSTS });
+  // フォロワー数・プロフィールは本人の投稿から拾う（S2d-4のPR集計とジャンル判定に使う）
+  const followers = (tweets.find((t) => t.followers) || {}).followers || 0;
+  const description = (tweets.find((t) => t.description) || {}).description || '';
+
+  // PR実績（本人の非リプライ・非RT投稿が母数）
+  const pr = summarizePR(tweets, followers);
+
+  // 転換質判定に使う投稿は従来どおりリプライの多いものに絞る（取得段のフィルタをやめた分ここで担保）
+  const engaged = tweets.filter((t) => (t.replyCount || 0) >= MIN_REPLY_COUNT);
+  const giveawayExcluded = engaged.filter((t) => isGiveawayPost(t.text)).length;
+  const picked = selectPosts(engaged, { maxPosts: MAX_POSTS });
 
   const targetReplies = [];
   for (const p of picked) {
@@ -103,8 +122,15 @@ function normalize(it) {
     account: handle,
     posts: picked.length,
     giveawayExcluded,
-    hasPRPost: picked.some((p) => isPRPost(p)),
+    hasPRPost: pr.prCount > 0,
     replies: targetReplies,
     note,
+    // --- S2d-4 ---
+    followers,
+    profile: description,
+    pr,
+    recentPosts: tweets.slice(0, RECENT_POSTS_FOR_GENRE).map((t) => t.text),
+    // 取得上限に達した場合、集計期間が指定より短くなる（候補ごとに期間が違う点を隠さない）
+    truncated: all.length >= MAX_ITEMS,
   }));
 })();
