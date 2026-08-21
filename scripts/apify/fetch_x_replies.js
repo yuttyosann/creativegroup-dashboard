@@ -25,9 +25,14 @@ if (!TOKEN) {
 }
 
 const ACTOR = 'apidojo~twitter-profile-scraper';
-// MIN_REPLY_COUNT は取得条件ではなく「転換質判定に使う投稿の絞り込み」に使う（下記参照）。
-// PR投稿はリプライが少なく、取得段で切るとPR率が測れないため。
-const MAX_POSTS = 5, MAX_REPLIES_PER_POST = 50, DAYS = 90, MIN_REPLY_COUNT = 5, MAX_ITEMS = 500;
+// 【取得を2回に分ける理由】用途が違い、1回の取得では両立できない。
+//  ・転換質  … リプライが要る。minReplyCount で「反応の多い投稿」に絞ると、その分リプライが多く取れる。
+//  ・PR実績  … PR投稿はリプライが少ないので、上のフィルタをかけると測定対象そのものが抜け落ちる。
+// S2d-4で後者に合わせてフィルタを外したところ、本人の投稿が取得枠を食い尽くし、
+// リプライが実測120件中5件しか取れず転換質が算出不能になった（S2d-2の回帰）。よって分離する。
+const MAX_POSTS = 5, MAX_REPLIES_PER_POST = 50, DAYS = 90, MIN_REPLY_COUNT = 5;
+const MAX_ITEMS = 300;    // 転換質用（S2d-2の従来値）
+const MAX_TWEETS = 200;   // PR実績・ジャンル用（本人の投稿のみ・リプライを取らないので軽い）
 const RECENT_POSTS_FOR_GENRE = 20;
 
 const args = process.argv.slice(2);
@@ -68,44 +73,64 @@ function normalize(it) {
 }
 
 (async () => {
-  // minReplyCount は指定しない。PR投稿はリプライが少なく、取得段で切ると
-  // PR率・PRエンゲージ率が測れなくなるため（S2d-4）。絞り込みは取得後に行う。
-  const input = {
-    twitterHandles: [handle],
-    getReplies: true,
-    start: sinceDate(DAYS),
-    maxItems: MAX_ITEMS,
-  };
-
-  let items;
+  // ① PR実績・ジャンル用：本人の投稿を広く。リプライは取らない（枠を食わせない）
+  let profileItems = [], replyItems = [], fetchNote = '';
   try {
-    items = await runActor(input);
+    profileItems = await runActor({
+      twitterHandles: [handle],
+      getReplies: false,
+      start: sinceDate(DAYS),
+      maxItems: MAX_TWEETS,
+    });
   } catch (e) {
-    console.error('Apify実行に失敗: ' + ((e.response && e.response.status) || e.message));
+    fetchNote += '投稿の取得に失敗（PR実績・ジャンルなし）。';
+  }
+
+  // ② 転換質用：S2d-2の従来条件。リプライの多い投稿に絞ることで、その分リプライが多く取れる
+  try {
+    replyItems = await runActor({
+      twitterHandles: [handle],
+      getReplies: true,
+      start: sinceDate(DAYS),
+      minReplyCount: MIN_REPLY_COUNT,
+      maxItems: MAX_ITEMS,
+    });
+  } catch (e) {
+    fetchNote += 'リプライの取得に失敗（転換質なし）。';
+  }
+
+  if (!profileItems.length && !replyItems.length) {
+    console.error('Apify実行に失敗: ' + (fetchNote || '両方の取得が空でした'));
     process.exit(1);
   }
 
   if (args.includes('--dump')) {
-    console.log(JSON.stringify(items, null, 2).slice(0, 20000));
+    console.log(JSON.stringify({ profileItems: profileItems.slice(0, 3), replyItems: replyItems.slice(0, 3) }, null, 2).slice(0, 20000));
     return;
   }
 
-  const all = (items || []).map(normalize).filter((x) => x.text);
   const own = (x) => !x.authorHandle || x.authorHandle.toLowerCase() === handle.toLowerCase();
-  const tweets = all.filter((x) => !x.isReply && own(x));
-  const replies = all.filter((x) => x.isReply);
+  const profileAll = profileItems.map(normalize).filter((x) => x.text);
+  const replyAll = replyItems.map(normalize).filter((x) => x.text);
 
-  // フォロワー数・プロフィールは本人の投稿から拾う（S2d-4のPR集計とジャンル判定に使う）
+  // --- ①の結果からPR実績・ジャンル ---
+  const tweets = profileAll.filter((x) => !x.isReply && own(x));
   const followers = (tweets.find((t) => t.followers) || {}).followers || 0;
   const description = (tweets.find((t) => t.description) || {}).description || '';
-
-  // PR実績（本人の非リプライ・非RT投稿が母数）
   const pr = summarizePR(tweets, followers);
 
-  // 転換質判定に使う投稿は従来どおりリプライの多いものに絞る（取得段のフィルタをやめた分ここで担保）
-  const engaged = tweets.filter((t) => (t.replyCount || 0) >= MIN_REPLY_COUNT);
-  const giveawayExcluded = engaged.filter((t) => isGiveawayPost(t.text)).length;
-  const picked = selectPosts(engaged, { maxPosts: MAX_POSTS });
+  // --- ②の結果から転換質 ---
+  const ownTweets = replyAll.filter((x) => !x.isReply && own(x));
+  const replies = replyAll.filter((x) => x.isReply);
+
+  // 【重要】アクターが返すリプライは、replyCountが多い投稿に付いたものとは限らない（実測で判明）。
+  // こちらで「リプライが多そうな投稿」を選んでも、返ってきたリプライの親と一致せず紐付けが全滅する。
+  // よって「実際にリプライが取れた投稿」だけを対象にする。
+  const parentIds = new Set(replies.map((r) => r.parentId).filter(Boolean));
+  const withReplies = ownTweets.filter((t) => parentIds.has(t.id));
+
+  const giveawayExcluded = withReplies.filter((t) => isGiveawayPost(t.text)).length;
+  const picked = selectPosts(withReplies, { maxPosts: MAX_POSTS });
 
   const targetReplies = [];
   for (const p of picked) {
@@ -113,9 +138,11 @@ function normalize(it) {
     targetReplies.push(...cleanReplies(rs, { maxPerPost: MAX_REPLIES_PER_POST, authorHandle: handle }));
   }
 
-  let note = '';
-  if (!picked.length) note = '対象投稿なし（懸賞のみ、または投稿取得不可）';
-  else if (replies.length && !targetReplies.length) note = 'リプライは取得できたが親投稿と紐づきません（normalize()のparentId対応を要確認）';
+  // 親子の紐付け自体は実データで検証済み（inReplyToId/conversationIdとも100%一致）。
+  // ここに入るのは「選んだ投稿にリプライが付いていない」ケースなので、そう書く。
+  let note = fetchNote;
+  if (!picked.length) note += '転換質の対象投稿なし（懸賞のみ、またはリプライの多い投稿が無い）';
+  else if (replies.length && !targetReplies.length) note += 'リプライは取得できましたが、対象に選んだ投稿に紐づくものがありませんでした';
 
   console.log('@@JSON@@' + JSON.stringify({
     ok: true,
@@ -131,6 +158,6 @@ function normalize(it) {
     pr,
     recentPosts: tweets.slice(0, RECENT_POSTS_FOR_GENRE).map((t) => t.text),
     // 取得上限に達した場合、集計期間が指定より短くなる（候補ごとに期間が違う点を隠さない）
-    truncated: all.length >= MAX_ITEMS,
+    truncated: profileAll.length >= MAX_TWEETS,
   }));
 })();
