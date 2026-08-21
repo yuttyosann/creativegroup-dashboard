@@ -90,11 +90,22 @@ if (process.env.FAKE_BQ_JSON || process.env.FAKE_BQ_ERROR) {
 
 // Anthropic SDK も差し替える（FAKE_LLM_JSON=messages.create が返す JSON 文字列）。
 if (process.env.FAKE_LLM_JSON) {
+  // 配列を渡すと呼び出し順に返す（抽出と認知度分類でLLMを2回呼ぶため）。
+  let queue;
+  try {
+    const parsed = JSON.parse(process.env.FAKE_LLM_JSON);
+    queue = Array.isArray(parsed) ? parsed.map((x) => JSON.stringify(x)) : null;
+  } catch (e) { queue = null; }
   const payload = process.env.FAKE_LLM_JSON;
+  let call = 0;
   class FakeAnthropic {
     constructor() {
       this.messages = {
-        create: async () => ({ stop_reason: 'end_turn', content: [{ type: 'text', text: payload }] }),
+        create: async () => {
+          const text = queue ? (queue[call] !== undefined ? queue[call] : queue[queue.length - 1]) : payload;
+          call += 1;
+          return { stop_reason: 'end_turn', content: [{ type: 'text', text }] };
+        },
       };
     }
   }

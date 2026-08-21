@@ -2,8 +2,8 @@
 const { test } = require('node:test');
 const assert = require('node:assert');
 const {
-  detectFreeTextColumns, detectAwarenessColumn, isBrandUnaware,
-  buildUnawareSet, majorityUnaware, buildWorkshopSignalRows,
+  detectFreeTextColumns, detectAwarenessColumn, isFormResponse,
+  parseAwarenessRows, buildUnawareSets, majorityUnaware, buildWorkshopSignalRows,
 } = require('../../lib/kizuki/workshop-ingest');
 
 const POST_HEADER = [
@@ -53,34 +53,65 @@ test('detectAwarenessColumn: 見つからなければ null', () => {
   assert.strictEqual(detectAwarenessColumn(undefined), null);
 });
 
-test('isBrandUnaware: 「知らなかった」「初めて」系は未認知', () => {
-  assert.strictEqual(isBrandUnaware('まったく知らなかった'), true);
-  assert.strictEqual(isBrandUnaware('今回初めて知った'), true);
-  assert.strictEqual(isBrandUnaware('名前も聞いたことがない'), true);
+test('isFormResponse: 実際のフォーム回答はA列にタイムスタンプを持つ', () => {
+  assert.strictEqual(isFormResponse(['2026/08/22 10:03:11', 'a@x', '山田']), true);
+  assert.strictEqual(isFormResponse(['2026-08-22 10:03', 'a@x']), true);
 });
 
-test('isBrandUnaware: 認知している回答は false', () => {
-  assert.strictEqual(isBrandUnaware('よく知っていた'), false);
-  assert.strictEqual(isBrandUnaware('使ったことがある'), false);
-  assert.strictEqual(isBrandUnaware(''), false);
-  assert.strictEqual(isBrandUnaware(null), false);
+test('isFormResponse: 人が下に作った集計行はタイムスタンプが無いので除外する', () => {
+  // 実データ: 回答シートの52行目以降に「アンケート未回答」等の管理メモが並んでいた
+  assert.strictEqual(isFormResponse(['', 'a@example.com', '村田', 'アンケート未回答']), false);
+  assert.strictEqual(isFormResponse(['合計', '35']), false);
+  assert.strictEqual(isFormResponse([]), false);
+  assert.strictEqual(isFormResponse(null), false);
 });
 
-test('buildUnawareSet: メールアドレスをキーに未認知の参加者を集める', () => {
+test('parseAwarenessRows: 回答行だけを取り、集計行は落とす', () => {
   const rows = [
     PRE_HEADER,
-    ['t', 'A@Example.com ', '山田', 30, 'まったく知らなかった', ''],
-    ['t', 'b@example.com', '佐藤', 41, 'よく知っていた', ''],
+    ['2026/08/10 9:00', 'a@Example.com ', '山田', 30, 'アベンヌは知っていたがシカは知らなかった', ''],
+    ['2026/08/10 9:05', 'b@example.com', '佐藤', 41, '昔から愛用しています', ''],
+    ['', 'c@example.com', '集計メモ', '', 'アンケート未回答', ''],
   ];
-  const set = buildUnawareSet(rows);
-  assert.ok(set.has('a@example.com'), 'メールは小文字・trim して突合する');
-  assert.ok(!set.has('b@example.com'));
+  assert.deepStrictEqual(parseAwarenessRows(rows), [
+    { email: 'a@example.com', text: 'アベンヌは知っていたがシカは知らなかった' },
+    { email: 'b@example.com', text: '昔から愛用しています' },
+  ]);
 });
 
-test('buildUnawareSet: 認知度列が無ければ空集合（事前アンケート未実施）', () => {
-  assert.strictEqual(buildUnawareSet([['タイムスタンプ', 'メールアドレス'], ['t', 'a@x']]).size, 0);
-  assert.strictEqual(buildUnawareSet([]).size, 0);
-  assert.strictEqual(buildUnawareSet(undefined).size, 0);
+test('parseAwarenessRows: 認知度列が無ければ空配列', () => {
+  assert.deepStrictEqual(parseAwarenessRows([['タイムスタンプ', 'メールアドレス'], ['2026/08/10', 'a@x']]), []);
+  assert.deepStrictEqual(parseAwarenessRows([]), []);
+  assert.deepStrictEqual(parseAwarenessRows(undefined), []);
+});
+
+test('buildUnawareSets: ブランド未認知と商品未認知を別々の集合にする', () => {
+  const sets = buildUnawareSets([
+    { email: 'a@x', brandUnaware: true, productUnaware: true },
+    { email: 'B@X ', brandUnaware: false, productUnaware: true },
+    { email: 'c@x', brandUnaware: false, productUnaware: false },
+  ]);
+  assert.deepStrictEqual([...sets.brand], ['a@x']);
+  assert.deepStrictEqual([...sets.product].sort(), ['a@x', 'b@x']);
+});
+
+test('buildUnawareSets: either はブランド・商品どちらかが未認知なら含む（シグナルで使う集合）', () => {
+  // アベンヌ自体は有名なのでブランド未認知はごく少数。CICAラインを知らない層も
+  // 新規獲得の対象とみなすため、どちらか一方でも未認知なら未認知として扱う。
+  const sets = buildUnawareSets([
+    { email: 'a@x', brandUnaware: true, productUnaware: false },
+    { email: 'b@x', brandUnaware: false, productUnaware: true },
+    { email: 'c@x', brandUnaware: false, productUnaware: false },
+  ]);
+  assert.deepStrictEqual([...sets.either].sort(), ['a@x', 'b@x']);
+});
+
+test('buildUnawareSets: 空・不正な入力でも落ちない', () => {
+  const sets = buildUnawareSets(undefined);
+  assert.strictEqual(sets.brand.size, 0);
+  assert.strictEqual(sets.product.size, 0);
+  assert.strictEqual(sets.either.size, 0);
+  assert.strictEqual(buildUnawareSets([{ brandUnaware: true }]).brand.size, 0); // メール無しは無視
 });
 
 test('majorityUnaware: 過半が未認知なら true。ちょうど半分は false', () => {

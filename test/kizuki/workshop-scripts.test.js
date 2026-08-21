@@ -27,24 +27,31 @@ const postRows = () => [
     '【最も印象が変わった点】 …', '【説明後に初めて理解できたこと】 …',
     '【印象に残った言葉】 …', '【使いたい部位・場面】 …',
     '【購入意向】 …', '【推奨意向】 …'],
-  ['t', 'a@example.com', '山田', 30, '低刺激だと知った', '成分の役割', '肌が生き返る', '夜のケアに', 'はい', 'はい'],
-  ['t', 'b@example.com', '佐藤', 41, '', '', 'お守りみたい', '', 'はい', 'はい'],
-  ['', '', '名簿だけの人'], // 自由記述が全て空 → 回答者に数えない
+  ['2026/08/22 15:01', 'a@example.com', '山田', 30, '低刺激だと知った', '成分の役割', '肌が生き返る', '夜のケアに', 'はい', 'はい'],
+  ['2026/08/22 15:04', 'b@example.com', '佐藤', 41, '', '', 'お守りみたい', '', 'はい', 'はい'],
+  ['2026/08/22 15:09', 'c@example.com', '鈴木', 28, '', '', '', '', 'はい', 'はい'], // 自由記述が全て空
+  ['', 'd@example.com', '集計メモ', '', 'アンケート未回答'], // 人が下に作った集計行
 ];
 
 const preRows = () => [
   ['タイムスタンプ', 'メールアドレス', '氏名（漢字表記）', 'ご年齢',
     'アベンヌブランドの認知について ご存知だったか教えてください。'],
-  ['t', 'a@example.com', '山田', 30, 'まったく知らなかった'],
-  ['t', 'b@example.com', '佐藤', 41, 'よく知っていた'],
+  ['2026/08/10 9:00', 'a@example.com', '山田', 30, 'アベンヌ自体を今回初めて知りました'],
+  ['2026/08/10 9:05', 'b@example.com', '佐藤', 41, 'アベンヌは愛用中。シカ商品は知りませんでした'],
+  ['', 'z@example.com', '集計メモ', '', 'アンケート未回答'],
 ];
 
-const LLM = JSON.stringify({
-  words: [
-    { word: '肌が生き返る感じがする', axis: '効能', quote: '肌が生き返る', mentionedBy: [0, 1] },
-    { word: 'お守りとして持ち歩ける', axis: '情緒', quote: 'お守りみたい', mentionedBy: [1] },
-  ],
-});
+// 呼び出し順: ① 認知度分類（--pre 指定時のみ） ② ワード抽出
+const AWARE = { people: [
+  { index: 0, brandUnaware: true, productUnaware: true },
+  { index: 1, brandUnaware: false, productUnaware: true },
+] };
+const WORDS = { words: [
+  { word: '肌が生き返る感じがする', axis: '効能', quote: '肌が生き返る', mentionedBy: [0, 1] },
+  { word: 'お守りとして持ち歩ける', axis: '情緒', quote: 'お守りみたい', mentionedBy: [1] },
+] };
+const LLM = JSON.stringify([AWARE, WORDS]);
+const LLM_NO_PRE = JSON.stringify([WORDS]);
 
 function run(script, { sheets, args = [], llm, writesPath }) {
   const res = spawnSync(process.execPath, ['--require', PRELOAD, script, ...args], {
@@ -75,21 +82,37 @@ test('抽出: 自由記述が全て空の行は回答者に数えない', () => 
   assert.match(r.stderr, /回答者: 2人/);
 });
 
-test('抽出: 認知度の実際の回答値をログに出す（選択肢文言はフォーム依存のため）', () => {
+test('抽出: 認知度は自由記述なのでLLMで分類し、内訳をログに出す', () => {
   const r = run(EXTRACT, { sheets: extractSheets(), args: ['--post', POST, '--pre', PRE], llm: LLM });
-  assert.match(r.stderr, /まったく知らなかった.*=未認知/);
-  assert.match(r.stderr, /未認知と判定した参加者: 1人/);
+  assert.match(r.stderr, /ブランド未認知: 1人/);
+  assert.match(r.stderr, /商品\(CICA\)未認知: 2人/);
+  assert.match(r.stderr, /どちらか: 2人/);
+});
+
+test('抽出: 集計行はタイムスタンプが無いので回答にも認知度にも数えない', () => {
+  const r = run(EXTRACT, { sheets: extractSheets(), args: ['--post', POST, '--pre', PRE], llm: LLM });
+  assert.match(r.stderr, /事前アンケートの認知度回答: 2件/);
+  const out = JSON.parse(r.stdout);
+  assert.ok(!out.unaware.includes('z@example.com'), '集計行が未認知に混ざっている');
+});
+
+test('抽出: unaware は brand と product の和集合。内訳も別々に残す', () => {
+  const r = run(EXTRACT, { sheets: extractSheets(), args: ['--post', POST, '--pre', PRE], llm: LLM });
+  const out = JSON.parse(r.stdout);
+  assert.deepStrictEqual(out.unawareBrand, ['a@example.com']);
+  assert.deepStrictEqual(out.unawareProduct.sort(), ['a@example.com', 'b@example.com']);
+  assert.deepStrictEqual(out.unaware.sort(), ['a@example.com', 'b@example.com']);
 });
 
 test('抽出: index をメールに戻して出力する（未認知判定はメールで突合するため）', () => {
   const r = run(EXTRACT, { sheets: extractSheets(), args: ['--post', POST, '--pre', PRE], llm: LLM });
   const out = JSON.parse(r.stdout);
   assert.deepStrictEqual(out.words[0].mentionedBy, ['a@example.com', 'b@example.com']);
-  assert.deepStrictEqual(out.unaware, ['a@example.com']);
+  assert.deepStrictEqual(out.words[1].mentionedBy, ['b@example.com']);
 });
 
 test('抽出: --pre 未指定なら警告し、未認知は空になる', () => {
-  const r = run(EXTRACT, { sheets: extractSheets(), args: ['--post', POST], llm: LLM });
+  const r = run(EXTRACT, { sheets: extractSheets(), args: ['--post', POST], llm: LLM_NO_PRE });
   assert.strictEqual(r.status, 0, r.stderr);
   assert.match(r.stderr, /--pre 未指定/);
   assert.deepStrictEqual(JSON.parse(r.stdout).unaware, []);

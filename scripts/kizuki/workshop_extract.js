@@ -46,6 +46,43 @@ const SCHEMA = {
   additionalProperties: false,
 };
 
+const AWARENESS_SCHEMA = {
+  type: 'object',
+  properties: {
+    people: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          index: { type: 'integer' },
+          brandUnaware: { type: 'boolean' },
+          productUnaware: { type: 'boolean' },
+        },
+        required: ['index', 'brandUnaware', 'productUnaware'],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ['people'],
+  additionalProperties: false,
+};
+
+const AWARENESS_SYSTEM = [
+  '応募者が書いた「ブランドと商品の認知について」の自由記述を分類します。',
+  '',
+  '判定は2つ。どちらも「応募前の時点で」を基準にする:',
+  '- brandUnaware: そのブランド自体を知らなかったなら true。',
+  '  ブランド名を知っていた・商品を使ったことがあるなら false。',
+  '- productUnaware: 今回の商材ライン（シカ／CICA）を知らなかったなら true。',
+  '  そのラインの商品を知っていた・使っていたなら false。',
+  '',
+  '注意:',
+  '- 「ブランドは知っていたがシカ商品は知らなかった」は brandUnaware=false / productUnaware=true。',
+  '- 「今回の応募で初めて知った」はブランド自体を指すなら brandUnaware=true。',
+  '- どちらとも判断できない記述（イメージだけを述べている等）は、知っていた前提とみなし両方 false。',
+  '- 入力の index を必ずそのまま返すこと。',
+].join('\n');
+
 const SYSTEM = [
   'あなたは勉強会の事後アンケートから「気づきワード」を抽出する担当です。',
   '気づきワードとは、参加者が実際に語った、広告訴求に転用できる具体的な言い回しのこと。',
@@ -65,7 +102,7 @@ function parseRespondents(rows) {
   if (!cols.length) return { cols, respondents: [] };
   const respondents = [];
   for (const r of (rows || []).slice(1)) {
-    if (!r) continue;
+    if (!workshop.isFormResponse(r)) continue; // 人が下に作った集計行を除く
     const texts = {};
     let has = false;
     for (const { index, label } of cols) {
@@ -89,34 +126,33 @@ async function main() {
   console.error('自由記述の設問: %s', cols.map((c) => c.label).join(' / '));
   console.error('回答者: %d人', respondents.length);
 
-  let unawareSet = new Set();
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+  // 認知度は選択式ではなく自由記述（「アベンヌは知っていたがシカは知らなかった」等）なので、
+  // 部分一致では両方向に誤判定する。LLMで brand / product を別々に判定する。
+  let sets = { brand: new Set(), product: new Set(), either: new Set() };
   if (PRE_ID) {
     const preRows = await readRows(PRE_ID, PRE_TAB);
-    unawareSet = workshop.buildUnawareSet(preRows);
-    // 選択肢の文言はフォーム依存。実際に出現した値を必ず出して判定を確認できるようにする。
-    const col = workshop.detectAwarenessColumn(preRows[0]);
-    if (col === null) {
-      console.error('⚠ 事前アンケートに認知度の設問が見つかりません → ブランド未認知は全てFALSEになります');
+    const awareness = workshop.parseAwarenessRows(preRows);
+    if (!awareness.length) {
+      console.error('⚠ 事前アンケートの認知度回答が0件 → 未認知は全てFALSEになります');
     } else {
-      const seen = [...new Set(preRows.slice(1).map((r) => String((r || [])[col] || '').trim()).filter(Boolean))];
-      console.error('認知度の回答値: %s', seen.map((v) => `「${v}」${workshop.isBrandUnaware(v) ? '=未認知' : ''}`).join(' / '));
-      console.error('未認知と判定した参加者: %d人', unawareSet.size);
+      const cls = await callLLM(client, AWARENESS_SYSTEM, AWARENESS_SCHEMA,
+        awareness.map((a, i) => ({ index: i, text: a.text })));
+      sets = workshop.buildUnawareSets((cls.people || []).map((x) => ({
+        email: (awareness[x.index] || {}).email,
+        brandUnaware: x.brandUnaware,
+        productUnaware: x.productUnaware,
+      })));
+      console.error('事前アンケートの認知度回答: %d件', awareness.length);
+      console.error('  ブランド未認知: %d人 / 商品(CICA)未認知: %d人 / どちらか: %d人',
+        sets.brand.size, sets.product.size, sets.either.size);
     }
   } else {
-    console.error('⚠ --pre 未指定 → ブランド未認知は全てFALSEになります');
+    console.error('⚠ --pre 未指定 → 未認知は全てFALSEになります');
   }
-
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-  const msg = await client.messages.create({
-    model: MODEL,
-    max_tokens: 16000,
-    thinking: { type: 'adaptive' },
-    output_config: { effort: 'high', format: { type: 'json_schema', schema: SCHEMA } },
-    system: SYSTEM,
-    messages: [{ role: 'user', content: JSON.stringify(respondents.map((r) => ({ index: r.index, ...r.texts }))) }],
-  });
-  if (msg.stop_reason === 'refusal') throw new Error('抽出がrefusalで停止しました');
-  const { words } = JSON.parse(msg.content.filter((b) => b.type === 'text').map((b) => b.text).join(''));
+  const { words } = await callLLM(client, SYSTEM, SCHEMA,
+    respondents.map((r) => ({ index: r.index, ...r.texts })));
 
   // index → メールに戻す（勉強会シグナルの未認知判定はメールで突合するため）
   const byIndex = new Map(respondents.map((r) => [r.index, r.email]));
@@ -127,7 +163,27 @@ async function main() {
     mentionedBy: (w.mentionedBy || []).map((i) => byIndex.get(i)).filter(Boolean),
   }));
   console.error('候補ワード: %d件', out.length);
-  console.log(JSON.stringify({ respondents: respondents.length, unaware: [...unawareSet], words: out }, null, 2));
+  console.log(JSON.stringify({
+    respondents: respondents.length,
+    unaware: [...sets.either],          // シグナルで使う（どちらか一方でも未認知）
+    unawareBrand: [...sets.brand],
+    unawareProduct: [...sets.product],
+    words: out,
+  }, null, 2));
+}
+
+/** 構造化出力でLLMを呼ぶ。 */
+async function callLLM(client, system, schema, payload) {
+  const msg = await client.messages.create({
+    model: MODEL,
+    max_tokens: 16000,
+    thinking: { type: 'adaptive' },
+    output_config: { effort: 'high', format: { type: 'json_schema', schema } },
+    system,
+    messages: [{ role: 'user', content: JSON.stringify(payload) }],
+  });
+  if (msg.stop_reason === 'refusal') throw new Error('LLMがrefusalで停止しました');
+  return JSON.parse(msg.content.filter((b) => b.type === 'text').map((b) => b.text).join(''));
 }
 
 module.exports = { parseRespondents };
