@@ -1,0 +1,397 @@
+<title>気づきワード採取ハンドブック</title>
+
+<style>
+  :root {
+    --paper:#FBFCFB; --surface:#F1F4F2; --rule:#D6DEDA; --ink:#17211F; --muted:#5C6B66;
+    --accent:#1F6F5C; --accent-soft:#E4EFEA; --warn:#9C4F26; --warn-soft:#F6EBE3;
+    --serif:"Hiragino Mincho ProN","Yu Mincho","YuMincho",serif;
+    --sans:"Hiragino Sans","Yu Gothic","YuGothic",system-ui,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --measure:34rem;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:#101412; --surface:#171E1B; --rule:#2C3733; --ink:#E6ECE9; --muted:#94A39D;
+      --accent:#5FB99E; --accent-soft:#17302A; --warn:#D8926A; --warn-soft:#2C2019;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:#101412; --surface:#171E1B; --rule:#2C3733; --ink:#E6ECE9; --muted:#94A39D;
+    --accent:#5FB99E; --accent-soft:#17302A; --warn:#D8926A; --warn-soft:#2C2019;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--sans); font-size:16px; line-height:1.85; -webkit-font-smoothing:antialiased;
+  }
+  .wrap { max-width:54rem; margin:0 auto; padding:0 1.5rem 6rem; }
+
+  .masthead { border-bottom:1px solid var(--rule); padding:4rem 0 2rem; margin-bottom:3rem; }
+  .eyebrow {
+    font-family:var(--mono); font-size:0.72rem; letter-spacing:0.14em;
+    text-transform:uppercase; color:var(--accent); margin:0 0 1.25rem;
+  }
+  h1 { font-family:var(--serif); font-weight:600; font-size:clamp(2rem,5vw,2.9rem); line-height:1.25; margin:0 0 1rem; text-wrap:balance; }
+  .standfirst { max-width:var(--measure); color:var(--muted); margin:0; }
+
+  .facts {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));
+    gap:1px; background:var(--rule); border:1px solid var(--rule); margin-top:2.5rem;
+  }
+  .fact { background:var(--surface); padding:0.9rem 1.1rem; }
+  .fact dt { font-family:var(--mono); font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin:0 0 0.3rem; }
+  .fact dd { margin:0; font-size:0.95rem; line-height:1.5; font-variant-numeric:tabular-nums; }
+
+  .phase { margin-bottom:4.5rem; scroll-margin-top:1.5rem; }
+  .phase-head { display:flex; align-items:baseline; gap:1rem; border-bottom:2px solid var(--ink); padding-bottom:0.7rem; margin-bottom:1.75rem; }
+  .phase-num { font-family:var(--mono); font-size:0.8rem; letter-spacing:0.08em; color:var(--accent); flex:none; padding-top:0.15rem; }
+  .phase-head h2 { font-family:var(--serif); font-size:clamp(1.35rem,3vw,1.7rem); font-weight:600; margin:0; flex:1; text-wrap:balance; }
+  .phase-when { font-family:var(--mono); font-size:0.75rem; color:var(--muted); flex:none; white-space:nowrap; }
+
+  h3 { font-family:var(--sans); font-size:1rem; font-weight:700; letter-spacing:0.02em; margin:2.25rem 0 0.6rem; }
+  h3:first-of-type { margin-top:0; }
+  p, ul, ol { max-width:var(--measure); }
+  p { margin:0 0 1rem; }
+  ul, ol { margin:0 0 1rem; padding-left:1.3rem; }
+  li { margin-bottom:0.35rem; }
+  li::marker { color:var(--accent); }
+  strong { font-weight:700; }
+  code { font-family:var(--mono); font-size:0.86em; background:var(--surface); border:1px solid var(--rule); border-radius:3px; padding:0.1em 0.35em; word-break:break-all; }
+  pre { background:var(--surface); border:1px solid var(--rule); border-left:3px solid var(--accent); padding:1rem 1.1rem; overflow-x:auto; margin:0 0 1.25rem; }
+  pre code { background:none; border:0; padding:0; font-size:0.82rem; line-height:1.7; word-break:normal; }
+
+  .note { border:1px solid var(--rule); border-left:3px solid var(--accent); background:var(--accent-soft); padding:1rem 1.15rem; margin:0 0 1.5rem; }
+  .note.warn { border-left-color:var(--warn); background:var(--warn-soft); }
+  .note p { margin:0; max-width:none; }
+  .note p + p { margin-top:0.6rem; }
+  .note-label { display:block; font-family:var(--mono); font-size:0.68rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); margin-bottom:0.4rem; }
+  .note.warn .note-label { color:var(--warn); }
+
+  .scroller { overflow-x:auto; margin:0 0 1.5rem; }
+  table { border-collapse:collapse; width:100%; min-width:32rem; font-size:0.9rem; line-height:1.6; }
+  th, td { text-align:left; vertical-align:top; padding:0.65rem 0.9rem; border-bottom:1px solid var(--rule); }
+  thead th { font-family:var(--mono); font-size:0.7rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--ink); white-space:nowrap; }
+  tbody tr:last-child td { border-bottom:0; }
+  td code { font-size:0.8rem; }
+  .num { font-variant-numeric:tabular-nums; }
+
+  .check-group { margin-bottom:2rem; }
+  .check-group h3 { margin-top:0; }
+  .check { display:flex; gap:0.7rem; align-items:flex-start; padding:0.5rem 0; border-bottom:1px solid var(--rule); cursor:pointer; max-width:var(--measure); }
+  .check:last-child { border-bottom:0; }
+  .check input { flex:none; margin:0.45rem 0 0; width:1rem; height:1rem; accent-color:var(--accent); cursor:pointer; }
+  .check span { line-height:1.6; }
+  .check input:checked + span { color:var(--muted); text-decoration:line-through; }
+  .check input:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+
+  .closing { border-top:1px solid var(--rule); margin-top:4rem; padding-top:2rem; color:var(--muted); font-size:0.9rem; }
+  .closing strong { color:var(--ink); }
+
+  @media (max-width:34rem) {
+    .phase-head { flex-wrap:wrap; gap:0.35rem 0.9rem; }
+    .phase-when { width:100%; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">気づきワードサイクル / 運用ハンドブック</p>
+    <h1>勉強会からワードを採り、<br>台帳に載せるまで</h1>
+    <p class="standfirst">
+      勉強会は気づきワードの起点です。ここで拾えなかった言葉は、以降のどの工程にも現れません。
+      この手引きは、フォームの点検から台帳への登録、検証フェーズへの引き継ぎまでを時系列でまとめたものです。
+    </p>
+    <dl class="facts">
+      <div class="fact"><dt>対象</dt><dd>アベンヌ勉強会<br>2026-08-22</dd></div>
+      <div class="fact"><dt>事前アンケート</dt><dd>38件 回収済<br>（2026-08-21時点）</dd></div>
+      <div class="fact"><dt>突合キー</dt><dd>メールアドレス</dd></div>
+      <div class="fact"><dt>登録先</dt><dd>気づきワード台帳<br>勉強会シグナル</dd></div>
+    </dl>
+  </header>
+
+  <section class="phase">
+    <div class="phase-head"><span class="phase-num">01</span><h2>フォームを点検する</h2><span class="phase-when">1週間前</span></div>
+
+    <h3>自由記述4問の見出し語を変えない</h3>
+    <p>候補ワードの源泉はこの4問だけです。スクリプトは <code>【】</code> の中の言葉で列を見つけます。ここを変えると設問が検出できなくなります。</p>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>見出し語</th><th>役割</th></tr></thead>
+        <tbody>
+          <tr><td><code>【印象に残った言葉】</code></td><td><strong>主源泉。</strong>抽出時に最も重視されます</td></tr>
+          <tr><td><code>【最も印象が変わった点】</code></td><td>認識の変化</td></tr>
+          <tr><td><code>【説明後に初めて理解できたこと】</code></td><td>認識の変化</td></tr>
+          <tr><td><code>【使いたい部位・場面】</code></td><td>使用シーン軸</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>設問文の後半（説明文）は自由に変えて構いません。固定なのは <code>【】</code> の中だけです。</p>
+
+    <h3>認知度の設問は触らなくてよい（検証済み）</h3>
+    <p>
+      認知度は選択式ではなく<strong>自由記述</strong>でした。判定はLLMが文章を読んで行うので、
+      <strong>選択肢を控える作業は不要</strong>です。設問文に「認知」「ご存知」のいずれかが含まれていれば動きます。
+    </p>
+    <p>実データ（事前アンケート38件・2026-08-21時点）で検証済みです。</p>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>区分</th><th>人数</th><th>割合</th></tr></thead>
+        <tbody>
+          <tr><td>ブランド未認知（アベンヌ自体を知らなかった）</td><td class="num">4人</td><td class="num">11%</td></tr>
+          <tr><td><strong>商品未認知（CICAラインを知らなかった）</strong></td><td class="num"><strong>23人</strong></td><td class="num"><strong>61%</strong></td></tr>
+          <tr><td>どちらか＝シグナルで使う</td><td class="num">23人</td><td class="num">61%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      アベンヌ自体は有名なのでブランド未認知はごく少数です。CICAラインを知らなかった層も新規獲得の対象とみなし、
+      <strong>どちらか一方でも未認知なら未認知</strong>として扱います。
+      内訳は <code>candidates.json</code> に別々に残るので、後から定義を変えられます。
+    </p>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>回答</th><th>判定</th></tr></thead>
+        <tbody>
+          <tr><td>今回の応募をきっかけに知った</td><td>ブランド× 商品×</td></tr>
+          <tr><td>化粧水は愛用。シカリップは初めて聞いた</td><td>商品×</td></tr>
+          <tr><td>シカルファットプラスを元々使用。シカリップは初めて</td><td>両方とも認知</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>メールアドレスの収集を有効にする</h3>
+    <p>事前と事後は<strong>メールアドレスで突合します</strong>。これが取れないと、誰が事前に何と答えたか分からず、未認知が全て FALSE になります。</p>
+    <ul>
+      <li>両フォームで「メールアドレスを収集する」が有効になっていること</li>
+      <li>案内文に<strong>「事前・事後は同じアカウントで回答してください」</strong>と明記すること</li>
+    </ul>
+
+    <h3>回答シートのIDを控える</h3>
+    <p>フォーム編集画面 →「回答」→ スプレッドシートのアイコン。開いたURLの <code>/spreadsheets/d/</code> と <code>/edit</code> に挟まれた部分がシートIDです。</p>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>アンケート</th><th>シートID</th></tr></thead>
+        <tbody>
+          <tr><td>事後（必須）</td><td><code>1OJQSBLgx0J0ZVrKGi_7Q4PXojuAzJTQ6e6nb88PAmpk</code></td></tr>
+          <tr><td>事前（任意）</td><td><code>1BDRR9d_RPXNpgmWz7tBllCkPkrZSfusA4VLNUDIKay0</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="phase">
+    <div class="phase-head"><span class="phase-num">02</span><h2>事前アンケートを回収する</h2><span class="phase-when">前日まで</span></div>
+    <p>
+      未提出の人は「未認知」集合に入りません。つまり<strong>認知済みとして扱われます</strong>。
+      未認知は言及者の過半で判定するので、未提出が多いとフラグが立ちにくくなり、勉強会由来のスコアが実際より低く出ます。
+    </p>
+    <p><strong>2026-08-21時点で38件回収済みです。</strong>残りの参加者からも回収を目指してください。</p>
+  </section>
+
+  <section class="phase">
+    <div class="phase-head"><span class="phase-num">03</span><h2>その場で事後アンケートを回収する</h2><span class="phase-when">当日</span></div>
+    <div class="note">
+      <span class="note-label">この日の勝負どころ</span>
+      <p><strong>自由記述がそのまま気づきワードになります。</strong>選択式の設問からはワードは生まれません。ここで書いてもらえなかった言葉は、以降どの工程にも現れません。</p>
+    </div>
+    <ul>
+      <li><strong>その場で回答してもらう。</strong>後日回収に回すと回収率が落ち、材料が減ります</li>
+      <li><strong>自由記述を空欄にしない。</strong>特に【印象に残った言葉】。一言でも構いません</li>
+      <li><strong>事前と同じメールアドレス</strong>で回答してもらう</li>
+    </ul>
+    <div class="note warn">
+      <span class="note-label">数えられない回答がある</span>
+      <p>自由記述4問が<strong>すべて空</strong>の回答は、回答者として数えられません。選択式だけ答えて自由記述を飛ばした人は、分母にも入りません。</p>
+    </div>
+    <h3>回答率がそのまま指標の質になる</h3>
+    <p>回答者数がそのまま <code>n</code> になります。参加20人・回答18人なら n=18。「何人中何人が言った言葉か」が訴求の強さの根拠になるので、回答率は精度に直結します。</p>
+  </section>
+
+  <section class="phase">
+    <div class="phase-head"><span class="phase-num">04</span><h2>台帳に取り込む</h2><span class="phase-when">翌日</span></div>
+
+    <h3>準備</h3>
+    <pre><code>cd /Users/yuttyo/claude/creativegroup-dashboard
+export SHEET_ID=1VxAOesBm_gi_jlSlq39FDtTMZNYOQcBm3J53gw3_g3o</code></pre>
+    <p>Google認証（ADC）がなりすまし構成でログイン済みであることが前提です。</p>
+
+    <h3>候補ワードを抽出する</h3>
+    <pre><code>node .worktrees/kizuki-word-cycle/scripts/kizuki/workshop_extract.js \
+  --post 1OJQSBLgx0J0ZVrKGi_7Q4PXojuAzJTQ6e6nb88PAmpk \
+  --pre  1BDRR9d_RPXNpgmWz7tBllCkPkrZSfusA4VLNUDIKay0 \
+  &gt; candidates.json</code></pre>
+    <p>シートには書き込みません。実行すると次のログが出ます。<strong>ここを必ず読んでください。</strong></p>
+    <pre><code>自由記述の設問: 最も印象が変わった点 / 説明後に初めて理解できたこと /
+              印象に残った言葉 / 使いたい部位・場面
+回答者: 18人
+事前アンケートの認知度回答: 38件
+  ブランド未認知: 4人 / 商品(CICA)未認知: 23人 / どちらか: 23人
+候補ワード: 11件</code></pre>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>ログの行</th><th>確認すること</th></tr></thead>
+        <tbody>
+          <tr><td>自由記述の設問</td><td><strong>4問すべて出ているか。</strong>欠けていたら設問名が変わっています</td></tr>
+          <tr><td>回答者</td><td>実際の回答数と合っているか。少なければ自由記述が空の人がいます</td></tr>
+          <tr><td>認知度回答</td><td>事前アンケートの実回答数と合っているか</td></tr>
+          <tr><td>未認知の内訳</td><td>どちらも0人なら判定が効いていません（設問文を確認）</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      <span class="note-label">集計行は自動で除外される</span>
+      <p>
+        フォームの回答はA列にタイムスタンプが入るので、それで本物の回答行を切り分けています。
+        実データでは52行目以降に「アンケート未回答」等の管理メモが並んでおり、これを数えると実回答38件が80行になります。
+        <strong>集計欄は今までどおり自由に作って構いません。</strong>
+      </p>
+    </div>
+
+    <h3>candidates.json を確認・編集する</h3>
+    <p><strong>ここが人のレビューポイントです。</strong>ワードの文言はここで直します。不要なワードは削除して構いません。</p>
+    <pre><code>{
+  "respondents": 18,
+  "unaware": ["a@example.com", "..."],
+  "unawareBrand": ["..."],
+  "unawareProduct": ["..."],
+  "words": [
+    { "word": "肌が生き返る感じがする", "axis": "効能",
+      "quote": "肌が生き返る",
+      "mentionedBy": ["a@example.com", "b@example.com"] }
+  ]
+}</code></pre>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>項目</th><th>見るポイント</th></tr></thead>
+        <tbody>
+          <tr><td><code>word</code></td><td>広告コピーの種になる言い回しか。要約文になっていたら直す</td></tr>
+          <tr><td><code>axis</code></td><td>効能 / 情緒 / 使用シーン / 成分 / 価格 のいずれか</td></tr>
+          <tr><td><code>quote</code></td><td>根拠になった実際の記述。<strong>改変しない</strong></td></tr>
+          <tr><td><code>mentionedBy</code></td><td>言及数と未認知判定に使う。<strong>消さない</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>台帳と勉強会シグナルに登録する</h3>
+    <p>まず書き込みなしで内容を確認します。</p>
+    <pre><code>node .worktrees/kizuki-word-cycle/scripts/kizuki/workshop_seed.js candidates.json \
+  --case 2026-08-AVENE-CICA --product CICA</code></pre>
+    <pre><code>case=2026-08-AVENE-CICA / 候補ワード 11件 / 回答者 18人
+採番: w016 〜 w026
+
+word_id  言及  未認知  ワード
+w016       9  TRUE    肌が生き返る感じがする
+w017       5  FALSE   お守りとして持ち歩ける</code></pre>
+    <p>問題なければ <code>--apply</code> を付けて再実行します。</p>
+    <div class="note warn">
+      <span class="note-label">word_id は手で決めない</span>
+      <p>
+        シグナルは <code>word_id</code> だけで突合され、案件では絞られません。別案件で同じIDを振ると<strong>別案件のシグナルが混ざります</strong>。
+        既存の最大値の続きから自動で採番されるので、番号は触らないでください。
+      </p>
+      <p>同じ案件に既にデータがあると中断します。やり直すときは台帳から該当行を消してから再実行します。</p>
+    </div>
+
+    <h3>スコアに反映する</h3>
+    <pre><code>node .worktrees/kizuki-word-cycle/scripts/kizuki/recalc_job.js</code></pre>
+    <p>BigQueryが未整備でも台帳の再計算は走ります（広告取込はスキップされ、終了コードは1になります）。</p>
+  </section>
+
+  <section class="phase">
+    <div class="phase-head"><span class="phase-num">05</span><h2>検証フェーズへ引き継ぐ</h2><span class="phase-when">その後</span></div>
+    <p>勉強会だけでは<strong>ワード単位の購買意向は測れません</strong>。ここからは Track A の仕事です。</p>
+    <ol>
+      <li>台帳で検証したいワードの <strong>status を「モニター」に</strong>（5〜8件）</li>
+      <li><code>tracka_questions.js --case 2026-08-AVENE-CICA</code> で3択設問を出す</li>
+      <li>出力を次のPamun事後アンケートに貼る（<strong>末尾の <code>[wNNN]</code> は消さない</strong>）</li>
+      <li>回答後に <code>tracka_ingest.js</code> で取り込む</li>
+    </ol>
+    <p>設問数はワード数と同じになるので、多すぎると回答負担で離脱します。5〜8件が目安です。</p>
+  </section>
+
+  <section class="phase">
+    <div class="phase-head"><span class="phase-num">06</span><h2>うまくいかないとき</h2><span class="phase-when">随時</span></div>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>症状</th><th>原因</th><th>対処</th></tr></thead>
+        <tbody>
+          <tr><td>自由記述の設問列が見つかりません</td><td>設問名の <code>【】</code> 内が変わった</td><td>フォームを戻すか判定語を追加</td></tr>
+          <tr><td>設問が4問未満しか出ない</td><td>一部の設問名が変わった</td><td>出ていない設問を確認</td></tr>
+          <tr><td>回答が0件です</td><td>自由記述が全員空、またはシート違い</td><td>シートIDとタブ名を確認</td></tr>
+          <tr><td>回答者数が実際より少ない</td><td>自由記述を全て空欄で出した人がいる</td><td>仕様どおり。必要なら手で追記</td></tr>
+          <tr><td>回答数が実際より多い</td><td>集計行が混ざっている</td><td>通常は自動除外。A列にタイムスタンプが無いか確認</td></tr>
+          <tr><td>未認知がどちらも0人</td><td>認知度の設問が読めていない</td><td>設問文に「認知」「ご存知」が含まれるか確認</td></tr>
+          <tr><td>未認知が全てFALSE</td><td>事前未回収、またはメール不一致</td><td>回収状況とメールの綴りを確認</td></tr>
+          <tr><td>既に N 行あります</td><td>同じ案件で登録済み</td><td>台帳から該当行を消して再実行</td></tr>
+          <tr><td>スコアが全て0</td><td>シグナルが勉強会しか無い</td><td>正常。Track A・広告が入ると上がる</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="phase">
+    <div class="phase-head"><span class="phase-num">07</span><h2>チェックリスト</h2><span class="phase-when">通し</span></div>
+
+    <div class="check-group">
+      <h3>1週間前</h3>
+      <label class="check"><input type="checkbox" data-k="c1"><span>自由記述4問の <code>【】</code> 内が変わっていない</span></label>
+      <label class="check"><input type="checkbox" data-k="c2"><span>認知度の設問文に「認知」「ご存知」が含まれている</span></label>
+      <label class="check"><input type="checkbox" data-k="c3"><span>両フォームでメールアドレス収集が有効</span></label>
+      <label class="check"><input type="checkbox" data-k="c4"><span>案内文に「事前・事後を同じアカウントで」と明記した</span></label>
+      <label class="check"><input type="checkbox" data-k="c5"><span>回答シートIDを控えた</span></label>
+    </div>
+
+    <div class="check-group">
+      <h3>前日まで</h3>
+      <label class="check"><input type="checkbox" data-k="c6"><span>事前アンケートを全員から回収した（8/21時点 38件）</span></label>
+    </div>
+
+    <div class="check-group">
+      <h3>当日</h3>
+      <label class="check"><input type="checkbox" data-k="c7"><span>その場で事後アンケートを回収した</span></label>
+      <label class="check"><input type="checkbox" data-k="c8"><span>【印象に残った言葉】が空欄の人がいない</span></label>
+    </div>
+
+    <div class="check-group">
+      <h3>翌日</h3>
+      <label class="check"><input type="checkbox" data-k="c9"><span>抽出ログ（設問4問・回答者数・認知度の内訳）を確認した</span></label>
+      <label class="check"><input type="checkbox" data-k="c10"><span>candidates.json のワード文言を確認・編集した</span></label>
+      <label class="check"><input type="checkbox" data-k="c11"><span>書き込みなしで採番と未認知を確認した</span></label>
+      <label class="check"><input type="checkbox" data-k="c12"><span><code>--apply</code> で登録した</span></label>
+      <label class="check"><input type="checkbox" data-k="c13"><span>スコアに反映した</span></label>
+      <label class="check"><input type="checkbox" data-k="c14"><span>検証したいワードの status を「モニター」にした</span></label>
+    </div>
+  </section>
+
+  <div class="closing">
+    <p>
+      <strong>この導線が測れないもの。</strong>
+      勉強会フォームの【購入意向】【推奨意向】は商品全体に対する1問で、ワード単位ではありません。
+      したがってワードごとの購買意向共感率は、このフォームからは出ません。それは Track A の担当です。
+    </p>
+    <p>
+      勉強会が担うのは、候補ワードの発掘と <strong>言及数</strong>・<strong>ブランド未認知</strong> の2つのシグナルです
+      （スコアエンジンが勉強会シグナルから使うのはこの2つだけ）。
+    </p>
+  </div>
+
+</div>
+
+<script>
+  // チェック状態を端末に残す。1週間またぐ運用なのでリロードで消えないようにする。
+  (function () {
+    var KEY = 'kizuki-workshop-handbook';
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { saved = {}; }
+    document.querySelectorAll('.check input[data-k]').forEach(function (b) {
+      if (saved[b.dataset.k]) b.checked = true;
+      b.addEventListener('change', function () {
+        saved[b.dataset.k] = b.checked;
+        try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) { /* 保存できなくても操作は続行 */ }
+      });
+    });
+  })();
+</script>
